@@ -70,7 +70,7 @@ const PatientList = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobi-be-production.up.railway.app/patients`,
+        `https://mobi-be-production.up.railway.app/${userLog}/patients`,
       );
 
       if (response.status === 200) {
@@ -439,7 +439,7 @@ const PatientList = ({navigation}) => {
             )}
             {/* Add the button to add data */}
             <TouchableOpacity
-              onPress={() => navigation.navigate('SimprintsID')}
+              onPress={addData}
               style={styles.buttonSec}>
               <Text style={styles.buttonText}>Add Data</Text>
             </TouchableOpacity>
@@ -457,10 +457,7 @@ const PatientList = ({navigation}) => {
     <View style={styles.wrapper}>
       {_header()}
       <View style={styles.container}>
-        <Text style={styles.header}>Beneficiary List</Text>
-        <Text style={styles.header}>
-          Patients Enrolled: {patientsEnrolledCount}
-        </Text>
+        <Text style={styles.header}>Patient List</Text>
 
         <View style={styles.searchContainer}>
           <TextInput

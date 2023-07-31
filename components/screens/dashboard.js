@@ -48,7 +48,7 @@ const Dashboard = ({navigation}) => {
           <View style={STYLES.row}>
             <TouchableOpacity
               style={STYLES.card}
-              onPress={() => navigation.navigate('SimprintsConnect')}>
+              onPress={() => navigation.navigate('PatientData')}>
               <View style={STYLES.cardIcon}>
                 <Icon
                   name="heart"
@@ -57,7 +57,7 @@ const Dashboard = ({navigation}) => {
                   color={COLORS.BLACK}
                 />
               </View>
-              <Text style={STYLES.cardTitle}>Beneficiary</Text>
+              <Text style={STYLES.cardTitle}>Enrol Patient</Text>
             </TouchableOpacity>
           </View>
 
@@ -120,7 +120,7 @@ const Dashboard = ({navigation}) => {
                   color={COLORS.BLACK}
                 />
               </View>
-              <Text style={STYLES.cardTitle}>Beneficary Lists</Text>
+              <Text style={STYLES.cardTitle}>Patient List</Text>
             </TouchableOpacity>
           </View>
           <View style={STYLES.row}>

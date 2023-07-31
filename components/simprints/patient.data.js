@@ -184,16 +184,19 @@ const PatientData = ({navigation}) => {
         <TouchableOpacity
           style={{
             marginHorizontal: 4,
-            // width: 45,
-            height: 45,
+            width: 25,
+            height: 25,
             justifyContent: 'center',
             alignItems: 'center',
-          }}>
-          {/* <Icon name="arrow-left" size={25} color={COLORS.BLACK} /> */}
+          }}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
       }
       title={
-        <Text style={[STYLES.centerHeader, STYLES.title]}>PATIENT PROFILE</Text>
+        <Text style={[STYLES.centerHeader, STYLES.subtitle]}>
+          BACK
+        </Text>
       }
     />
   );
@@ -203,21 +206,10 @@ const PatientData = ({navigation}) => {
   return (
     <View style={STYLES.wrapper}>
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
-      {/* {_header()} */}
+      {_header()}
 
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Beneficiary Profile</Text>
-
-        {/* Simprints GUI */}
-        <View style={STYLES.guid}>
-          <Text style={STYLES.label}>Simprints GUI</Text>
-          <TextInput
-            style={STYLES.guid}
-            value={dataResults}
-            onChangeText={text => setState({...state, simprintsGui: text})}
-            placeholder="Enter simprints GUI"
-          />
-        </View>
         {/* First Name */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>First Name:</Text>
@@ -417,8 +409,11 @@ const STYLES = StyleSheet.create({
   },
   subtitle: {
     flexDirection: 'row',
-    fontSize: 10,
-    color: COLORS.GREY,
+    fontSize: 12,
+    color: COLORS.BLACK,
+    marginVertical:10,
+    fontWeight: 'bold',
+
   },
   label: {
     fontWeight: 'medium',
@@ -442,7 +437,7 @@ const STYLES = StyleSheet.create({
   },
   centerHeader: {
     flex: 2,
-    alignItems: 'center',
+    // alignItems: 'center',
     color: COLORS.SECONDARY,
   },
   rightHeader: {
