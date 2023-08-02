@@ -124,7 +124,7 @@ const PatientData = ({navigation}) => {
       }
 
       const response = await fetch(
-        `https://mobi-be-production.up.railway.app/${userLog}/patients`,
+        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -364,7 +364,7 @@ const PatientData = ({navigation}) => {
                 selectedValue={selectedLanguage}
                 style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
                 onValueChange={handleLanguageChange}>
-                <Picker.Item label="Select a district" value="" />
+                <Picker.Item label="Select a language" value="" />
                 {countryData
                   .find(country => country.name === selectedCountry)
                   .languages.map(language => (

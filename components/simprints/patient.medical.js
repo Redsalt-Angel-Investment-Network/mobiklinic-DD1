@@ -95,7 +95,7 @@ const PatientMedical = ({navigation}) => {
       }
 
       const response = await fetch(
-        `https://mobi-be-production.up.railway.app/${patientId}/diagnosis`,
+        `https://mobiklinic-be2-production.up.railway.app/${patientId}/diagnosis`,
         {
           method: 'POST',
           body: JSON.stringify({

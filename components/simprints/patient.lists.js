@@ -70,7 +70,7 @@ const PatientList = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobi-be-production.up.railway.app/${userLog}/patients`,
+        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
       );
 
       if (response.status === 200) {
@@ -123,8 +123,6 @@ const PatientList = ({navigation}) => {
     }
   };
 
-  // ... rest of the code ...
-
   useEffect(() => {
     const fetchData = async () => {
       await fetchUsers();
@@ -150,7 +148,7 @@ const PatientList = ({navigation}) => {
     setSearchQuery(query);
     try {
       const response = await axios.get(
-        `https://mobi-be-production.up.railway.app/search?query=${query}`,
+        `https://mobiklinic-be2-production.up.railway.app/search?query=${query}`,
       );
       setSearchSuggestions(response.data);
     } catch (error) {
@@ -232,10 +230,7 @@ const PatientList = ({navigation}) => {
               Primary Language:{' '}
               <Text style={styles.userDataValue}>{item.primaryLanguage}</Text>
             </Text>
-            <Text style={styles.userDataLabel}>
-              Simprints GUID:{' '}
-              <Text style={styles.userDataValue}>{item.simprintsGui}</Text>
-            </Text>
+
             <Text style={styles.userDataLabel}>
               Country <Text style={styles.userDataValue}>{item.country}</Text>
             </Text>
@@ -437,10 +432,7 @@ const PatientList = ({navigation}) => {
                 ))}
               </View>
             )}
-            {/* Add the button to add data */}
-            <TouchableOpacity
-              onPress={addData}
-              style={styles.buttonSec}>
+            <TouchableOpacity onPress={addData} style={styles.buttonSec}>
               <Text style={styles.buttonText}>Follow Up Patient</Text>
             </TouchableOpacity>
           </View>
@@ -542,12 +534,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     borderRadius: 10,
     padding: 20,
-    marginBottom: 20,
-    elevation: 2,
+    // height:'100%',
+    marginBottom: 150,
+    elevation: 3,
     shadowColor: COLORS.GRAY,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 5,
     },
     shadowOpacity: 0.3,
     shadowRadius: 2,
@@ -563,7 +556,9 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
   },
   cardDetails: {
-    marginTop: 10,
+    marginVertical: 10,
+    paddingVertical: 10,
+    height: '100%',
   },
   label: {
     fontSize: 14,
@@ -636,7 +631,6 @@ const styles = StyleSheet.create({
   userDataValue: {
     fontWeight: 'normal',
     fontSize: 15,
-    paddingRight: 10,
   },
   userDataLabel1: {
     fontWeight: 'bold',
@@ -646,10 +640,10 @@ const styles = StyleSheet.create({
   },
   buttonSec: {
     backgroundColor: COLORS.WHITE,
-    paddingVertical: 10,
+    paddingVertical: 5,
     // paddingHorizontal: 15,
     borderRadius: 10,
-    marginVertical: 20,
+    marginBottom: 20,
     borderWidth: 2,
     borderColor: COLORS.PRIMARY,
   },
