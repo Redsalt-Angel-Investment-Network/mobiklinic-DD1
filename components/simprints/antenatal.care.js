@@ -96,7 +96,7 @@ const AntenatalCare = ({navigation}) => {
       }
       setState({...state, isLoading: true}); // Set isLoading state to true
       const response = await fetch(
-        `https://mobi-be-production.up.railway.app/${patientId}/antenantals`,
+        `https://mobiklinic-be2-production.up.railway.app/${patientId}/antenantals`,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -185,7 +185,7 @@ const AntenatalCare = ({navigation}) => {
             placeholderTextColor={COLORS.GREY}
             value={state.pregnancyStatus}
             onChangeText={text => setState({...state, pregnancyStatus: text})}
-            placeholder="Enter Pregnancy Status e.g 'lower back pain'"
+            placeholder="Enter Pregnancy Status e.g 'first trimster'"
             multiline={true}
             numberOfLines={4}
           />
@@ -234,6 +234,8 @@ const AntenatalCare = ({navigation}) => {
             <Picker.Item label="AB-" value="AB-" />
             <Picker.Item label="0+" value="O+" />
             <Picker.Item label="O-" value="O-" />
+            <Picker.Item label="Don't Know" value="Don't Know" />
+
           </Picker>
         </View>
 

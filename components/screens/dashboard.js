@@ -48,7 +48,7 @@ const Dashboard = ({navigation}) => {
           <View style={STYLES.row}>
             <TouchableOpacity
               style={STYLES.card}
-              onPress={() => navigation.navigate('PatientData')}>
+              onPress={() => navigation.navigate('SelectAction')}>
               <View style={STYLES.cardIcon}>
                 <Icon
                   name="heart"
@@ -147,7 +147,7 @@ const Dashboard = ({navigation}) => {
 				<Icon name="smile" size={60} color={COLORS.GREY} />
 				<Text style={STYLES.alert}>No data to show now.</Text>
 			</View> */}
-      <CopyRight/>
+      <CopyRight />
     </View>
   );
 };

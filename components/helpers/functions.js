@@ -340,20 +340,23 @@ export const signUp = async data => {
   }
 
   try {
-    await fetch(`https://mobi-be-production.up.railway.app/auth/signup`, {
-      method: 'POST',
-      body: JSON.stringify({
-        phone: phoneNumber,
-        firstName: firstName,
-        lastName: lastName,
-        email: eMail,
-        password: password,
-      }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-        Accept: 'application/json',
+    await fetch(
+      `https://mobiklinic-be2-production.up.railway.app/auth/signup`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          phone: phoneNumber,
+          firstName: firstName,
+          lastName: lastName,
+          email: eMail,
+          password: password,
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          Accept: 'application/json',
+        },
       },
-    })
+    )
       .then(res => res.json())
       .then(response => {
         setIsLoading(false);
