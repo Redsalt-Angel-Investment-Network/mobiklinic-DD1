@@ -441,7 +441,7 @@ const PatientList = ({navigation}) => {
             <TouchableOpacity
               onPress={addData}
               style={styles.buttonSec}>
-              <Text style={styles.buttonText}>Add Data</Text>
+              <Text style={styles.buttonText}>Follow Up Patient</Text>
             </TouchableOpacity>
           </View>
         )}

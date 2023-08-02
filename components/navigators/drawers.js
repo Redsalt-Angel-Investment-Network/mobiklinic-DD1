@@ -133,7 +133,7 @@ export const DrawerNavigationLogged = () => {
       <Drawer.Screen name="Dashboard" component={Dashboard} />
       {/* 			<Drawer.Screen name="Messages" component={Chats} />
        */}
-      <Drawer.Screen name="SimprintsID" component={SimprintsID} />
+      {/* <Drawer.Screen name="SimprintsID" component={SimprintsID} /> */}
       <Drawer.Screen name="Doctors" component={Doctors} />
       <Drawer.Screen name="Ambulance" component={Ambulance} />
       <Drawer.Screen name="Help" component={GetStarted} />
