@@ -73,7 +73,7 @@ const Profile = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobi-be-production.up.railway.app/${userLog}/patients`,
+        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
       );
 
       if (response.status === 200) {

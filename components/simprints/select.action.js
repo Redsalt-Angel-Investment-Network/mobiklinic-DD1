@@ -48,14 +48,14 @@ const SelectAction = ({navigation, route}) => {
           <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
       }
-      title={<Text style={[STYLES.centerHeader]}>Back</Text>}
+      title={<Text style={[STYLES.centerHeader]}>Enrol Patient</Text>}
     />
   );
   return (
     <View style={STYLES.wrapper}>
-      <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
-      {/* {_header()} */}
+      {_header()}
 
+      <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       <View style={STYLES.wrap}>
         <Image
           style={{width: 70, height: 70}}
@@ -67,14 +67,14 @@ const SelectAction = ({navigation, route}) => {
           <View style={[STYLES.column, STYLES.rightPad]}>
             <TouchableOpacity
               style={STYLES.card}
-              onPress={() => navigation.navigate('PatientData')}>
-              <Text style={STYLES.cardTitle}>Enrol New Patient</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={STYLES.card}
               onPress={() => navigation.navigate('PatientLists')}>
               <Text style={STYLES.cardTitle}>Search Patient</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={STYLES.card}
+              onPress={() => navigation.navigate('PatientData')}>
+              <Text style={STYLES.cardTitle}>Enrol New Patient</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -91,7 +91,7 @@ const STYLES = StyleSheet.create({
   wrapper: {
     flex: 1,
     backgroundColor: COLORS.WHITE_LOW,
-    paddingTop: 50,
+    // paddingTop: 50,
   },
   header: {
     flex: 1,
@@ -122,6 +122,7 @@ const STYLES = StyleSheet.create({
     alignItems: 'center',
     color: COLORS.BLACK,
     fontWeight: 'bold',
+    fontSize: 16,
   },
   rightHeader: {
     paddingRight: 10,
@@ -159,9 +160,9 @@ const STYLES = StyleSheet.create({
   btnContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 300,
-    padding: 10,
-    marginVertical: 50,
+    height: 200,
+    padding: 15,
+    marginVertical: 100,
   },
   column: {
     flex: 1,
@@ -235,6 +236,6 @@ const STYLES = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.WHITE,
-    padding:8,
+    padding: 8,
   },
 });
