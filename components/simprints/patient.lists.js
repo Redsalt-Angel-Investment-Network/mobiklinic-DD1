@@ -7,6 +7,7 @@ import {
   FlatList,
   RefreshControl,
   TextInput,
+  Button,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,8 +16,9 @@ import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
 import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
+import Emoji from 'react-native-emoji';
 
-const PatientList = ({navigation}) => {
+const PatientLists = ({navigation}) => {
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,9 +27,6 @@ const PatientList = ({navigation}) => {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [isNoUserFound, setIsNoUserFound] = useState(false);
   const {patientId, setPatientId} = useContext(DataResultsContext);
-  const [patientsEnrolledCount, setPatientsEnrolledCount] = useState(0);
-  const {userNames} = useContext(DataResultsContext);
-  const [loggedInUserPhoneNumber, setLoggedInUserPhoneNumber] = useState('');
 
   // user context
   const {userLog} = useContext(DataResultsContext);
@@ -74,37 +73,33 @@ const PatientList = ({navigation}) => {
       );
 
       if (response.status === 200) {
-        const currentDate = new Date(); // Get the current date
-        const lastWeekDate = new Date('2023-07-19'); // Set the last week date (17/07/2023)
-
-        const filteredData = response.data.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return itemDate >= lastWeekDate && itemDate <= currentDate;
-        });
-
-        // Sort the filtered data based on date, with the most recent admissions first
-        const sortedData = filteredData.sort(
+        const sortedData = response.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
         );
 
-        // Filter the data based on the logged-in user's phone number
-        const loggedInUserPhone = userLog ? userLog.phoneNumber : '';
-        const filteredDataForUser = sortedData.filter(
-          item => item.phoneNumber === loggedInUserPhone,
-        );
+        const filteredData = sortedData.filter(item => {
+          const fullName = `${item.firstName} ${item.lastName}`;
+          const fullNameLower = fullName.toLowerCase();
+          const searchQueryLower = searchQuery.toLowerCase();
 
-        setUsers(sortedData);
-        await AsyncStorage.setItem('patientList', JSON.stringify(sortedData));
-        setIsNoUserFound(sortedData.length === 0);
-        // Update the patientsEnrolledCount state with the length of the items
-        setPatientsEnrolledCount(sortedData.length);
+          for (let i = 0; i < searchQueryLower.length; i++) {
+            const letter = searchQueryLower[i];
+            if (!fullNameLower.includes(letter)) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+
+        setUsers(filteredData);
+        await AsyncStorage.setItem('patientList', JSON.stringify(filteredData));
+        setIsNoUserFound(filteredData.length === 0);
       } else {
         const storedData = await AsyncStorage.getItem('patientList');
 
         if (storedData) {
           setUsers(JSON.parse(storedData));
-          // Update the patientsEnrolledCount state with the length of the items
-          setPatientsEnrolledCount(JSON.parse(storedData).length);
         }
       }
     } catch (error) {
@@ -114,22 +109,12 @@ const PatientList = ({navigation}) => {
 
       if (storedData) {
         setUsers(JSON.parse(storedData));
-        // Update the patientsEnrolledCount state with the length of the items
-        setPatientsEnrolledCount(JSON.parse(storedData).length);
       }
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchUsers();
-    };
-
-    fetchData();
-  }, [userLog]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -211,12 +196,7 @@ const PatientList = ({navigation}) => {
         {isExpanded && (
           <View style={styles.cardDetails}>
             <Text style={styles.userDataLabel}>
-              User Name:{'\t'}
-              {'\t'}
-              <Text style={styles.userDataValue}>{userNames}</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              Phone Number:
+              Phone Number:{' '}
               <Text style={styles.userDataValue}>{item.phoneNumber}</Text>
             </Text>
             <Text style={styles.userDataLabel}>
@@ -230,7 +210,6 @@ const PatientList = ({navigation}) => {
               Primary Language:{' '}
               <Text style={styles.userDataValue}>{item.primaryLanguage}</Text>
             </Text>
-
             <Text style={styles.userDataLabel}>
               Country <Text style={styles.userDataValue}>{item.country}</Text>
             </Text>
@@ -432,6 +411,7 @@ const PatientList = ({navigation}) => {
                 ))}
               </View>
             )}
+            {/* Add the button to add data */}
             <TouchableOpacity onPress={addData} style={styles.buttonSec}>
               <Text style={styles.buttonText}>Follow Up Patient</Text>
             </TouchableOpacity>
@@ -448,38 +428,26 @@ const PatientList = ({navigation}) => {
   return (
     <View style={styles.wrapper}>
       {_header()}
-      <View style={styles.container}>
-        <Text style={styles.header}>Patient List</Text>
 
+      <View style={styles.container}>
+        <Text style={styles.header}>Beneficiary List</Text>
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search patients..."
-            placeholderTextColor={COLORS.BLACK}
+            placeholder="search patients by name"
+            placeholderTextColor={COLORS.GREY}
             value={searchQuery}
             onChangeText={handleSearch}
           />
           <TouchableOpacity onPress={fetchUsers}>
             <Icon
               name="search"
-              size={20}
+              size={25}
               color={COLORS.BLACK}
               style={styles.searchIcon}
             />
           </TouchableOpacity>
         </View>
-        {searchSuggestions.length > 0 && (
-          <View style={styles.searchSuggestionsContainer}>
-            {searchSuggestions.map((suggestion, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.searchSuggestion}
-                onPress={() => handleSearch(suggestion)}>
-                <Text style={styles.searchSuggestionText}>{suggestion}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
         {!isLoading ? (
           users.length > 0 ? (
             <FlatList
@@ -492,7 +460,18 @@ const PatientList = ({navigation}) => {
               }
             />
           ) : (
-            <Text style={styles.noUserFoundText}>No user found</Text>
+            <View>
+              <Text style={styles.noUserFoundText}>
+                No user found <Emoji name="disappointed" />
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('PatientData');
+                }}
+                style={styles.buttonSec}>
+                <Text style={styles.buttonText}>Add Patient Data</Text>
+              </TouchableOpacity>
+            </View>
           )
         ) : (
           <View>
@@ -534,8 +513,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     borderRadius: 10,
     padding: 20,
-    // height:'100%',
-    marginBottom: 150,
+    marginBottom: 15,
     elevation: 3,
     shadowColor: COLORS.GRAY,
     shadowOffset: {
@@ -556,6 +534,7 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
   },
   cardDetails: {
+    paddingBottom: 150,
     marginVertical: 10,
     paddingVertical: 10,
     height: '100%',
@@ -626,11 +605,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: COLORS.BLACK,
     paddingHorizontal: 10,
-    paddingLeft: 10,
+    // paddingLeft:10,
   },
   userDataValue: {
     fontWeight: 'normal',
     fontSize: 15,
+    // paddingRight:10,
   },
   userDataLabel1: {
     fontWeight: 'bold',
@@ -640,12 +620,13 @@ const styles = StyleSheet.create({
   },
   buttonSec: {
     backgroundColor: COLORS.WHITE,
-    paddingVertical: 5,
-    // paddingHorizontal: 15,
+    paddingVertical: 8,
     borderRadius: 10,
+    marginVertical: 20,
     marginBottom: 20,
     borderWidth: 2,
     borderColor: COLORS.PRIMARY,
+    marginHorizontal: 30,
   },
   buttonText: {
     color: COLORS.PRIMARY,
@@ -664,6 +645,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginVertical: 10,
   },
+  button: {
+    paddingHorizontal: 30,
+    paddingVertical: 5,
+  },
 });
 
-export default PatientList;
+export default PatientLists;
