@@ -26,6 +26,8 @@ const Profile = ({navigation}) => {
   const [monthlyEnrollmentsCount, setMonthlyEnrollmentsCount] = useState(0);
   const [weeklyEnrollmentsCount, setWeeklyEnrollmentsCount] = useState(0);
   const {patientId} = useContext(DataResultsContext);
+  const [totalVaccinations, setTotalVaccinations] = useState(0);
+  const [totalDiagnosis, setTotalDiagnosis] = useState(0);
 
   const {user} = React.useContext(AuthContext);
   React.useEffect(() => {
@@ -69,6 +71,64 @@ const Profile = ({navigation}) => {
     return 1 + Math.ceil((firstThursday - target) / 604800000); // 604800000 = 7 * 24 * 3600 * 1000
   };
 
+  // fetch monthly vaccination data
+  const fetchVaccinationData = async () => {
+    try {
+      const response = await axios.get(
+        `https://mobiklinic-be2-production.up.railway.app/${userLog}/vaccinations`,
+      );
+
+      if (response.status === 200) {
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        // Filter the vaccination data for the current month and year
+        const monthlyVaccinations = response.data.filter(item => {
+          const itemDate = new Date(item.date); // Adjust the property name according to your API response
+          return (
+            itemDate.getMonth() === currentMonth &&
+            itemDate.getFullYear() === currentYear
+          );
+        });
+
+        const monthlyVaccinationCount = monthlyVaccinations.length; // Get the count of monthly vaccinations
+        setTotalVaccinations(monthlyVaccinationCount);
+      }
+    } catch (error) {
+      console.error('Error fetching vaccination data:', error);
+    }
+  };
+
+  // fetch diagnosis data
+  const fetchDiagnosis = async () => {
+    try {
+      const response = await axios.get(
+        `https://mobiklinic-be2-production.up.railway.app/${userLog}/diagnosis`,
+      );
+      if (response.status === 200) {
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        // Filter the vaccination data for the current month and year
+        const monthlyDiagnosis = response.data.filter(item => {
+          const itemDate = new Date(item.date); // Adjust the property name according to your API response
+          return (
+            itemDate.getMonth() === currentMonth &&
+            itemDate.getFullYear() === currentYear
+          );
+        });
+
+        const monthlyDiagnosisCount = monthlyDiagnosis.length; // Get the count of monthly vaccinations
+        setTotalDiagnosis(monthlyDiagnosisCount);
+      }
+    } catch (error) {
+      console.error('Error fetching vaccination data:', error);
+    }
+  };
+
+  // fetch enrollements
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
@@ -133,6 +193,8 @@ const Profile = ({navigation}) => {
 
   useEffect(() => {
     fetchUsers();
+    fetchVaccinationData();
+    fetchDiagnosis();
   }, []);
 
   return (
@@ -143,6 +205,14 @@ const Profile = ({navigation}) => {
           Profile Name:{'\t'}
           {userNames}
         </Text>
+        <View style={styles.column}>
+          <View style={styles.row}>
+            <View style={styles.full}>
+              <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
+              <Text style={[styles.cardTitle, {fontSize:18}]}>Total Patients Enrollment </Text>
+            </View>
+          </View>
+        </View>
         <View style={styles.column}>
           <View style={styles.row}>
             <View style={styles.card}>
@@ -167,6 +237,20 @@ const Profile = ({navigation}) => {
             <View style={styles.card}>
               <Text style={styles.cardIcon}>{monthlyEnrollmentsCount}</Text>
               <Text style={styles.cardTitle}>Month Enrollments </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.column}>
+          <View style={styles.row}>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{totalVaccinations}</Text>
+              <Text style={styles.cardTitle}>Monthly Vaccinations </Text>
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{totalDiagnosis}</Text>
+              <Text style={styles.cardTitle}>Monthly Diagnosis </Text>
             </View>
           </View>
         </View>
@@ -203,13 +287,29 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  full: {
+    width: 375,
+    height: 120,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    paddingVertical: 30,
+    marginVertical: 10,
+    // shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
   // column: {marginVertical: 8},
   cardTitle: {
     padding: 10,
     fontWeight: 'bold',
     textAlign: 'center',
     color: COLORS.BLACK,
-    fontSize: 16,
+    fontSize: 14,
   },
   title: {
     fontSize: 14,
