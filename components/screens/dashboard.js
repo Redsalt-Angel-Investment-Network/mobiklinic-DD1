@@ -34,7 +34,7 @@ const Dashboard = ({navigation}) => {
           Hey{' '}
           <Text
             style={{color: COLORS.PRIMARY}}>
-            {userNames} {' '}
+            {userNames}
             <Emoji name="wave"/> 
           </Text>
           ,

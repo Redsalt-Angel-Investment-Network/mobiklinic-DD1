@@ -22,12 +22,14 @@ const Profile = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const {userNames} = useContext(DataResultsContext);
   const [patientsEnrolledCount, setPatientsEnrolledCount] = useState(0);
+  const [patientsEnrolledCountt, setPatientsEnrolledCountt] = useState(0);
   const [dailyEnrollmentsCount, setDailyEnrollmentsCount] = useState(0);
   const [monthlyEnrollmentsCount, setMonthlyEnrollmentsCount] = useState(0);
   const [weeklyEnrollmentsCount, setWeeklyEnrollmentsCount] = useState(0);
   const {patientId} = useContext(DataResultsContext);
   const [totalVaccinations, setTotalVaccinations] = useState(0);
   const [totalDiagnosis, setTotalDiagnosis] = useState(0);
+  const [totalAntenatal, setTotalAntenatal] = useState(0);
 
   const {user} = React.useContext(AuthContext);
   React.useEffect(() => {
@@ -69,63 +71,6 @@ const Profile = ({navigation}) => {
       target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
     }
     return 1 + Math.ceil((firstThursday - target) / 604800000); // 604800000 = 7 * 24 * 3600 * 1000
-  };
-
-  // fetch monthly vaccination data
-  const fetchVaccinationData = async () => {
-    try {
-      const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/${userLog}/vaccinations`,
-      );
-
-      if (response.status === 200) {
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        // Filter the vaccination data for the current month and year
-        const monthlyVaccinations = response.data.filter(item => {
-          const itemDate = new Date(item.date); // Adjust the property name according to your API response
-          return (
-            itemDate.getMonth() === currentMonth &&
-            itemDate.getFullYear() === currentYear
-          );
-        });
-
-        const monthlyVaccinationCount = monthlyVaccinations.length; // Get the count of monthly vaccinations
-        setTotalVaccinations(monthlyVaccinationCount);
-      }
-    } catch (error) {
-      console.error('Error fetching vaccination data:', error);
-    }
-  };
-
-  // fetch diagnosis data
-  const fetchDiagnosis = async () => {
-    try {
-      const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/${userLog}/diagnosis`,
-      );
-      if (response.status === 200) {
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        // Filter the vaccination data for the current month and year
-        const monthlyDiagnosis = response.data.filter(item => {
-          const itemDate = new Date(item.date); // Adjust the property name according to your API response
-          return (
-            itemDate.getMonth() === currentMonth &&
-            itemDate.getFullYear() === currentYear
-          );
-        });
-
-        const monthlyDiagnosisCount = monthlyDiagnosis.length; // Get the count of monthly vaccinations
-        setTotalDiagnosis(monthlyDiagnosisCount);
-      }
-    } catch (error) {
-      console.error('Error fetching vaccination data:', error);
-    }
   };
 
   // fetch enrollements
@@ -191,10 +136,112 @@ const Profile = ({navigation}) => {
     }
   };
 
+  // fetch vaccinations done in a month
+  const fetchVaccinationData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `https://mobiklinic-be2-production.up.railway.app/vaccinations/${userNames}`,
+      );
+
+      if (response.status === 200) {
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
+
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        const startDate = new Date(currentYear, currentMonth, 1);
+        const endDate = new Date(currentYear, currentMonth + 1, 0);
+
+        const monthlyVaccinations = sortedData.filter(item => {
+          const itemDate = new Date(item.createdAt);
+          return itemDate >= startDate && itemDate <= endDate;
+        });
+
+        setTotalVaccinations(monthlyVaccinations.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // fetch diagnosis done in a month
+  const fetchDiagnosis = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `https://mobiklinic-be2-production.up.railway.app/diagnosis/${userNames}`,
+      );
+
+      if (response.status === 200) {
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
+
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        const startDate = new Date(currentYear, currentMonth, 1);
+        const endDate = new Date(currentYear, currentMonth + 1, 0);
+
+        const monthlyDiagnosis = sortedData.filter(item => {
+          const itemDate = new Date(item.createdAt);
+          return itemDate >= startDate && itemDate <= endDate;
+        });
+
+        setTotalDiagnosis(monthlyDiagnosis.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAntenatal = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `https://mobiklinic-be2-production.up.railway.app/antenantals/${userNames}`,
+      );
+
+      if (response.status === 200) {
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
+
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        const startDate = new Date(currentYear, currentMonth, 1);
+        const endDate = new Date(currentYear, currentMonth + 1, 0);
+
+        const monthlyAntenatal = sortedData.filter(item => {
+          const itemDate = new Date(item.createdAt);
+          return itemDate >= startDate && itemDate <= endDate;
+        });
+
+        setTotalAntenatal(monthlyAntenatal.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchVaccinationData();
     fetchDiagnosis();
+    fetchAntenatal();
   }, []);
 
   return (
@@ -209,48 +256,51 @@ const Profile = ({navigation}) => {
           <View style={styles.row}>
             <View style={styles.full}>
               <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
-              <Text style={[styles.cardTitle, {fontSize:18}]}>Total Patients Enrollment </Text>
+              <Text style={[styles.cardTitle, {fontSize: 18}]}>
+                Total Patients Enrollment{' '}
+              </Text>
             </View>
           </View>
         </View>
         <View style={styles.column}>
           <View style={styles.row}>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
-              <Text style={styles.cardTitle}>Total Patients </Text>
-            </View>
-
             <View style={styles.card}>
               <Text style={styles.cardIcon}>{dailyEnrollmentsCount}</Text>
               <Text style={styles.cardTitle}>Daily Enrollments </Text>
             </View>
-          </View>
-        </View>
-
-        <View style={styles.column}>
-          <View style={styles.row}>
             <View style={styles.card}>
               <Text style={styles.cardIcon}>{weeklyEnrollmentsCount}</Text>
               <Text style={styles.cardTitle}>Weekly Enrollments </Text>
             </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{monthlyEnrollmentsCount}</Text>
-              <Text style={styles.cardTitle}>Month Enrollments </Text>
-            </View>
           </View>
         </View>
 
         <View style={styles.column}>
           <View style={styles.row}>
             <View style={styles.card}>
+              <Text style={styles.cardIcon}>{monthlyEnrollmentsCount}</Text>
+              <Text style={styles.cardTitle}>Month Enrollments </Text>
+            </View>
+
+            <View style={styles.card}>
               <Text style={styles.cardIcon}>{totalVaccinations}</Text>
               <Text style={styles.cardTitle}>Monthly Vaccinations </Text>
             </View>
+          </View>
+        </View>
+
+        <View style={styles.column}>
+          <View style={styles.row}>
+            
 
             <View style={styles.card}>
               <Text style={styles.cardIcon}>{totalDiagnosis}</Text>
               <Text style={styles.cardTitle}>Monthly Diagnosis </Text>
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{totalAntenatal}</Text>
+              <Text style={styles.cardTitle}>Monthly Antenatal </Text>
             </View>
           </View>
         </View>
@@ -265,11 +315,11 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     justifyContent: 'space-between',
     // height: 400,
-    padding: 10,
   },
   row: {
     flexDirection: 'row',
     marginBottom: 10,
+    paddingHorizontal: 2,
   },
   card: {
     width: 180,

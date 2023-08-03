@@ -105,7 +105,7 @@ const PatientData = ({navigation, route}) => {
             dateForNextDose: state.dateForNextDose,
             siteAdministered: state.siteAdministered,
             facility: state.facility,
-            vaccinatedBy : userNames,
+            vaccinatedBy: userNames,
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
@@ -121,11 +121,17 @@ const PatientData = ({navigation, route}) => {
         navigation.navigate('Dashboard');
       } else {
         console.error('Error posting data:', response.status);
-        Alert.alert('Error', 'Failed to Register vaccination. Please try again later.');
+        Alert.alert(
+          'Error',
+          'Failed to Register vaccination. Please try again later.',
+        );
       }
     } catch (error) {
       console.error('Error posting data:', error);
-      Alert.alert('Error', 'Failed to Register vaccination. Please try again later.');
+      Alert.alert(
+        'Error',
+        'Failed to Register vaccination. Please try again later.',
+      );
     } finally {
       setState({...state, isLoading: false}); // Reset isLoading state to false
     }
@@ -192,16 +198,23 @@ const PatientData = ({navigation, route}) => {
             <Picker.Item label="Pneumococcal Vaccine" value="pneumococcal" />
             <Picker.Item label="Rotavirus Vaccine" value="rotavirus" />
             <Picker.Item label="Influenza Vaccine" value="influenza" />
+
+            {/* Additional immunization vaccines */}
+            <Picker.Item
+              label="Measles, Mumps, and Rubella Vaccine"
+              value="mmr"
+            />
+            <Picker.Item label="Varicella Vaccine" value="varicella" />
+            <Picker.Item label="Hepatitis A Vaccine" value="hepatitisA" />
+            <Picker.Item label="Meningococcal Vaccine" value="meningococcal" />
+            <Picker.Item label="HPV Vaccine" value="hpv" />
           </Picker>
         </View>
 
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Card number:</Text>
           <TextInput
-            style={[
-              STYLES.field,
-              {color: COLORS.BLACK},
-            ]} // Add color and placeholderTextColor styles
+            style={[STYLES.field, {color: COLORS.BLACK}]} // Add color and placeholderTextColor styles
             placeholderTextColor={COLORS.GREY}
             value={state.units}
             onChangeText={text => setState({...state, units: text})}
@@ -261,10 +274,12 @@ const PatientData = ({navigation, route}) => {
             <Picker.Item label="" value="" />
             <Picker.Item label="Left Upper Arm" value="Left Upper Arm" />
             <Picker.Item label="Right Upper Arm" value="Right Upper Arm" />
-            <Picker.Item label="Left Upper Thigh" value="Ventrogluteal Muscle (Hip)" />
+            <Picker.Item
+              label="Left Upper Thigh"
+              value="Ventrogluteal Muscle (Hip)"
+            />
             <Picker.Item label="Mouth" value="Mouth" />
             <Picker.Item label="Buttocks" value="Buttocks" />
-
 
             <Picker.Item
               label="Right Upper Thigh"
@@ -291,10 +306,7 @@ const PatientData = ({navigation, route}) => {
               label="Makonge Health Center III"
               value="Makonge Health Center III"
             />
-            <Picker.Item
-              label="Makonge Health Center III"
-              value="Makonge Health Center III"
-            />
+
             <Picker.Item
               label="Makindu Health Center III"
               value="Makindu Health Center III"
@@ -340,7 +352,7 @@ const PatientData = ({navigation, route}) => {
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>
         </TouchableOpacity>
-        <CopyRight/>
+        <CopyRight />
       </ScrollView>
     </View>
   );
