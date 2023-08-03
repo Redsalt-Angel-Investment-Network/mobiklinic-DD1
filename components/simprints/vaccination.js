@@ -28,6 +28,7 @@ const PatientData = ({navigation, route}) => {
   const {dataResults} = useContext(DataResultsContext);
   const {patientId, setPatientId} = useContext(DataResultsContext);
   const currentDate = new Date();
+  const {userNames} = useContext(DataResultsContext);
 
   const [dateOfVaccination, setDateOfVaccination] = useState('');
   const [dateForNextDose, setDateForNextDose] = useState('');
@@ -69,6 +70,7 @@ const PatientData = ({navigation, route}) => {
     dateForNextDose: '',
     siteAdministered: '',
     facility: '',
+    vaccinatedBy: '',
 
     // registeredById: '',
   });
@@ -76,6 +78,7 @@ const PatientData = ({navigation, route}) => {
   const handleSubmit = async () => {
     try {
       console.log('Patient ID :', patientId);
+      console.log('User Id:', userNames);
       if (state.isLoading) {
         // Prevent multiple submissions
         return;
@@ -102,6 +105,7 @@ const PatientData = ({navigation, route}) => {
             dateForNextDose: state.dateForNextDose,
             siteAdministered: state.siteAdministered,
             facility: state.facility,
+            vaccinatedBy : userNames,
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',

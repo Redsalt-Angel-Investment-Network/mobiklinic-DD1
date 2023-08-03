@@ -29,6 +29,7 @@ const PatientMedical = ({navigation}) => {
   const {dataResults} = useContext(DataResultsContext);
   const {patientId, setPatientId} = useContext(DataResultsContext);
   const currentDate = new Date();
+  const {userNames} = useContext(DataResultsContext);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [dateOfDiagnosis, setDateOfDiagnosis] = useState(''); // Add state for date of vaccination
@@ -74,6 +75,7 @@ const PatientMedical = ({navigation}) => {
     followUpDate: '',
     isPregnant: false,
     labTests: '',
+    diagnosedBy: ''
     // registeredById: '',
   });
 
@@ -109,6 +111,7 @@ const PatientMedical = ({navigation}) => {
             followUpDate: state.followUpDate,
             isPregnant: state.isPregnant,
             labTests: state.labTests,
+            diagnosedBy: userNames,
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',

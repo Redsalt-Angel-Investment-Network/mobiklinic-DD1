@@ -29,6 +29,7 @@ const AntenatalCare = ({navigation}) => {
   const {diagnoses} = diagnosisContext;
   const {dataResults} = useContext(DataResultsContext);
   const {patientId, setPatientId} = useContext(DataResultsContext);
+  const {userNames} = useContext(DataResultsContext);
   const currentDate = new Date();
 
   const [routineVisitDate, setRoutineVisitDate] = useState('');
@@ -73,6 +74,7 @@ const AntenatalCare = ({navigation}) => {
     nextOfKin: '',
     nextOfKinContact: '',
     drugNotes: '',
+    reviewedBy: '',
 
     // registeredById: '',
   });
@@ -109,6 +111,7 @@ const AntenatalCare = ({navigation}) => {
             prescriptions: state.prescriptions,
             nextOfKin: state.nextOfKin,
             drugNotes: state.drugNotes,
+            reviewedBy: userNames,
           }),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
