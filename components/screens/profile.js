@@ -238,73 +238,87 @@ const Profile = ({navigation}) => {
   };
 
   useEffect(() => {
-    fetchUsers();
-    fetchVaccinationData();
-    fetchDiagnosis();
-    fetchAntenatal();
+    // Fetch data when the component mounts
+    async function fetchData() {
+      try {
+        await fetchUsers();
+        await fetchVaccinationData();
+        await fetchDiagnosis();
+        await fetchAntenatal();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
   }, []);
 
   return (
     <View style={styles.wrapper}>
       {_header()}
-      <View style={styles.container}>
-        <Text style={styles.header}>
-          Profile Name:{'\t'}
-          {userNames}
-        </Text>
-        <View style={styles.column}>
-          <View style={styles.row}>
-            <View style={styles.full}>
-              <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
-              <Text style={[styles.cardTitle, {fontSize: 18}]}>
-                Total Patients Enrollment{' '}
-              </Text>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View style={styles.container}>
+          <Text style={styles.header}>
+            Profile Name:{'\t'}
+            {userNames}
+          </Text>
+          <View style={styles.column}>
+            <View style={styles.row}>
+              <View style={styles.full}>
+                <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
+                <Text style={[styles.cardTitle, {fontSize: 18}]}>
+                  Total Patients Enrollment{' '}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.column}>
+            <View style={styles.row}>
+              <View style={styles.card}>
+                <Text style={styles.cardIcon}>{dailyEnrollmentsCount}</Text>
+                <Text style={styles.cardTitle}>Daily Enrollments </Text>
+              </View>
+              <View style={styles.card}>
+                <Text style={styles.cardIcon}>{weeklyEnrollmentsCount}</Text>
+                <Text style={styles.cardTitle}>Weekly Enrollments </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.column}>
+            <View style={styles.row}>
+              <View style={styles.card}>
+                <Text style={styles.cardIcon}>{monthlyEnrollmentsCount}</Text>
+                <Text style={styles.cardTitle}>Month Enrollments </Text>
+              </View>
+
+              <View style={styles.card}>
+                <Text style={styles.cardIcon}>{totalVaccinations}</Text>
+                <Text style={styles.cardTitle}>Monthly Vaccinations </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.column}>
+            <View style={styles.row}>
+              <View style={styles.card}>
+                <Text style={styles.cardIcon}>{totalDiagnosis}</Text>
+                <Text style={styles.cardTitle}>Monthly Diagnosis </Text>
+              </View>
+
+              <View style={styles.card}>
+                <Text style={styles.cardIcon}>{totalAntenatal}</Text>
+                <Text style={styles.cardTitle}>Monthly Antenatal </Text>
+              </View>
             </View>
           </View>
         </View>
-        <View style={styles.column}>
-          <View style={styles.row}>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{dailyEnrollmentsCount}</Text>
-              <Text style={styles.cardTitle}>Daily Enrollments </Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{weeklyEnrollmentsCount}</Text>
-              <Text style={styles.cardTitle}>Weekly Enrollments </Text>
-            </View>
-          </View>
-        </View>
+      )}
 
-        <View style={styles.column}>
-          <View style={styles.row}>
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{monthlyEnrollmentsCount}</Text>
-              <Text style={styles.cardTitle}>Month Enrollments </Text>
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{totalVaccinations}</Text>
-              <Text style={styles.cardTitle}>Monthly Vaccinations </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.column}>
-          <View style={styles.row}>
-            
-
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{totalDiagnosis}</Text>
-              <Text style={styles.cardTitle}>Monthly Diagnosis </Text>
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardIcon}>{totalAntenatal}</Text>
-              <Text style={styles.cardTitle}>Monthly Antenatal </Text>
-            </View>
-          </View>
-        </View>
-      </View>
       <CopyRight />
     </View>
   );
@@ -374,7 +388,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     marginVertical: 20,
-    textDecorationLine: 'underline',
   },
   cardIcon: {
     // flex: 1,
