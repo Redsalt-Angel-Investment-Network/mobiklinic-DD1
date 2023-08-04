@@ -262,16 +262,13 @@ const Profile = ({navigation}) => {
         <Loader />
       ) : (
         <View style={styles.container}>
-          <Text style={styles.header}>
-            Profile Name:{'\t'}
-            {userNames}
-          </Text>
+          <Text style={styles.header}>General Report</Text>
           <View style={styles.column}>
             <View style={styles.row}>
               <View style={styles.full}>
                 <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
                 <Text style={[styles.cardTitle, {fontSize: 18}]}>
-                  Total Patients Enrollment{' '}
+                  Total Patients
                 </Text>
               </View>
             </View>
@@ -328,7 +325,6 @@ const styles = StyleSheet.create({
   container: {
     // flexDirection: 'row',
     justifyContent: 'space-between',
-    // height: 400,
   },
   row: {
     flexDirection: 'row',
@@ -380,6 +376,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: 'black',
+
   },
   header: {
     fontSize: 22,
@@ -388,6 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     marginVertical: 20,
+    textDecorationLine: 'underline',
   },
   cardIcon: {
     // flex: 1,
@@ -398,6 +396,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
+    color: COLORS.PRIMARY,
   },
 });
 

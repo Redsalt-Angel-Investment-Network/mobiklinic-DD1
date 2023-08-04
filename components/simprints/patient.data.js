@@ -107,19 +107,9 @@ const PatientData = ({navigation}) => {
       if (
         state.firstName === '' ||
         state.lastName === '' ||
-        ageGroup === '' ||
-        state.phoneNumber === ''
+        ageGroup === '' 
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
-        return;
-      }
-
-      // Remove any non-digit characters from the phone number
-      const phoneNumber = state.phoneNumber.replace(/\D/g, '');
-
-      // Check if the resulting phone number has exactly 10 digits
-      if (phoneNumber.length !== 10) {
-        Alert.alert('Error', 'Phone number must be 10 digits');
         return;
       }
 

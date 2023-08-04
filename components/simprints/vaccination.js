@@ -86,7 +86,7 @@ const PatientData = ({navigation, route}) => {
       if (
         state.vaccineName === '' ||
         state.dose === '' ||
-        dateOfVaccination === '' || // Add check for dateOfVaccination
+        dateOfVaccination === '' || 
         state.siteAdministered === ''
       ) {
         Alert.alert('Error', 'Please fill in all required fields');

@@ -122,7 +122,7 @@ const Dashboard = ({navigation}) => {
                   color={COLORS.BLACK}
                 />
               </View>
-              <Text style={STYLES.cardTitle}>Patient List</Text>
+              <Text style={STYLES.cardTitle}>Search Patient</Text>
             </TouchableOpacity>
           </View>
           <View style={STYLES.row}>
