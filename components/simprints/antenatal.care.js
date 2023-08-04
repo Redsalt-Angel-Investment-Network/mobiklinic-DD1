@@ -88,7 +88,6 @@ const AntenatalCare = ({navigation}) => {
       }
       if (
         state.pregnancyStatus === '' ||
-        state.expectedDateOfDelivery === '' ||
         routineVisitDate === '' ||
         state.drugNotes === '' ||
         state.bloodGroup === ''
@@ -238,7 +237,6 @@ const AntenatalCare = ({navigation}) => {
             <Picker.Item label="0+" value="O+" />
             <Picker.Item label="O-" value="O-" />
             <Picker.Item label="Don't Know" value="Don't Know" />
-
           </Picker>
         </View>
 
@@ -273,18 +271,22 @@ const AntenatalCare = ({navigation}) => {
               label="Folic Acid Supplements"
               value="Folic Acid Supplements"
             />
+            <Picker.Item
+              label="Folic Acid  & Iron Supplements"
+              value="Folic Acid  & Iron Supplements"
+            />
             <Picker.Item label="Iron Supplements" value="Iron Supplements" />
             <Picker.Item
               label="Calcium Supplements"
               value="Calcium Supplements"
             />
-            <Picker.Item label="Antiemeitics" value="Antiemeitics" />
-            <Picker.Item label="Antihistamines" value="Antihistamines" />
-            <Picker.Item label="Funsider" value="Funsider" />
+            <Picker.Item label="Fansidar" value="Fansidar" />
             <Picker.Item label="Mebendazole" value="Mebendazole" />
             <Picker.Item label="Paracemotol" value="Paracemotol" />
             <Picker.Item label="Vitamin C " value="Vitamin C" />
             <Picker.Item label="Magnesium" value="Magnesium" />
+            <Picker.Item label="Cetirizine" value="Cetirizine" />
+
             <Picker.Item label="Other" value="Other" />
           </Picker>
         </View>

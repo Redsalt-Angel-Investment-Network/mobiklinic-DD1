@@ -48,7 +48,7 @@ const SelectAction = ({navigation, route}) => {
           <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
       }
-      title={<Text style={[STYLES.centerHeader]}>Enrol Patient</Text>}
+      title={<Text style={[STYLES.centerHeader]}>Register Patient</Text>}
     />
   );
   return (
@@ -68,13 +68,13 @@ const SelectAction = ({navigation, route}) => {
             <TouchableOpacity
               style={STYLES.card}
               onPress={() => navigation.navigate('PatientLists')}>
-              <Text style={STYLES.cardTitle}>Search Patient</Text>
+              <Text style={STYLES.cardTitle}>Search Existing Patient</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={STYLES.card}
               onPress={() => navigation.navigate('PatientData')}>
-              <Text style={STYLES.cardTitle}>Enrol New Patient</Text>
+              <Text style={STYLES.cardTitle}>Register New Patient</Text>
             </TouchableOpacity>
           </View>
         </View>
