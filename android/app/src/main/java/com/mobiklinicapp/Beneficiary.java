@@ -1,4 +1,4 @@
-package com.mobiklinic;
+package com.mobiklinicapp;
 
 public class Beneficiary {
     private String id;

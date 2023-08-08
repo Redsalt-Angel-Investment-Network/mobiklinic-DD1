@@ -1,4 +1,4 @@
-package com.mobiklinic;
+package com.mobiklinicapp;
 
 import android.os.Bundle;
 import android.view.View;
@@ -14,7 +14,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.mobiklinic.databinding.ActivityAndroidBinding;
+import com.mobiklinicapp.databinding.ActivityAndroidBinding;
 
 public class AndroidActivity extends AppCompatActivity {
 

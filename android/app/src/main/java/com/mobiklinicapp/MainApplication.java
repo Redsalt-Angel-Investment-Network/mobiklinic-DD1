@@ -1,4 +1,4 @@
-package com.mobiklinic;
+package com.mobiklinicapp;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
