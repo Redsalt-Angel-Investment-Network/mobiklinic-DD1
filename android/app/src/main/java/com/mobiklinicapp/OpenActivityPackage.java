@@ -1,4 +1,4 @@
-package com.mobiklinic;
+package com.mobiklinicapp;
 
 import androidx.annotation.NonNull;
 
