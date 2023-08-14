@@ -19,6 +19,10 @@ const About = ({navigation}) => {
     Linking.openURL('https://mobiklinic.com/');
   };
 
+  const openPrivacy = () => {
+    Linking.openURL('https://mobiklinic.com/privacy');
+  };
+
   const openEmail = () => {
     Linking.openURL('mailto:mobiklinicuganda@gmail.com');
   };
@@ -55,9 +59,12 @@ const About = ({navigation}) => {
 
         <View>
           <Text style={STYLES.description}>
-          The Mobiklinic app is a mobile application that streamlines healthcare processes and improves access to medical services, especially in rural areas. It integrates with SimprintsID, a biometric identification system, to enhance patient identification, data accuracy, and security. 
-          {'\n'}
-          Healthcare providers can register and manage beneficiaries, capture their biometric data using Simprints ID, and securely store their information.
+            The Mobiklinic app is a mobile application that streamlines
+            healthcare processes and improves access to medical services,
+            especially in rural areas.
+            {'\n'}
+           Community Health Providers (CHPs) can register and manage beneficiaries, capture
+            and securely store their information.
           </Text>
           <View style={STYLES.email}>
             <TouchableOpacity style={STYLES.email} onPress={openWebsite}>
@@ -81,7 +88,13 @@ const About = ({navigation}) => {
               <Text style={STYLES.link}>Contact us</Text>
             </TouchableOpacity>
           </View>
-          <CopyRight/>
+
+          <View style={STYLES.email}>
+            <TouchableOpacity style={STYLES.email} onPress={openPrivacy}>
+              <Text style={STYLES.privacy}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
+          <CopyRight />
         </View>
       </View>
     </View>
@@ -195,6 +208,13 @@ const STYLES = StyleSheet.create({
     paddingHorizontal: 35,
     paddingVertical: 5,
     alignItems: 'flex-start',
+  },
+  privacy: {
+    color: COLORS.PRIMARY,
+    fontSize: 18,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    textDecorationLine: 'underline',
   },
 });
 

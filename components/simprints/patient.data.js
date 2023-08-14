@@ -42,7 +42,7 @@ const PatientData = ({navigation}) => {
 
   const handleLanguageChange = language => {
     setSelectedLanguage(language);
-    setSelectedDistrict(''); // Reset district selection when language changes
+    // setSelectedDistrict(''); // Reset district selection when language changes
   };
 
   const handleDistrictChange = district => {
