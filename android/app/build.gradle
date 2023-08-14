@@ -99,9 +99,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.mobiklinic"
+    namespace "com.mobiklinicapp"
     defaultConfig {
-        applicationId "com.mobiklinic"
+        applicationId "com.mobiklinicapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
