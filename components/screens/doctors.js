@@ -113,7 +113,7 @@ const Doctorss = ({navigation}) => {
     return (
       <View>
         <ListItem bottomDivider>
-          <TouchableOpacity onPress={() => handlePhoneNumberPress(item)}>
+          <TouchableOpacity onPress={() => handlePhoneNumberPress(item.phone)}>
             <Icon
               name="message-circle"
               size={25}
