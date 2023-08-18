@@ -90,7 +90,6 @@ const Doctorss = ({navigation}) => {
         status: 1,
         phone: '+256 782245238',
       },
-
     ];
 
     if (dummyData && dummyData.length > 0) {
@@ -104,23 +103,30 @@ const Doctorss = ({navigation}) => {
     // ...
   };
 
+  const handlePhoneNumberPress = phoneNumber => {
+    navigation.navigate('Chat', {phoneNumber});
+  };
+
   const _keyExtractor = item => item._id;
 
   const _renderItem = ({item}) => {
     return (
-      <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.phone}`)}>
+      <View>
         <ListItem bottomDivider>
-          <Icon
-            name="circle"
-            size={25}
-            color={
-              item.status === 1
-                ? 'green'
-                : item.status === 2
-                ? COLORS.PRIMARY
-                : '#f00'
-            }
-          />
+          <TouchableOpacity onPress={() => handlePhoneNumberPress(item)}>
+            <Icon
+              name="message-circle"
+              size={25}
+              color={
+                item.status === 1
+                  ? 'green'
+                  : item.status === 2
+                  ? COLORS.PRIMARY
+                  : '#f00'
+              }
+            />
+          </TouchableOpacity>
+
           <ListItem.Content>
             <ListItem.Title style={STYLES.listTitle}>
               {item.name}
@@ -140,9 +146,12 @@ const Doctorss = ({navigation}) => {
               </View>
             </ListItem.Subtitle>
           </ListItem.Content>
-          <Icon name="phone" size={25} color="rgba(0,0,0,.3)" />
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`tel:${item.phone}`)}>
+            <Icon name="phone" size={25} color="rgba(0,0,0,.3)" />
+          </TouchableOpacity>
         </ListItem>
-      </TouchableOpacity>
+      </View>
     );
   };
 
