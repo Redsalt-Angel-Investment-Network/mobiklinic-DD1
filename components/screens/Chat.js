@@ -9,26 +9,29 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import io from 'socket.io-client';
+import {Realtime} from 'ably'; // Import Ably library
 import DataResultsContext from '../contexts/DataResultsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
+import {useChat} from '../contexts/ChatContext';
 
 const Chat = ({route, navigation}) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [socket, setSocket] = useState(null);
-  const [messageStatus, setMessageStatus] = useState({});
+  const [ablyChannel, setAblyChannel] = useState(null);
   const {userNames} = useContext(DataResultsContext);
-  const {phoneNumber} = route.params;
-  const {name} = route.params;
-
-  const chatIdentifier = phoneNumber; // Unique identifier for this chat
+  const {setLastMessages, lastMessages, addChatMessage} = useChat();
+  const {name, phoneNumber} = route.params;
+  const chatIdentifier = phoneNumber;
 
   useEffect(() => {
     const loadMessages = async () => {
+      if (!chatIdentifier) {
+        return; // Exit early if chatIdentifier is undefined
+      }
+
       try {
         const storedMessages = await AsyncStorage.getItem(chatIdentifier);
         if (storedMessages) {
@@ -40,56 +43,47 @@ const Chat = ({route, navigation}) => {
     };
 
     loadMessages();
-  }, []);
+  }, [chatIdentifier]);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:4304');
-    setSocket(newSocket);
+    const ably = new Realtime({
+      key: 'ihV9jA.Kzjl9g:Iy4pvjQbZyde1N0ER5JgjDsgKpg0FUa6YIm_f7l1ju0', // Replace with your Ably API key
+    });
+    const channel = ably.channels.get(`chat-room-${phoneNumber}`);
+    setAblyChannel(channel);
 
     return () => {
-      newSocket.disconnect();
+      ably.close();
     };
   }, []);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on('message', ({sender, messageContent}) => {
-        const message = {
-          content: messageContent,
-          timestamp: new Date().toLocaleTimeString(),
-        };
-
-        setMessages(prevMessages => [...prevMessages, {sender, message}]);
-        setMessageStatus(prevStatus => ({
-          ...prevStatus,
-          [messageContent]: 'unread',
-        }));
-        saveMessagesToStorage([
-          ...messages,
-          {sender: userNames, message: inputMessage},
-        ]);
-        setMessages([...messages, {sender: userNames, message: inputMessage}]);
-      });
-    }
-  }, [socket, messages]);
-
   const sendMessage = () => {
-    if (socket && inputMessage.trim() !== '') {
-      socket.emit('message', {phoneNumber, message: inputMessage});
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {sender: userNames, message: inputMessage},
-      ]);
-      setMessageStatus(prevStatus => ({
-        ...prevStatus,
-        [inputMessage]: 'sent',
-      }));
-      saveMessagesToStorage(messages); // Save messages to storage when sending a message
+    if (ablyChannel && inputMessage.trim() !== '') {
+      const message = {
+        sender: userNames,
+        messageContent: inputMessage,
+      };
+
+      // Publish the message to Ably
+      ablyChannel.publish('message', message);
+
+      // Update the UI with the sent message
+      setMessages(prevMessages => [...prevMessages, message]);
+
+      // Save messages to storage
+      saveMessagesToStorage([...messages, message]);
+      // Add the message to ChatContext with phone number
+      addChatMessage(phoneNumber, inputMessage);
+
       setInputMessage('');
     }
   };
 
   const saveMessagesToStorage = async messagesToSave => {
+    if (!chatIdentifier) {
+      return; // Exit early if chatIdentifier is undefined
+    }
+
     try {
       await AsyncStorage.setItem(
         chatIdentifier,
@@ -118,27 +112,19 @@ const Chat = ({route, navigation}) => {
       </View>
       <FlatList
         data={messages}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(_, index) => `${index}`} // Use index as the key
         renderItem={({item}) => (
           <View
             style={[
               styles.message,
               {
                 backgroundColor:
-                  messageStatus[item.message] === 'sent'
-                    ? '#DCF8C6'
-                    : '#ffffff',
+                  item.sender === userNames ? '#DCF8C6' : '#ffffff',
               },
             ]}>
             <Text style={styles.messageContent}>
-              {`${item.sender}: ${item.message}`}
+              {`${item.sender}: ${item.messageContent}`}
             </Text>
-            {messageStatus[item.message] === 'sent' && (
-              <Text style={styles.messageTick}>&#10003;</Text>
-            )}
-            {messageStatus[item.message] === 'read' && (
-              <Text style={styles.messageTick}>&#10003;&#10003;</Text>
-            )}
           </View>
         )}
         contentContainerStyle={styles.messageList}
@@ -149,6 +135,7 @@ const Chat = ({route, navigation}) => {
           onChangeText={setInputMessage}
           style={styles.inputField}
           placeholder="Type a message..."
+          placeholderTextColor={COLORS.GREY}
         />
         <Button title="Send" onPress={sendMessage} />
       </View>
@@ -172,18 +159,15 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     borderRadius: 8,
     maxWidth: '50%',
-    backgroundColor: '#DCF8C6',
     marginVertical: 5,
+    color: COLORS.BLACK,
   },
   messageContent: {
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
     paddingHorizontal: 10,
-  },
-  messageTick: {
-    fontSize: 12,
-    marginLeft: 5,
+    color: COLORS.BLACK,
   },
   inputSection: {
     flexDirection: 'row',
@@ -199,17 +183,17 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
+    color: COLORS.BLACK,
   },
   header: {
-    // padding: 10,
     backgroundColor: COLORS.WHITE,
-    borderBottomColor: 1,
-    borderColor: COLORS.GREY,
   },
   headerText: {
     fontSize: 16,
     fontWeight: 'bold',
     paddingVertical: 15,
+    color: COLORS.BLACK,
   },
 });
+
 export default Chat;

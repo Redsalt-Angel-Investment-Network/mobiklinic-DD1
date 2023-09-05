@@ -17,6 +17,7 @@
     "@react-navigation/drawer": "^6.6.2",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/stack": "^6.3.16",
+    "ably": "^1.2.44",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "formik": "^2.3.2",

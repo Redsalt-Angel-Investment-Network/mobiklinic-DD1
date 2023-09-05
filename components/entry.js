@@ -3,6 +3,7 @@ import {AuthProvider} from './contexts/auth';
 
 import AppNav from './navigators/AppNav';
 import {DataResultsProvider} from './contexts/DataResultsContext';
+import {ChatProvider} from './contexts/ChatContext';
 
 const Entry = () => {
   React.useEffect(() => {
@@ -21,9 +22,11 @@ const Entry = () => {
   // If the user is not found, show an error message
   return (
     <DataResultsProvider>
-      <AuthProvider>
-        <AppNav />
-      </AuthProvider>
+      <ChatProvider>
+        <AuthProvider>
+          <AppNav />
+        </AuthProvider>
+      </ChatProvider>
     </DataResultsProvider>
   );
 };
