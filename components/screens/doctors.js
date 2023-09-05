@@ -28,7 +28,7 @@ export const dummyData = [
     specialisation: 'Pharmacist',
     hospital: 'Mobiklinic',
     status: 1,
-    phone: '+256 708422142',
+    phone: '256708422142',
   },
   {
     _id: '2',
@@ -36,7 +36,7 @@ export const dummyData = [
     specialisation: 'General practitioner',
     hospital: 'Nsambya Hospital ',
     status: 1,
-    phone: '+256 789561800',
+    phone: '256789561800',
   },
   {
     _id: '3',
@@ -44,7 +44,7 @@ export const dummyData = [
     specialisation: 'Clinician',
     hospital: 'Mobiklinic ',
     status: 1,
-    phone: '+256 784704143',
+    phone: '256784704143',
   },
 
   {
@@ -53,7 +53,7 @@ export const dummyData = [
     specialisation: 'Clinician',
     hospital: 'Mobiklinic',
     status: 1,
-    phone: '+256 701630936',
+    phone: '256701630936',
   },
 
   {
@@ -62,7 +62,7 @@ export const dummyData = [
     specialisation: 'Clinician ',
     hospital: 'Makonge health center ',
     status: 1,
-    phone: '+256 774226171',
+    phone: '256774226171',
   },
   {
     _id: '7',
@@ -70,7 +70,7 @@ export const dummyData = [
     specialisation: 'Clinician ',
 
     status: 1,
-    phone: '+256 782245238',
+    phone: '256782245238',
   },
 ];
 const Doctors = ({navigation}) => {

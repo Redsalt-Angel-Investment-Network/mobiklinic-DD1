@@ -51,7 +51,6 @@ const Chat = ({route, navigation}) => {
     });
     const channel = ably.channels.get(`chat-room-${phoneNumber}`);
     setAblyChannel(channel);
-
     return () => {
       ably.close();
     };
@@ -62,21 +61,32 @@ const Chat = ({route, navigation}) => {
       const message = {
         sender: userNames,
         messageContent: inputMessage,
+        status: 'sent', 
       };
-
-      // Publish the message to Ably
+  
+      // Log the message before publishing it
+      console.log('Sending message:', message);
+  
       ablyChannel.publish('message', message);
-
+  
       // Update the UI with the sent message
       setMessages(prevMessages => [...prevMessages, message]);
-
+  
       // Save messages to storage
       saveMessagesToStorage([...messages, message]);
+  
       // Add the message to ChatContext with phone number
       addChatMessage(phoneNumber, inputMessage);
-
+  
       setInputMessage('');
     }
+  };
+  
+  const markMessageAsRead = index => {
+    const updatedMessages = [...messages];
+    updatedMessages[index].status = 'received';
+    setMessages(updatedMessages);
+    saveMessagesToStorage(updatedMessages);
   };
 
   const saveMessagesToStorage = async messagesToSave => {
@@ -113,19 +123,31 @@ const Chat = ({route, navigation}) => {
       <FlatList
         data={messages}
         keyExtractor={(_, index) => `${index}`} // Use index as the key
-        renderItem={({item}) => (
-          <View
-            style={[
-              styles.message,
-              {
-                backgroundColor:
-                  item.sender === userNames ? '#DCF8C6' : '#ffffff',
-              },
-            ]}>
-            <Text style={styles.messageContent}>
-              {`${item.sender}: ${item.messageContent}`}
-            </Text>
-          </View>
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            onLongPress={() => markMessageAsRead(index)} // Mark message as read on long press
+          >
+            <View
+              style={[
+                styles.message,
+                {
+                  backgroundColor:
+                    item.sender === userNames ? '#DCF8C6' : '#ffffff',
+                },
+              ]}
+            >
+              <Text style={styles.messageContent}>
+                {`${item.sender}: ${item.messageContent}`}
+              </Text>
+              {item.status === 'received' ? (
+                // Display double black ticks for received messages
+                <Text style={styles.receivedTicks}>✓✓</Text>
+              ) : (
+                // Display single black tick for sent messages
+                <Text style={styles.sentTick}>✓</Text>
+              )}
+            </View>
+          </TouchableOpacity>
         )}
         contentContainerStyle={styles.messageList}
       />
