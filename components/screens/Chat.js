@@ -15,6 +15,7 @@ import {COLORS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
 import {useChat} from '../contexts/ChatContext';
+import {AblyProvider, useChannel, usePresence} from 'ably/react';
 
 const Chat = ({route, navigation}) => {
   const [messages, setMessages] = useState([]);
@@ -57,33 +58,30 @@ const Chat = ({route, navigation}) => {
     const ably = new Realtime({
       key: 'ihV9jA.Kzjl9g:Iy4pvjQbZyde1N0ER5JgjDsgKpg0FUa6YIm_f7l1ju0', // Replace with your Ably API key
     });
-    const ablyChannel = ably.channels.get(
-      `Mobiklinic-${phoneNumber}-${senderPhoneNumber}`,
-    );
+    const ablyChannel = ably.channels.get('Mobiklinic');
     setAblyChannel(ablyChannel);
 
-   ablyChannel.subscribe('message', message => {
-  // Handle incoming messages here
-  console.log('Received message:', message.data, senderPhoneNumber);
-  console.log('Channel Status:', ablyChannel.state);
+    ablyChannel.subscribe('message', message => {
+      // Handle incoming messages here
+      console.log('Received message:', message.data, senderPhoneNumber);
+      console.log('Channel Status:', ablyChannel.state);
 
-  if (message.data.receiver === phoneNumber) {
-    // Check if the message is intended for the current user
-    setMessages(prevMessages => [...prevMessages, message.data]);
-    // Mark the message as received or implement your desired logic
-    setReceivedMessages(message => message);
-  }
-});
-
-// Listen for channel connection state changes
-ablyChannel.on((stateChange) => {
-  console.log('Channel State Change:', stateChange.current); // Check current state
-  if (stateChange.current === 'attached') {
-    // Channel is attached and active
-    // You can set isActive to true here
-  }
-});
-
+      if (message.data.receiver === phoneNumber) {
+        // Check if the message is intended for the current user (receiver)
+        setMessages(prevMessages => [...prevMessages, message.data]);
+        // Mark the message as received or implement your desired logic
+        setReceivedMessages(message => message);
+      }
+    });
+    // Listen for channel connection state changes
+    ablyChannel.on(stateChange => {
+      console.log('Channel State Change:', stateChange.current); // Check current state
+      if (stateChange.current === 'attached') {
+        // Channel is attached and active
+        // You can set isActive to true here
+        isActive = true;
+      }
+    });
 
     return () => {
       // Unsubscribe from the channel when the component unmounts
