@@ -206,7 +206,8 @@ const Login = ({navigation}) => {
   });
 
   const {updateUserLog} = useContext(DataResultsContext);
-  const {updateUserNames} = useContext(DataResultsContext);
+  const {updateUserNames, setSenderPhoneNumber} =
+    useContext(DataResultsContext);
 
   const signIn = async () => {
     clearStorage();
@@ -294,6 +295,7 @@ const Login = ({navigation}) => {
             tokens: {accessToken: accessToken, refreshToken: refreshToken},
             offline: false,
           });
+          setSenderPhoneNumber(username);
           setIsLoading(false);
         }
       } else {

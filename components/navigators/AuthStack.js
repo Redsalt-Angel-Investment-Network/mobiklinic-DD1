@@ -20,6 +20,7 @@ import GetPatients from '../simprints/getPatients';
 import PatientLists from '../simprints/patient.lists';
 import AntenatalCare from '../simprints/antenatal.care';
 import SelectAction from '../simprints/select.action';
+import ReceivedChats from '../screens/Received.Chats';
 
 const Stack = createStackNavigator();
 
@@ -121,6 +122,11 @@ function AuthStack() {
         name="SelectAction"
         options={{headerShown: false}}
         component={SelectAction}
+      />
+      <Stack.Screen
+        name="ReceivedChats"
+        options={{headerShown: false}}
+        component={ReceivedChats}
       />
     </Stack.Navigator>
   );

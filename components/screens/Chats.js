@@ -11,7 +11,9 @@ import {useChat} from '../contexts/ChatContext';
 const Chats = ({navigation}) => {
   const [chatContacts, setChatContacts] = useState([]);
   const {chatMessages, lastMessages} = useChat();
+  const [receivedMessages, setReceivedMessages] = useState([]);
 
+ 
   useEffect(() => {
     fetchChatContacts();
   }, []);
@@ -27,12 +29,12 @@ const Chats = ({navigation}) => {
     }
   };
 
-  const getLastMessage = (phoneNumber) => {
+  const getLastMessage = phoneNumber => {
     return lastMessages[phoneNumber];
   };
 
   const handlePhoneNumberPress = phoneNumber => {
-    navigation.navigate('Chat', {phoneNumber});
+    navigation.navigate('ReceivedChats', {receivedMessages, phoneNumber});
   };
 
   const renderChatItem = ({item}) => (

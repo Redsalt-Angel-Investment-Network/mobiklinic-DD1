@@ -1,14 +1,14 @@
-import React, { createContext, useState } from 'react';
+import React, {createContext, useState} from 'react';
 
 const DataResultsContext = createContext();
 
-export const DataResultsProvider = ({ children }) => {
+export const DataResultsProvider = ({children}) => {
   const [dataResults, setDataResults] = useState('');
   const [benData, setBenData] = useState([]);
   const [userLog, setUserLog] = useState('');
   const [patientId, setPatientId] = useState('');
   const [userNames, setUserNames] = useState('');
-
+  const [senderPhoneNumber, setSenderPhoneNumber] = useState('');
 
   const updateDataResults = newDataResults => {
     setDataResults(newDataResults);
@@ -31,7 +31,7 @@ export const DataResultsProvider = ({ children }) => {
   };
 
   return (
-    <DataResultsContext.Provider 
+    <DataResultsContext.Provider
       value={{
         dataResults,
         updateDataResults,
@@ -42,9 +42,10 @@ export const DataResultsProvider = ({ children }) => {
         patientId,
         setPatientId,
         userNames,
-        updateUserNames
-      }}
-    >
+        updateUserNames,
+        senderPhoneNumber,
+        setSenderPhoneNumber,
+      }}>
       {children}
     </DataResultsContext.Provider>
   );

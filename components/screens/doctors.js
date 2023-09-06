@@ -72,6 +72,13 @@ export const dummyData = [
     status: 1,
     phone: '256782245238',
   },
+  {
+    _id: '8',
+    name: 'Daphne  Pearl',
+    specialisation: 'Developer ',
+    status: 1,
+    phone: '256754769769',
+  },
 ];
 const Doctors = ({navigation}) => {
   const [state, setState] = React.useState({

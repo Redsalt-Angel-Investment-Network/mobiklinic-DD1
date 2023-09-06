@@ -5,7 +5,6 @@ import {
   TextInput,
   Button,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
@@ -24,7 +23,11 @@ const Chat = ({route, navigation}) => {
   const {userNames} = useContext(DataResultsContext);
   const {setLastMessages, lastMessages, addChatMessage} = useChat();
   const {name, phoneNumber} = route.params;
+  // const senderPhoneNumber = 'SENDER_PHONE_NUMBER'; // Replace with the sender's phone number
   const chatIdentifier = phoneNumber;
+  const [receivedMessages, setReceivedMessages] = useState([]);
+  const {senderPhoneNumber} = useContext(DataResultsContext);
+  const [userRole, setUserRole] = useState('sender'); // Default to sender role
 
   useEffect(() => {
     const loadMessages = async () => {
@@ -46,42 +49,79 @@ const Chat = ({route, navigation}) => {
   }, [chatIdentifier]);
 
   useEffect(() => {
+    // if (phoneNumber === senderPhoneNumber) {
+    //   setUserRole('sender');
+    // } else {
+    //   setUserRole('receiver');
+    // }
     const ably = new Realtime({
       key: 'ihV9jA.Kzjl9g:Iy4pvjQbZyde1N0ER5JgjDsgKpg0FUa6YIm_f7l1ju0', // Replace with your Ably API key
     });
-    const channel = ably.channels.get(`chat-room-${phoneNumber}`);
-    setAblyChannel(channel);
+    const ablyChannel = ably.channels.get(
+      `Mobiklinic-${phoneNumber}-${senderPhoneNumber}`,
+    );
+    setAblyChannel(ablyChannel);
+
+   ablyChannel.subscribe('message', message => {
+  // Handle incoming messages here
+  console.log('Received message:', message.data, senderPhoneNumber);
+  console.log('Channel Status:', ablyChannel.state);
+
+  if (message.data.receiver === phoneNumber) {
+    // Check if the message is intended for the current user
+    setMessages(prevMessages => [...prevMessages, message.data]);
+    // Mark the message as received or implement your desired logic
+    setReceivedMessages(message => message);
+  }
+});
+
+// Listen for channel connection state changes
+ablyChannel.on((stateChange) => {
+  console.log('Channel State Change:', stateChange.current); // Check current state
+  if (stateChange.current === 'attached') {
+    // Channel is attached and active
+    // You can set isActive to true here
+  }
+});
+
+
     return () => {
+      // Unsubscribe from the channel when the component unmounts
+      if (ablyChannel) {
+        ablyChannel.unsubscribe('message');
+      }
       ably.close();
     };
-  }, []);
+  }, [phoneNumber, senderPhoneNumber]);
 
   const sendMessage = () => {
-    if (ablyChannel && inputMessage.trim() !== '') {
+    if (userRole === 'sender' && ablyChannel && inputMessage.trim() !== '') {
       const message = {
         sender: userNames,
+        receiver: phoneNumber, // Include the receiver's phone number
         messageContent: inputMessage,
-        status: 'sent', 
+        status: 'sent',
       };
-  
+
       // Log the message before publishing it
       console.log('Sending message:', message);
-  
+      console.log('Channel Status:', ablyChannel.state);
+
       ablyChannel.publish('message', message);
-  
+
       // Update the UI with the sent message
       setMessages(prevMessages => [...prevMessages, message]);
-  
+
       // Save messages to storage
       saveMessagesToStorage([...messages, message]);
-  
+
       // Add the message to ChatContext with phone number
-      addChatMessage(phoneNumber, inputMessage);
-  
-      setInputMessage('');
+      addChatMessage(phoneNumber, inputMessage); // Use phoneNumber as the receiver
+
+      setInputMessage(inputMessage);
     }
   };
-  
+
   const markMessageAsRead = index => {
     const updatedMessages = [...messages];
     updatedMessages[index].status = 'received';
@@ -121,9 +161,9 @@ const Chat = ({route, navigation}) => {
         />
       </View>
       <FlatList
-        data={messages}
+        data={[...messages, ...receivedMessages]} // Combine messages and receivedMessages
         keyExtractor={(_, index) => `${index}`} // Use index as the key
-        renderItem={({ item, index }) => (
+        renderItem={({item, index}) => (
           <TouchableOpacity
             onLongPress={() => markMessageAsRead(index)} // Mark message as read on long press
           >
@@ -134,8 +174,7 @@ const Chat = ({route, navigation}) => {
                   backgroundColor:
                     item.sender === userNames ? '#DCF8C6' : '#ffffff',
                 },
-              ]}
-            >
+              ]}>
               <Text style={styles.messageContent}>
                 {`${item.sender}: ${item.messageContent}`}
               </Text>
@@ -151,6 +190,7 @@ const Chat = ({route, navigation}) => {
         )}
         contentContainerStyle={styles.messageList}
       />
+
       <View style={styles.inputSection}>
         <TextInput
           value={inputMessage}
