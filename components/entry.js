@@ -4,8 +4,6 @@ import {AuthProvider} from './contexts/auth';
 import AppNav from './navigators/AppNav';
 import {DataResultsProvider} from './contexts/DataResultsContext';
 import {ChatProvider} from './contexts/ChatContext';
-import * as Ably from 'ably';
-import {AblyProvider, useChannel, usePresence} from 'ably/react';
 
 const client = {
   key: 'ihV9jA.Kzjl9g:Iy4pvjQbZyde1N0ER5JgjDsgKpg0FUa6YIm_f7l1ju0',
@@ -29,13 +27,11 @@ const Entry = () => {
   // If the user is not found, show an error message
   return (
     <DataResultsProvider>
-      <AblyProvider client={client}>
-        <ChatProvider>
-          <AuthProvider>
-            <AppNav />
-          </AuthProvider>
-        </ChatProvider>
-      </AblyProvider>
+      <ChatProvider>
+        <AuthProvider>
+          <AppNav />
+        </AuthProvider>
+      </ChatProvider>
     </DataResultsProvider>
   );
 };

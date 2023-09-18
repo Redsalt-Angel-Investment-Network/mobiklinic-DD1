@@ -17,6 +17,7 @@ import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {AuthContext} from '../contexts/auth';
 import CopyRight from '../simprints/copyright';
+import { URLS } from '../constants/API';
 
 const Profile = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -78,7 +79,7 @@ const Profile = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
+        `${URLS.BASE}/${userLog}/patients`,
       );
 
       if (response.status === 200) {
@@ -141,7 +142,7 @@ const Profile = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/vaccinations/${userNames}`,
+        `${URLS.BASE}/vaccinations/${userNames}`,
       );
 
       if (response.status === 200) {
@@ -175,7 +176,7 @@ const Profile = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/diagnosis/${userNames}`,
+        `${URLS.BASE}/diagnosis/${userNames}`,
       );
 
       if (response.status === 200) {
@@ -208,7 +209,7 @@ const Profile = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/antenantals/${userNames}`,
+        `${URLS.BASE}/antenantals/${userNames}`,
       );
 
       if (response.status === 200) {

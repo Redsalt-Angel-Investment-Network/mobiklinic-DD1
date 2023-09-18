@@ -15,7 +15,7 @@ import {COLORS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
 import {useChat} from '../contexts/ChatContext';
-import {AblyProvider, useChannel, usePresence} from 'ably/react';
+// import {AblyProvider, useChannel, usePresence} from 'ably/react';
 
 const Chat = ({route, navigation}) => {
   const [messages, setMessages] = useState([]);
