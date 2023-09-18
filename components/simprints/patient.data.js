@@ -107,6 +107,7 @@ const PatientData = ({navigation}) => {
       if (
         state.firstName === '' ||
         state.lastName === '' ||
+        state.sex === '' ||
         ageGroup === '' 
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
