@@ -17,6 +17,7 @@ import Loader from '../ui/loader';
 import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
 import Emoji from 'react-native-emoji';
+import { URLS } from '../constants/API';
 
 const PatientLists = ({navigation}) => {
   const [users, setUsers] = useState([]);
@@ -69,7 +70,7 @@ const PatientLists = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
+        `${URLS.BASE}/${userLog}/patients`,
       );
 
       if (response.status === 200) {
@@ -222,6 +223,13 @@ const PatientLists = ({navigation}) => {
             </Text>
             <Text style={styles.userDataLabel}>
               Weight: <Text style={styles.userDataValue}>{item.weight}</Text>
+            </Text>
+            <Text style={styles.userDataLabel}>
+              Created At:{' '}
+              <Text style={styles.userDataValue}>
+                {' '}
+                {formatDate(new Date(item.createdAt))}
+              </Text>
             </Text>
             <View style={styles.line} />
             {item.vaccinations && item.vaccinations.length > 0 && (

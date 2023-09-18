@@ -322,15 +322,7 @@ const PatientData = ({navigation, route}) => {
             <Picker.Item label="Kawolo Hospital" value="Kawolo Hospital" />
           </Picker>
         </View>
-        {/* Date for vaccination */}
-        {/* <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Date for Next Dose:</Text>
-          <TextInput
-            style={STYLES.field}
-            value={state.dateForNextDose}
-            onChangeText={text => setState({...state, dateForNextDose: text})}
-          />
-        </View> */}
+       
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date for Next Dose:</Text>
           <TouchableOpacity

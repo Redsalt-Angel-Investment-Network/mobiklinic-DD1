@@ -22,6 +22,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
 import {countryData} from './country.selector';
+import {URLS} from '../constants/API';
 
 const PatientData = ({navigation}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
@@ -91,6 +92,7 @@ const PatientData = ({navigation}) => {
     country: '',
     primaryLanguage: '',
     simprintsGui: '',
+    createdAt: '',
     // registeredById: '',
   });
 
@@ -108,36 +110,34 @@ const PatientData = ({navigation}) => {
         state.firstName === '' ||
         state.lastName === '' ||
         state.sex === '' ||
-        ageGroup === '' 
+        ageGroup === ''
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
 
-      const response = await fetch(
-        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            firstName: state.firstName,
-            lastName: state.lastName,
-            sex: state.sex,
-            ageGroup: ageGroup,
-            phoneNumber: state.phoneNumber,
-            weight: state.weight,
-            height: state.height,
-            district: selectedDistrict,
-            country: selectedCountry,
-            primaryLanguage: selectedLanguage,
-            simprintsGui: dataResults,
-            // registeredById: userLog,
-          }),
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-            Accept: 'application/json',
-          },
+      const response = await fetch(`${URLS.BASE}/${userLog}/patients`, {
+        method: 'POST',
+        body: JSON.stringify({
+          firstName: state.firstName,
+          lastName: state.lastName,
+          sex: state.sex,
+          ageGroup: ageGroup,
+          phoneNumber: state.phoneNumber,
+          weight: state.weight,
+          height: state.height,
+          district: selectedDistrict,
+          country: selectedCountry,
+          primaryLanguage: selectedLanguage,
+          simprintsGui: dataResults,
+          createdAt: new Date(),
+          // registeredById: userLog,
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          Accept: 'application/json',
         },
-      );
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -184,11 +184,7 @@ const PatientData = ({navigation}) => {
           <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
       }
-      title={
-        <Text style={[STYLES.centerHeader, STYLES.subtitle]}>
-          BACK
-        </Text>
-      }
+      title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK</Text>}
     />
   );
 
@@ -402,9 +398,8 @@ const STYLES = StyleSheet.create({
     flexDirection: 'row',
     fontSize: 12,
     color: COLORS.BLACK,
-    marginVertical:10,
+    marginVertical: 10,
     fontWeight: 'bold',
-
   },
   label: {
     fontWeight: 'medium',
