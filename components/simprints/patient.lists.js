@@ -191,7 +191,7 @@ const PatientList = ({navigation}) => {
               Phone Number:
               <Text style={styles.userDataValue}>{item.phoneNumber}</Text>
             </Text>
-           
+
             <Text style={styles.userDataLabel}>
               Date Of Birth:
               <Text style={styles.userDataValue}>
@@ -390,7 +390,7 @@ const PatientList = ({navigation}) => {
                 {item.diagnoses.map((diagnosis, index) => (
                   <View key={index}>
                     <Text style={styles.userDataLabel}>
-                      Pregnacy Status:{'\t'}
+                      Condition Diagnosed:{'\t'}
                       <Text style={styles.userDataValue}>
                         {diagnosis.condition}
                       </Text>
@@ -425,7 +425,7 @@ const PatientList = ({navigation}) => {
                         {formatDate(new Date(diagnosis.followUpDate))}
                       </Text>
                     </Text>
-                    {console.log(diagnosis.medicines)}
+                    {console.log('Diagnoses:', item.diagnoses)}
                     {diagnosis.medicines && diagnosis.medicines.length > 0 && (
                       <View>
                         <Text style={styles.userDataLabel}>MEDICINES</Text>
@@ -433,8 +433,8 @@ const PatientList = ({navigation}) => {
                           <View key={medIndex}>
                             <Text style={styles.userDataLabel}>
                               Medicine Name:
-                              <Text style={styles.userDataValue}>
-                                {medicine.name}
+                              <Text>
+                                Prescriptions/Medicine: {medicine.name}
                               </Text>
                             </Text>
 
@@ -691,4 +691,3 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
-

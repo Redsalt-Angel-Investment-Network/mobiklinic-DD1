@@ -95,10 +95,10 @@ const PatientMedical = ({navigation}) => {
   });
   const handleConditionChange = condition => {
     setSelectedCondition(condition);
-    console.log(condition);
     // If "Other" is selected, show the custom condition input field
     if (condition === 'Other') {
       setShowCustomConditionInput(true);
+      setSelectedCondition(condition);
     } else {
       setShowCustomConditionInput(false);
     }
