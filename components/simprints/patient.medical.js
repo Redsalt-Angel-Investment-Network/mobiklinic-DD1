@@ -26,13 +26,9 @@ import {URLS} from '../constants/API';
 
 const PatientMedical = ({navigation}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
-  const {diagnoses} = diagnosisContext;
-  const {dataResults} = useContext(DataResultsContext);
   const {patientId, setPatientId} = useContext(DataResultsContext);
   const currentDate = new Date();
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const {sessionId} = useContext(DataResultsContext);
   const {userNames} = useContext(DataResultsContext);
   const {isBeneficiaryConfirmed} = useContext(DataResultsContext);
   const [medicines, setMedicines] = useState([
@@ -44,6 +40,7 @@ const PatientMedical = ({navigation}) => {
       description: '',
     },
   ]);
+
   const [selectedCondition, setSelectedCondition] = useState('');
   const [customCondition, setCustomCondition] = useState('');
   const [showCustomConditionInput, setShowCustomConditionInput] =
@@ -96,30 +93,6 @@ const PatientMedical = ({navigation}) => {
 
     // registeredById: '',
   });
-
-  const _header = () => (
-    <CustomHeader
-      left={
-        <TouchableOpacity
-          style={{
-            marginHorizontal: 4,
-            width: 35,
-            height: 35,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
-        </TouchableOpacity>
-      }
-      title={
-        <Text style={[STYLES.centerHeader, STYLES.title]}>
-          MEDICAL DIAGNOSIS
-        </Text>
-      }
-    />
-  );
-
   const handleConditionChange = condition => {
     setSelectedCondition(condition);
     console.log(condition);
@@ -133,23 +106,21 @@ const PatientMedical = ({navigation}) => {
 
   const handleSubmit = async () => {
     try {
-      // Prevent multiple submissions
       if (state.isLoading) {
+        // Prevent multiple submissions
         return;
       }
-
       setState({...state, isLoading: true}); // Set isLoading state to true
 
-      // Check if required fields are filled
-      // if (
-      //   state.condition === '' ||
-      //   state.dateOfDiagnosis === '' ||
-      //   state.impression === ''
-      // ) {
-      //   Alert.alert('Error', 'Please fill in all required fields');
-      //   setState({...state, isLoading: false});
-      //   return;
-      // }
+      if (
+        state.selectedCondition === '' ||
+        state.dateOfDiagnosis === '' ||
+        state.impression === ''
+      ) {
+        Alert.alert('Error', 'Please fill in all required fields');
+        console.log(condition);
+        return;
+      }
 
       // Format date strings
       const formattedDateOfDiagnosis = format(
@@ -161,28 +132,26 @@ const PatientMedical = ({navigation}) => {
         'yyyy-MM-dd',
       );
 
-      const requestBody = {
-        condition: selectedCondition,
-        dateOfDiagnosis: formattedDateOfDiagnosis,
-        impression: state.impression,
-        drugsPrescribed: state.drugsPrescribed,
-        dosage: state.dosage,
-        frequency: state.frequency,
-        duration: state.duration,
-        labTests: state.labTests,
-        followUpDate: formattedFollowUpDate,
-        isPregnant: state.isPregnant,
-        medicines: medicines,
-        vaccinatedBy: userNames,
-      };
-      console.log('Request Body:', requestBody);
-
-      // Make a POST request to your API endpoint
       const response = await fetch(`${URLS.BASE}/${patientId}/diagnosis`, {
         method: 'POST',
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          condition: selectedCondition,
+          dateOfDiagnosis: formattedDateOfDiagnosis,
+          impression: state.impression,
+          drugsPrescribed: state.drugsPrescribed,
+          dosage: state.dosage,
+          frequency: state.frequency,
+          duration: state.duration,
+          labTests: state.labTests,
+          followUpDate: formattedFollowUpDate,
+          isPregnant: state.isPregnant,
+          simSessionId: state.sessionId,
+          medicines: medicines, // Use the medicines array as is
+          biometricsVerified: isBeneficiaryConfirmed,
+          vaccinatedBy: userNames,
+        }),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-type': 'application/json; charset=UTF-8',
           Accept: 'application/json',
         },
       });
@@ -191,10 +160,9 @@ const PatientMedical = ({navigation}) => {
         const data = await response.json();
         Alert.alert('Diagnosis Registered successfully');
         navigation.navigate('Dashboard');
-        console.log(requestBody); // Log the request body for debugging
+        console.log(state, medicines);
       } else {
         console.error('Error posting data:', response.status);
-
         Alert.alert(
           'Error',
           'Failed to Register Diagnosis. Please try again later.',
@@ -331,6 +299,29 @@ const PatientMedical = ({navigation}) => {
     ));
   };
 
+  const _header = () => (
+    <CustomHeader
+      left={
+        <TouchableOpacity
+          style={{
+            marginHorizontal: 4,
+            width: 35,
+            height: 35,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
+        </TouchableOpacity>
+      }
+      title={
+        <Text style={[STYLES.centerHeader, STYLES.title]}>
+          MEDICAL DIAGNOSIS
+        </Text>
+      }
+    />
+  );
+
   if (state.isLoading) return <Loader />;
 
   return (
@@ -338,7 +329,7 @@ const PatientMedical = ({navigation}) => {
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       {_header()}
       <ScrollView style={STYLES.body}>
-        {/* signs and symptoms */}
+        {/* condition */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Signs and Symptoms:</Text>
           <TextInput
@@ -356,6 +347,7 @@ const PatientMedical = ({navigation}) => {
         </View>
 
         {/* Date for diagnosis */}
+
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date for Diagnosis:</Text>
           <TouchableOpacity
@@ -393,13 +385,14 @@ const PatientMedical = ({navigation}) => {
         </View>
 
         {/* Condition */}
+        {/* Condition */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
           <Text style={STYLES.label}>Condition:</Text>
 
           <Picker
             placeholderTextColor={COLORS.BLACK}
             selectedValue={selectedCondition}
-            onValueChange={itemValue => handleConditionChange(itemValue)}
+            onValueChange={handleConditionChange}
             style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="" value="" />
