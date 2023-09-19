@@ -101,6 +101,7 @@ const PatientMedical = ({navigation}) => {
       setSelectedCondition(condition);
     } else {
       setShowCustomConditionInput(false);
+      setSelectedCondition(condition);
     }
   };
 
@@ -111,17 +112,14 @@ const PatientMedical = ({navigation}) => {
         return;
       }
       setState({...state, isLoading: true}); // Set isLoading state to true
-
       if (
-        state.selectedCondition === '' ||
+        (selectedCondition === 'Other' && customCondition === '') || // Check if custom condition is empty when "Other" is selected
         state.dateOfDiagnosis === '' ||
         state.impression === ''
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
-        console.log(condition);
         return;
       }
-
       // Format date strings
       const formattedDateOfDiagnosis = format(
         new Date(state.dateOfDiagnosis),
@@ -132,10 +130,13 @@ const PatientMedical = ({navigation}) => {
         'yyyy-MM-dd',
       );
 
+      const conditionToPost =
+        selectedCondition === 'Other' ? customCondition : selectedCondition; // Use custom condition when "Other" is selected
+
       const response = await fetch(`${URLS.BASE}/${patientId}/diagnosis`, {
         method: 'POST',
         body: JSON.stringify({
-          condition: selectedCondition,
+          condition: conditionToPost,
           dateOfDiagnosis: formattedDateOfDiagnosis,
           impression: state.impression,
           drugsPrescribed: state.drugsPrescribed,
