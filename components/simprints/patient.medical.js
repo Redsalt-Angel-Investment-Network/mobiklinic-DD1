@@ -439,14 +439,6 @@ const PatientMedical = ({navigation}) => {
           />
         </View>
 
-        {/* Render medicine inputs */}
-        {renderMedicineInputs()}
-        <TouchableOpacity
-          style={STYLES.addMedicineButton}
-          onPress={handleAddMedicine}>
-          <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
-        </TouchableOpacity>
-
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Follow Up date:</Text>
           <TouchableOpacity
@@ -466,6 +458,14 @@ const PatientMedical = ({navigation}) => {
             />
           )}
         </View>
+
+        {/* Render medicine inputs */}
+        {renderMedicineInputs()}
+        <TouchableOpacity
+          style={STYLES.addMedicineButton}
+          onPress={handleAddMedicine}>
+          <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>
