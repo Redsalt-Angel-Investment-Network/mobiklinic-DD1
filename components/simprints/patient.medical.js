@@ -148,7 +148,7 @@ const PatientMedical = ({navigation}) => {
           simSessionId: state.sessionId,
           medicines: medicines, // Use the medicines array as is
           biometricsVerified: isBeneficiaryConfirmed,
-          vaccinatedBy: userNames,
+          diagnosedBy: userNames,
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
