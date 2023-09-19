@@ -3,6 +3,12 @@ import {AuthProvider} from './contexts/auth';
 
 import AppNav from './navigators/AppNav';
 import {DataResultsProvider} from './contexts/DataResultsContext';
+import {ChatProvider} from './contexts/ChatContext';
+
+const client = {
+  key: 'ihV9jA.Kzjl9g:Iy4pvjQbZyde1N0ER5JgjDsgKpg0FUa6YIm_f7l1ju0',
+  clientId: 'ihV9jA',
+};
 
 const Entry = () => {
   React.useEffect(() => {
@@ -21,9 +27,11 @@ const Entry = () => {
   // If the user is not found, show an error message
   return (
     <DataResultsProvider>
-      <AuthProvider>
-        <AppNav />
-      </AuthProvider>
+      <ChatProvider>
+        <AuthProvider>
+          <AppNav />
+        </AuthProvider>
+      </ChatProvider>
     </DataResultsProvider>
   );
 };

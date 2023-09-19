@@ -206,7 +206,8 @@ const Login = ({navigation}) => {
   });
 
   const {updateUserLog} = useContext(DataResultsContext);
-  const {updateUserNames} = useContext(DataResultsContext);
+  const {updateUserNames, setSenderPhoneNumber} =
+    useContext(DataResultsContext);
 
   const signIn = async () => {
     clearStorage();
@@ -245,20 +246,17 @@ const Login = ({navigation}) => {
 
     try {
       console.log('Starting network request');
-      let response = await fetch(
-        `https://mobiklinic-be2-production.up.railway.app/auth/login`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            phone: username,
-            password: password,
-          }),
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-            Accept: 'application/json',
-          },
+      let response = await fetch(`${URLS.BASE}/auth/login`, {
+        method: 'POST',
+        body: JSON.stringify({
+          phone: username,
+          password: password,
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          Accept: 'application/json',
         },
-      );
+      });
 
       let json_data = await response.json();
       const {message, id, accessToken, refreshToken, firstName, lastName} =
@@ -294,6 +292,7 @@ const Login = ({navigation}) => {
             tokens: {accessToken: accessToken, refreshToken: refreshToken},
             offline: false,
           });
+          setSenderPhoneNumber(username);
           setIsLoading(false);
         }
       } else {

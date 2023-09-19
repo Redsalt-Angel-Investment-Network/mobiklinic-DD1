@@ -7,7 +7,6 @@ import {
   FlatList,
   RefreshControl,
   TextInput,
-  Button,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,22 +15,20 @@ import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
 import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
-import Emoji from 'react-native-emoji';
+import {URLS} from '../constants/API';
 
-const PatientLists = ({navigation}) => {
+const PatientList = ({navigation}) => {
+  const {userLog, userNames, refusalData, patientId, setPatientId} =
+    useContext(DataResultsContext);
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // searching users by name
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [isNoUserFound, setIsNoUserFound] = useState(false);
-  const {patientId, setPatientId} = useContext(DataResultsContext);
+  const [patientsEnrolledCount, setPatientsEnrolledCount] = useState(0);
+  const [expandedUserId, setExpandedUserId] = useState(null);
 
-  // user context
-  const {userLog} = useContext(DataResultsContext);
-
-  // formate date
   const formatDate = date => {
     if (date) {
       const day = date.getDate();
@@ -44,7 +41,7 @@ const PatientLists = ({navigation}) => {
     }
     return 'Click to add date';
   };
-  // header
+
   const _header = () => (
     <CustomHeader
       left={
@@ -64,51 +61,49 @@ const PatientLists = ({navigation}) => {
     />
   );
 
-  // fetch users from api
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/${userLog}/patients`,
-      );
+      const response = await axios.get(`${URLS.BASE}/${userLog}/patients`);
 
       if (response.status === 200) {
-        const sortedData = response.data.sort(
+        const currentDate = new Date();
+        const lastWeekDate = new Date('2023-07-19');
+
+        const filteredData = response.data.filter(item => {
+          const itemDate = new Date(item.createdAt);
+          return itemDate >= lastWeekDate && itemDate <= currentDate;
+        });
+
+        const sortedData = filteredData.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
         );
 
-        const filteredData = sortedData.filter(item => {
-          const fullName = `${item.firstName} ${item.lastName}`;
-          const fullNameLower = fullName.toLowerCase();
-          const searchQueryLower = searchQuery.toLowerCase();
+        const loggedInUserPhone = userLog ? userLog.phoneNumber : '';
+        const filteredDataForUser = sortedData.filter(
+          item => item.phoneNumber === loggedInUserPhone,
+        );
 
-          for (let i = 0; i < searchQueryLower.length; i++) {
-            const letter = searchQueryLower[i];
-            if (!fullNameLower.includes(letter)) {
-              return false;
-            }
-          }
-
-          return true;
-        });
-
-        setUsers(filteredData);
-        await AsyncStorage.setItem('patientList', JSON.stringify(filteredData));
-        setIsNoUserFound(filteredData.length === 0);
+        setUsers(sortedData);
+        await AsyncStorage.setItem('patientList', JSON.stringify(sortedData));
+        setIsNoUserFound(sortedData.length === 0);
+        setPatientsEnrolledCount(sortedData.length);
       } else {
         const storedData = await AsyncStorage.getItem('patientList');
 
         if (storedData) {
           setUsers(JSON.parse(storedData));
+          setPatientsEnrolledCount(JSON.parse(storedData).length);
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error('An error occurred:', error);
 
       const storedData = await AsyncStorage.getItem('patientList');
 
       if (storedData) {
         setUsers(JSON.parse(storedData));
+        setPatientsEnrolledCount(JSON.parse(storedData).length);
       }
     } finally {
       setIsLoading(false);
@@ -122,26 +117,24 @@ const PatientLists = ({navigation}) => {
     };
 
     fetchData();
-  }, [userLog]);
+  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchUsers();
   };
-  // handle search results
+
   const handleSearch = async query => {
     setSearchQuery(query);
     try {
       const response = await axios.get(
-        `https://mobiklinic-be2-production.up.railway.app/search?query=${query}`,
+        `http://192.168.1.14:3000/search?query=${query}`,
       );
       setSearchSuggestions(response.data);
     } catch (error) {
-      console.error(error);
+      console.error('An error occurred:', error);
     }
   };
-
-  const [expandedUserId, setExpandedUserId] = useState(null);
 
   const renderUserCard = ({item}) => {
     const isExpanded = item.id === expandedUserId;
@@ -157,9 +150,8 @@ const PatientLists = ({navigation}) => {
     const fullName = `${item.firstName} ${item.lastName}`;
     const fullNameChars = fullName.split('');
 
-    // ADD DATA
     const addData = () => {
-      setPatientId(item.id); // Set the patientId using setPatientId
+      setPatientId(item.id);
       console.log('Adding data for patient ID:', patientId.id);
 
       navigation.navigate('SelectActivity', {
@@ -196,9 +188,10 @@ const PatientLists = ({navigation}) => {
         {isExpanded && (
           <View style={styles.cardDetails}>
             <Text style={styles.userDataLabel}>
-              Phone Number:{' '}
+              Phone Number:
               <Text style={styles.userDataValue}>{item.phoneNumber}</Text>
             </Text>
+
             <Text style={styles.userDataLabel}>
               Date Of Birth:
               <Text style={styles.userDataValue}>
@@ -211,6 +204,10 @@ const PatientLists = ({navigation}) => {
               <Text style={styles.userDataValue}>{item.primaryLanguage}</Text>
             </Text>
             <Text style={styles.userDataLabel}>
+              Simprints GUID:{' '}
+              <Text style={styles.userDataValue}>{item.simprintsGui}</Text>
+            </Text>
+            <Text style={styles.userDataLabel}>
               Country <Text style={styles.userDataValue}>{item.country}</Text>
             </Text>
             <Text style={styles.userDataLabel}>
@@ -221,7 +218,19 @@ const PatientLists = ({navigation}) => {
               Sex: <Text style={styles.userDataValue}>{item.sex}</Text>
             </Text>
             <Text style={styles.userDataLabel}>
-              Weight: <Text style={styles.userDataValue}>{item.weight}</Text>
+              Weight:{' '}
+              <Text style={styles.userDataValue}>{item.weight} kgs</Text>
+            </Text>
+
+            <Text style={styles.userDataLabel}>
+              Height: <Text style={styles.userDataValue}>{item.height} cm</Text>
+            </Text>
+            <Text style={styles.userDataLabel}>
+              Created At:{' '}
+              <Text style={styles.userDataValue}>
+                {' '}
+                {formatDate(new Date(item.createdAt))}
+              </Text>
             </Text>
             <View style={styles.line} />
             {item.vaccinations && item.vaccinations.length > 0 && (
@@ -317,14 +326,6 @@ const PatientLists = ({navigation}) => {
                         {antenantal.bloodGroup}
                       </Text>
                     </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Prescriptions:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.prescriptions}
-                      </Text>
-                    </Text>
-
                     <Text style={styles.userDataLabel}>
                       Current Weight:
                       <Text style={styles.userDataValue}>
@@ -346,12 +347,37 @@ const PatientLists = ({navigation}) => {
                       </Text>
                     </Text>
 
-                    <Text style={styles.userDataLabel}>
-                      Additional Notes:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.drugNotes}
-                      </Text>
-                    </Text>
+                    {antenantal.medicines &&
+                      antenantal.medicines.length > 0 && (
+                        <View>
+                          <Text style={styles.userDataLabel}>MEDICINES</Text>
+                          {antenantal.medicines.map((medicine, index) => (
+                            <View key={index}>
+                              <Text style={styles.userDataLabel}>
+                                Medicine Name:
+                                <Text style={styles.userDataValue}>
+                                  {medicine.name}
+                                </Text>
+                              </Text>
+
+                              <Text style={styles.userDataLabel}>
+                                Additional Notes:
+                                <Text style={styles.userDataValue}>
+                                  {medicine.description}
+                                </Text>
+                              </Text>
+
+                              <Text style={styles.userDataLabel}>
+                                Dosage:
+                                <Text style={styles.userDataValue}>
+                                  {medicine.dosage} X {medicine.frequency} for{' '}
+                                  {medicine.duration} days
+                                </Text>
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
 
                     <View style={styles.line} />
                   </View>
@@ -360,60 +386,83 @@ const PatientLists = ({navigation}) => {
             )}
             {item.diagnoses && item.diagnoses.length > 0 && (
               <View>
-                <Text style={styles.userDataLabel1}>DIAGNOSIS</Text>
-
+                <Text style={styles.userDataLabel1}>DAIGNOSIS</Text>
                 {item.diagnoses.map((diagnosis, index) => (
                   <View key={index}>
                     <Text style={styles.userDataLabel}>
-                      Condition:{' '}
+                      Condition Diagnosed:{'\t'}
                       <Text style={styles.userDataValue}>
                         {diagnosis.condition}
                       </Text>
                     </Text>
                     <Text style={styles.userDataLabel}>
-                      Prescribed drugs:{' '}
-                      <Text style={styles.userDataValue}>
-                        {diagnosis.drugsPrescribed}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Dosage:{' '}
-                      <Text style={styles.userDataValue}>
-                        {diagnosis.dosage} X {diagnosis.frequency} for {'\t'}
-                        {diagnosis.duration} days
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Date of diagnosis:{' '}
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(diagnosis.dateOfDiagnosis))}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Date for Next Dose:{' '}
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(diagnosis.followUpDate))}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Impression:{' '}
+                      Signs and Symptoms:{'\t'}
                       <Text style={styles.userDataValue}>
                         {diagnosis.impression}
                       </Text>
                     </Text>
-                    <View style={styles.line} />
+                    <Text style={styles.userDataLabel}>
+                      Labarotorial Tests:{'\t'}
+                      <Text style={styles.userDataValue}>
+                        {diagnosis.labTests}
+                      </Text>
+                    </Text>
+                    <Text style={styles.userDataLabel}>
+                      Is pregnant?:
+                      <Text style={styles.userDataValue}>
+                        {diagnosis.isPregnant}
+                      </Text>
+                    </Text>
+                    <Text style={styles.userDataLabel}>
+                      Date of Diagnosis: {'\t'}
+                      <Text style={styles.userDataValue}>
+                        {formatDate(new Date(diagnosis.dateOfDiagnosis))}
+                      </Text>
+                    </Text>
+                    <Text style={styles.userDataLabel}>
+                      Date for next visit:{'\t'}
+                      <Text style={styles.userDataValue}>
+                        {formatDate(new Date(diagnosis.followUpDate))}
+                      </Text>
+                    </Text>
+                    {console.log('Diagnoses:', item.diagnoses)}
+                    {diagnosis.medicines && diagnosis.medicines.length > 0 && (
+                      <View>
+                        <Text style={styles.userDataLabel}>MEDICINES</Text>
+                        {diagnosis.medicines.map((medicine, medIndex) => (
+                          <View key={medIndex}>
+                            <Text style={styles.userDataLabel}>
+                              Medicine Name:
+                              <Text>
+                                Prescriptions/Medicine: {medicine.name}
+                              </Text>
+                            </Text>
 
-                    <View style={{height: 20}} />
+                            <Text style={styles.userDataLabel}>
+                              Additional Notes:
+                              <Text style={styles.userDataValue}>
+                                {medicine.description}
+                              </Text>
+                            </Text>
+
+                            <Text style={styles.userDataLabel}>
+                              Dosage:
+                              <Text style={styles.userDataValue}>
+                                {medicine.dosage} X {medicine.frequency} for{' '}
+                                {medicine.duration} days
+                              </Text>
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                    <View style={styles.line} />
                   </View>
                 ))}
               </View>
             )}
-            {/* Add the button to add data */}
             <TouchableOpacity onPress={addData} style={styles.buttonSec}>
-              <Text style={styles.buttonText}>Follow Up Patient</Text>
+              <Text style={styles.buttonText}>Add Data</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -428,26 +477,38 @@ const PatientLists = ({navigation}) => {
   return (
     <View style={styles.wrapper}>
       {_header()}
-
       <View style={styles.container}>
         <Text style={styles.header}>Beneficiary List</Text>
+
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="search patients by name"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Search patients..."
+            placeholderTextColor={COLORS.BLACK}
             value={searchQuery}
             onChangeText={handleSearch}
           />
           <TouchableOpacity onPress={fetchUsers}>
             <Icon
               name="search"
-              size={25}
+              size={20}
               color={COLORS.BLACK}
               style={styles.searchIcon}
             />
           </TouchableOpacity>
         </View>
+        {searchSuggestions.length > 0 && (
+          <View style={styles.searchSuggestionsContainer}>
+            {searchSuggestions.map((suggestion, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.searchSuggestion}
+                onPress={() => handleSearch(suggestion)}>
+                <Text style={styles.searchSuggestionText}>{suggestion}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
         {!isLoading ? (
           users.length > 0 ? (
             <FlatList
@@ -460,29 +521,17 @@ const PatientLists = ({navigation}) => {
               }
             />
           ) : (
-            <View>
-              <Text style={styles.noUserFoundText}>
-                No user found <Emoji name="disappointed" />
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('PatientData');
-                }}
-                style={styles.buttonSec}>
-                <Text style={styles.buttonText}>Add Patient Data</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.noUserFoundText}>No user found</Text>
           )
         ) : (
-          <View>
-            <Loader />
-          </View>
+          <Loader />
         )}
       </View>
     </View>
   );
 };
 
+export default PatientList;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
@@ -513,12 +562,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     borderRadius: 10,
     padding: 20,
-    marginBottom: 15,
-    elevation: 3,
+    marginBottom: 20,
+    elevation: 2,
     shadowColor: COLORS.GRAY,
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 2,
     },
     shadowOpacity: 0.3,
     shadowRadius: 2,
@@ -534,10 +583,7 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
   },
   cardDetails: {
-    paddingBottom: 150,
-    marginVertical: 10,
-    paddingVertical: 10,
-    height: '100%',
+    marginTop: 10,
   },
   label: {
     fontSize: 14,
@@ -605,12 +651,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: COLORS.BLACK,
     paddingHorizontal: 10,
-    // paddingLeft:10,
+    paddingLeft: 10,
   },
   userDataValue: {
     fontWeight: 'normal',
     fontSize: 15,
-    // paddingRight:10,
+    paddingRight: 10,
   },
   userDataLabel1: {
     fontWeight: 'bold',
@@ -620,13 +666,12 @@ const styles = StyleSheet.create({
   },
   buttonSec: {
     backgroundColor: COLORS.WHITE,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    // paddingHorizontal: 15,
     borderRadius: 10,
     marginVertical: 20,
-    marginBottom: 20,
     borderWidth: 2,
     borderColor: COLORS.PRIMARY,
-    marginHorizontal: 30,
   },
   buttonText: {
     color: COLORS.PRIMARY,
@@ -645,10 +690,4 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     marginVertical: 10,
   },
-  button: {
-    paddingHorizontal: 30,
-    paddingVertical: 5,
-  },
 });
-
-export default PatientLists;
