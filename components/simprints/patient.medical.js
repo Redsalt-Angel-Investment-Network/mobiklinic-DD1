@@ -386,7 +386,6 @@ const PatientMedical = ({navigation}) => {
         </View>
 
         {/* Condition */}
-        {/* Condition */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
           <Text style={STYLES.label}>Condition:</Text>
 

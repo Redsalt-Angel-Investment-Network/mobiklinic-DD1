@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState, useContext} from 'react';
 import {DeviceEventEmitter, NativeEventEmitter, Text} from 'react-native';
-
+ 
 import {
   Linking,
   Button,
