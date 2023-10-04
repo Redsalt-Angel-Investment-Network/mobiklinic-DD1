@@ -21,7 +21,7 @@ const ResetPassword = ({navigation, route}) => {
 
   const handleResetPassword = async () => {
     try {
-      await axios.post(`${URLS.BASE}/auth/login`, {
+      await axios.post(`${URLS.BASE}/auth/reset-password`, {
         token: route.params.token,
         password,
       });

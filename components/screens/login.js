@@ -402,7 +402,7 @@ const Login = ({navigation}) => {
             />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
           <Text style={styles.linkItem}>Forgot Password?</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('signUp')}>
