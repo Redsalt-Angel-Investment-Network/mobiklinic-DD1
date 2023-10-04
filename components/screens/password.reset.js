@@ -1,5 +1,3 @@
-// ResetPasswordScreen.js
-
 import React, {useState} from 'react';
 import {
   View,
@@ -12,23 +10,36 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
+import {URLS} from '../constants/API';
+import CopyRight from '../simprints/copyright';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
 
-const ResetPassword = ({navigation, route}) => {
-  const [password, setPassword] = useState('');
+const ResetPassword = ({navigation}) => {
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   const handleResetPassword = async () => {
     try {
-      await axios.post(`${URLS.BASE}/auth/reset-password`, {
-        token: route.params.token,
-        password,
-      });
-      Alert.alert('Password Reset', 'Your password has been reset.');
-      navigation.navigate('Login');
+      // Define the request body with the reset token and new password
+      const requestBody = {
+        resetToken,
+        newPassword,
+      };
+
+      await axios.post(`${URLS.BASE}/auth/reset-password`, requestBody);
+
+      Alert.alert(
+        'Password Reset Successful',
+        'Your password has been reset successfully.',
+      );
+
+      // You can navigate to the login or home screen after a successful password reset
+      navigation.navigate('Login'); // Change 'Login' to your desired screen
     } catch (error) {
-      Alert.alert('Error', 'Failed to reset password.');
+      Alert.alert('Error', 'Failed to reset the password.');
+      console.error(error); // Log the error for debugging
     }
   };
 
@@ -52,9 +63,9 @@ const ResetPassword = ({navigation, route}) => {
   );
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.container}>
-        {_header()}
+    <View style={styles.container}>
+      {_header()}
+      <View style={styles.wrapper}>
         <View style={styles.logoContainer}>
           <Image
             style={{width: 80, height: 80}}
@@ -62,16 +73,30 @@ const ResetPassword = ({navigation, route}) => {
           />
           <Text style={styles.title}>Reset Password</Text>
         </View>
-        <Text>Enter your new password</Text>
+        <Text style={styles.label}>
+          Enter your reset token and new password
+        </Text>
+        <TextInput
+          placeholder="Reset Token"
+          value={resetToken}
+          placeholderTextColor={COLORS.GREY}
+          style={[styles.input, {paddingHorizontal: 30}]}
+          onChangeText={text => setResetToken(text)}
+        />
         <TextInput
           placeholder="New Password"
-          secureTextEntry
-          value={password}
-          onChangeText={text => setPassword(text)}
-          style={styles.input}
+          placeholderTextColor={COLORS.GREY}
+          value={newPassword}
+          style={[styles.input, {paddingHorizontal: 30}]}
+          onChangeText={text => setNewPassword(text)}
+          // secureTextEntry // Display asterisks for password
         />
-        <Button title="Reset Password" onPress={handleResetPassword} />
+        <TouchableOpacity style={styles.submit} onPress={handleResetPassword}>
+          <Text style={styles.submitText}>Reset Password</Text>
+        </TouchableOpacity>
       </View>
+
+      <CopyRight />
     </View>
   );
 };
@@ -80,37 +105,56 @@ export default ResetPassword;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 30,
-  },
-  wrapper: {
     flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
+    backgroundColor: COLORS.WHITE,
   },
+  wrapper: {flex: 2, paddingHorizontal: 30, marginTop: 30},
   title: {
     color: COLORS.ACCENT_1,
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    paddingVertical: DIMENS.PADDING,
+    paddingTop: 30,
     fontFamily: 'Roboto',
   },
   logoContainer: {
-    // flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // padding: DIMENS.FORM.PADDING,
   },
   input: {
-    // borderColor: COLORS.WHITE_LOW,
-    // flex: 1,
-    justifyContent: 'center',
-    color: COLORS.BLACK,
-    fontWeight: 'medium',
-    paddingLeft: 30,
-    fontSize: 15,
     borderColor: COLORS.GREY,
     borderWidth: 1,
     borderRadius: 10,
     marginVertical: 15,
+    color: COLORS.BLACK,
+    fontWeight: 'medium',
+    fontSize: 15,
+    paddingVertical: 15,
+  },
+  label: {
+    fontWeight: 'medium',
+    marginLeft: 5,
+    marginRight: 5,
+    color: COLORS.BLACK,
+    fontSize: 14,
+    textAlign: 'center',
+    paddingTop: 15,
+  },
+  submit: {
+    backgroundColor: COLORS.BLACK,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  submitText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  centerHeader: {
+    color: COLORS.BLACK,
   },
 });
