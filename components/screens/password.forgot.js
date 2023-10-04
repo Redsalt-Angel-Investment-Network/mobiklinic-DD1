@@ -18,11 +18,10 @@ import Icon from 'react-native-vector-icons/Feather';
 import {Picker} from '@react-native-picker/picker';
 
 const areaCodes = [
+  {label: '+256', value: '+256'},
   {label: '+1', value: '+1'},
   {label: '+254', value: '+254'},
   {label: '+255', value: '+255'},
-  {label: '+256', value: '+256'},
-  // Add more area codes for East African countries as needed
 ];
 
 const ForgotPassword = ({navigation}) => {
@@ -32,9 +31,12 @@ const ForgotPassword = ({navigation}) => {
   const handleResetPassword = async () => {
     try {
       const formattedPhoneNumber = selectedAreaCode + phoneNumber;
+      // Log the correctly formatted phone number before sending the request
+      console.log('Phone Number Sent to Database:', formattedPhoneNumber);
       await axios.post(`${URLS.BASE}/auth/forgot-password`, {
-        phoneNumber: formattedPhoneNumber,
+        phone: formattedPhoneNumber,
       });
+
       Alert.alert(
         'Password Reset Requested',
         'Please check your phone number for instructions to reset your password.',
@@ -42,6 +44,7 @@ const ForgotPassword = ({navigation}) => {
       navigation.navigate('ResetPassword');
     } catch (error) {
       Alert.alert('Error', 'Failed to send reset password request.');
+      console.log(error);
     }
   };
 
