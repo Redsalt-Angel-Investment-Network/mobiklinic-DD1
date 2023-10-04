@@ -466,6 +466,12 @@ const PatientList = ({navigation}) => {
             </TouchableOpacity>
           </View>
         )}
+
+        <TouchableOpacity
+          style={styles.buttonSec}
+          onPress={navigation.navigate('PatientData')}>
+          <Text style={styles.buttonText}>No user found</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -521,7 +527,11 @@ const PatientList = ({navigation}) => {
               }
             />
           ) : (
-            <Text style={styles.noUserFoundText}>No user found</Text>
+            <TouchableOpacity
+              style={styles.buttonSec}
+              onPress={navigation.navigate('PatientData')}>
+              <Text style={styles.buttonText}>No user found</Text>
+            </TouchableOpacity>
           )
         ) : (
           <Loader />

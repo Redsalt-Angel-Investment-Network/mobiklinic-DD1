@@ -21,6 +21,7 @@ import PatientLists from '../simprints/patient.lists';
 import AntenatalCare from '../simprints/antenatal.care';
 import SelectAction from '../simprints/select.action';
 import ReceivedChats from '../screens/Received.Chats';
+import ForgotPassword from '../screens/password.forgot';
 
 const Stack = createStackNavigator();
 
@@ -128,6 +129,7 @@ function AuthStack() {
         options={{headerShown: false}}
         component={ReceivedChats}
       />
+     
     </Stack.Navigator>
   );
 }

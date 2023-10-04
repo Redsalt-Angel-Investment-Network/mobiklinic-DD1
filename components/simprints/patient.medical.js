@@ -101,6 +101,7 @@ const PatientMedical = ({navigation}) => {
       setSelectedCondition(condition);
     } else {
       setShowCustomConditionInput(false);
+      setSelectedCondition(condition);
     }
   };
 
@@ -111,17 +112,14 @@ const PatientMedical = ({navigation}) => {
         return;
       }
       setState({...state, isLoading: true}); // Set isLoading state to true
-
       if (
-        state.selectedCondition === '' ||
+        (selectedCondition === 'Other' && customCondition === '') || // Check if custom condition is empty when "Other" is selected
         state.dateOfDiagnosis === '' ||
         state.impression === ''
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
-        console.log(condition);
         return;
       }
-
       // Format date strings
       const formattedDateOfDiagnosis = format(
         new Date(state.dateOfDiagnosis),
@@ -132,10 +130,13 @@ const PatientMedical = ({navigation}) => {
         'yyyy-MM-dd',
       );
 
+      const conditionToPost =
+        selectedCondition === 'Other' ? customCondition : selectedCondition; // Use custom condition when "Other" is selected
+
       const response = await fetch(`${URLS.BASE}/${patientId}/diagnosis`, {
         method: 'POST',
         body: JSON.stringify({
-          condition: selectedCondition,
+          condition: conditionToPost,
           dateOfDiagnosis: formattedDateOfDiagnosis,
           impression: state.impression,
           drugsPrescribed: state.drugsPrescribed,
@@ -148,7 +149,7 @@ const PatientMedical = ({navigation}) => {
           simSessionId: state.sessionId,
           medicines: medicines, // Use the medicines array as is
           biometricsVerified: isBeneficiaryConfirmed,
-          vaccinatedBy: userNames,
+          diagnosedBy: userNames,
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -385,7 +386,6 @@ const PatientMedical = ({navigation}) => {
         </View>
 
         {/* Condition */}
-        {/* Condition */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
           <Text style={STYLES.label}>Condition:</Text>
 
@@ -438,14 +438,6 @@ const PatientMedical = ({navigation}) => {
           />
         </View>
 
-        {/* Render medicine inputs */}
-        {renderMedicineInputs()}
-        <TouchableOpacity
-          style={STYLES.addMedicineButton}
-          onPress={handleAddMedicine}>
-          <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
-        </TouchableOpacity>
-
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Follow Up date:</Text>
           <TouchableOpacity
@@ -465,6 +457,14 @@ const PatientMedical = ({navigation}) => {
             />
           )}
         </View>
+
+        {/* Render medicine inputs */}
+        {renderMedicineInputs()}
+        <TouchableOpacity
+          style={STYLES.addMedicineButton}
+          onPress={handleAddMedicine}>
+          <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>
