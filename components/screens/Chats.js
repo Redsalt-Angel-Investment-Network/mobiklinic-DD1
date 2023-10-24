@@ -203,12 +203,18 @@ const styles = {
   },
   predefinedQuestion: {
     backgroundColor: COLORS.LIGHT_GRAY,
-    padding: 10,
-    margin: 5,
-    borderRadius: 8,
+    padding: 12,
+    margin: 8,
+    borderRadius: 12,
+    borderColor:COLORS.GREY,
+    borderWidth: 1, 
+    justifyContent: 'center',
+    paddingHorizontal:10,
+    // alignItems: 'center',
   },
   predefinedQuestionText: {
     fontSize: 15,
+   
   },
   inputContainer: {
     flexDirection: 'row',
