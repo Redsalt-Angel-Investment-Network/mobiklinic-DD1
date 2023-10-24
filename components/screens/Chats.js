@@ -102,7 +102,7 @@ const ChatBot = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Mobiklinic Chat Bot</Text>
+      <Text style={styles.heading}>Moby Chat</Text>
       <ScrollView style={styles.chatContainer}>
         {messages.map((msg, index) => (
           <Text
