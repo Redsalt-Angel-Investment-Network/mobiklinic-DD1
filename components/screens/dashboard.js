@@ -137,7 +137,7 @@ const Dashboard = ({navigation}) => {
                   color={COLORS.BLACK}
                 />
               </View>
-              <Text style={STYLES.cardTitle}>Chats</Text>
+              <Text style={STYLES.cardTitle}>Moby Assist</Text>
             </TouchableOpacity>
           </View>
         </View>
