@@ -102,7 +102,7 @@ const ChatBot = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Moby Chat</Text>
+      <Text style={styles.heading}>Chat With Moby</Text>
       <ScrollView style={styles.chatContainer}>
         {messages.map((msg, index) => (
           <Text
@@ -113,11 +113,7 @@ const ChatBot = () => {
             {msg}
           </Text>
         ))}
-        {isLoading && (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-          </View>
-        )}
+        {isLoading && <Text style={styles.botMessage}>Moby is typing .....</Text>}
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
@@ -216,6 +212,15 @@ const styles = {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  loader: {
+    color: COLORS.GREY,
+    fontSize: 14,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontStyle: 'italic',
+    fontWeight: 'bold',
   },
 };
 
