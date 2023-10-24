@@ -1,23 +1,31 @@
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import {
   View,
   Text,
   TextInput,
-  Button,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import {OPENAI_KEY} from '../../';
-import {COLORS, DIMENS} from '../constants/styles';
+import { OPENAI_KEY } from '../../';
+import { COLORS, DIMENS } from '../constants/styles';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DataResultsContext from '../contexts/DataResultsContext';
+
+const predefinedQuestions = [
+  "How can I prevent the spread of infectious diseases?",
+  "Tell me about the importance of handwashing.",
+  "What are the common symptoms of COVID-19?",
+  "Explain the benefits of vaccination.",
+  "How can I maintain a healthy diet?",
+  // Add more questions here
+];
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
-  const {userNames} = useContext(DataResultsContext);
+  const { userNames } = useContext(DataResultsContext);
   const [isLoading, setIsLoading] = useState(false);
 
   const instance = axios.create({
@@ -77,10 +85,34 @@ const ChatBot = () => {
     }
   };
 
+  const handlePredefinedQuestionClick = async question => {
+    // Set the predefined question as user input
+    setUserInput(question);
+
+    // Send the predefined question as a message
+    setMessages(prevMessages => [...prevMessages, `User: ${question}`]);
+
+    // Generate and display the bot's response
+    const botResponse = await generateResponse(question);
+
+    if (
+      botResponse &&
+      botResponse.choices &&
+      botResponse.choices[0] &&
+      botResponse.choices[0].message
+    ) {
+      const assistantMessage = botResponse.choices[0].message.content;
+      setMessages(prevMessages => [
+        ...prevMessages,
+        `Moby: ${assistantMessage}`,
+      ]);
+    }
+  };
+
   const sendMessage = async () => {
     if (!userInput) return;
 
-    setMessages(prevMessages => [...prevMessages, ` ${userInput}`]); // Display user's message
+    setMessages(prevMessages => [...prevMessages, `User: ${userInput}`]); // Display user's message
     setUserInput('');
 
     // Generate and display the bot's response
@@ -104,16 +136,28 @@ const ChatBot = () => {
     <View style={styles.container}>
       <Text style={styles.heading}>Chat With Moby</Text>
       <ScrollView style={styles.chatContainer}>
+        {predefinedQuestions.map((question, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.predefinedQuestion}
+            onPress={() => handlePredefinedQuestionClick(question)}
+          >
+            <Text style={styles.predefinedQuestionText}>{question}</Text>
+          </TouchableOpacity>
+        ))}
         {messages.map((msg, index) => (
           <Text
             key={index}
             style={
               msg.startsWith('Moby') ? styles.botMessage : styles.userMessage
-            }>
+            }
+          >
             {msg}
           </Text>
         ))}
-        {isLoading && <Text style={styles.botMessage}>Moby is typing .....</Text>}
+        {isLoading && (
+          <Text style={styles.botMessage}>Moby is typing .....</Text>
+        )}
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
@@ -156,6 +200,15 @@ const styles = {
     padding: 8,
     backgroundColor: '#f4f4f4',
     borderRadius: 8,
+  },
+  predefinedQuestion: {
+    backgroundColor: COLORS.LIGHT_GRAY,
+    padding: 10,
+    margin: 5,
+    borderRadius: 8,
+  },
+  predefinedQuestionText: {
+    fontSize: 15,
   },
   inputContainer: {
     flexDirection: 'row',
