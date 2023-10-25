@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import axios from 'axios';
 import {
   View,
@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {COLORS, DIMENS} from '../constants/styles';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ChatBot = ({navigation}) => {
@@ -17,6 +17,33 @@ const ChatBot = ({navigation}) => {
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatRef = useRef(null);
+
+  // Load chats from local storage when the component mounts
+  useEffect(() => {
+    loadChats();
+  }, []);
+
+  // Function to save chats to local storage
+  const saveChats = async chats => {
+    try {
+      await AsyncStorage.setItem('chats', JSON.stringify(chats));
+    } catch (error) {
+      console.error('Error saving chats:', error);
+    }
+  };
+
+  // Function to load chats from local storage
+  const loadChats = async () => {
+    try {
+      const chatsJson = await AsyncStorage.getItem('chats');
+      if (chatsJson) {
+        const chats = JSON.parse(chatsJson);
+        setMessages(chats);
+      }
+    } catch (error) {
+      console.error('Error loading chats:', error);
+    }
+  };
 
   const predefinedQuestions = [
     'How can I prevent the spread of infectious diseases?',
@@ -41,7 +68,7 @@ const ChatBot = ({navigation}) => {
 
     try {
       const response = await instance.post('', {
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-3.5-turbo-0613',
         messages: [
           {
             role: 'system',
@@ -53,7 +80,7 @@ const ChatBot = ({navigation}) => {
           },
         ],
         max_tokens: 300,
-        temperature: 0.1,
+        temperature: 0.7,
       });
 
       const assistantMessage = response.data.choices[0].message.content;
@@ -77,7 +104,8 @@ const ChatBot = ({navigation}) => {
     setUserInput('');
 
     setIsTyping(true); // Set typing state to true before generating a response
-
+    // Save the updated chats to local storage
+    saveChats(updatedChats);
     const botResponse = await generateResponse(userInput);
 
     setIsTyping(false); // Set typing state to false after generating a response
@@ -86,6 +114,7 @@ const ChatBot = ({navigation}) => {
       ...prevMessages,
       {role: 'assistant', content: botResponse},
     ]);
+    saveChats(updatedChats);
 
     // Scroll to the bottom of the chat
     if (chatRef.current) {
