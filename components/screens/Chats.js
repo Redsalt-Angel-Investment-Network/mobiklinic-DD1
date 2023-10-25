@@ -12,7 +12,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const ChatBot = () => {
+const ChatBot = ({navigation}) => {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -121,9 +121,16 @@ const ChatBot = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Chat with Moby</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.heading}>Chat with Moby</Text>
+        <TouchableOpacity>
+          <Icon name="info-circle" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
       {/* Predefined Questions */}
-
       <ScrollView
         ref={chatRef}
         style={styles.chatContainer}
@@ -153,7 +160,6 @@ const ChatBot = () => {
           </Text>
         )}
       </ScrollView>
-
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -175,13 +181,17 @@ const styles = {
     flex: 1,
     padding: 16,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
     color: 'black',
-    textAlign: 'center',
-    alignSelf: 'center',
   },
   chatContainer: {
     flex: 1,
@@ -251,7 +261,6 @@ const styles = {
     borderTopLeftRadius: 0,
   },
   sendButton: {
-    // backgroundColor: COLORS.PRIMARY,
     padding: 12,
     borderRadius: 50,
     justifyContent: 'center',
