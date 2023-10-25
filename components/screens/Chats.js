@@ -1,64 +1,31 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useRef} from 'react';
 import axios from 'axios';
 import {
   View,
   Text,
   TextInput,
+  Button,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
-import {OPENAI_KEY} from '../../';
 import {COLORS, DIMENS} from '../constants/styles';
+
 import Icon from 'react-native-vector-icons/FontAwesome';
-import DataResultsContext from '../contexts/DataResultsContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const predefinedQuestions = [
-  'How can I prevent the spread of infectious diseases?',
-  'Tell me about the importance of handwashing.',
-  'What are the common symptoms of COVID-19?',
-  'Explain the benefits of vaccination.',
-  'How can I maintain a healthy diet?',
-  // Add more questions here
-];
-
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
-  const {userNames} = useContext(DataResultsContext);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const chatRef = useRef(null);
 
-  // Load chat history from local storage on component mount
-  useEffect(() => {
-    async function loadChatHistory() {
-      try {
-        const chatHistory = await AsyncStorage.getItem('chatHistory');
-        if (chatHistory) {
-          setMessages(JSON.parse(chatHistory));
-        }
-      } catch (error) {
-        console.error('Error loading chat history:', error);
-      }
-    }
-    loadChatHistory();
-  }, []);
-
-  const saveChatHistory = async (newMessages) => {
-    try {
-      await AsyncStorage.setItem('chatHistory', JSON.stringify(newMessages));
-    } catch (error) {
-      console.error('Error saving chat history:', error);
-    }
-  };
-
-  // clear chat history
-  const clearChatHistory = async () => {
-    await AsyncStorage.removeItem('chatHistory');
-    setMessages([]);
-  };
-
+  const predefinedQuestions = [
+    'How can I prevent the spread of infectious diseases?',
+    'Tell me about the importance of handwashing.',
+    'What are the common symptoms of COVID-19?',
+    'Explain the benefits of vaccination.',
+    'How can I maintain a healthy diet?',
+    // Add more questions here
+  ];
 
   const instance = axios.create({
     baseURL: 'https://api.openai.com/v1/chat/completions',
@@ -70,10 +37,11 @@ const ChatBot = () => {
   });
 
   const generateResponse = async message => {
-    setIsLoading(true);
+    setIsTyping(true); // Set typing state to true
+
     try {
       const response = await instance.post('', {
-        model: 'gpt-3.5-turbo-0613', // Match the model name
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
@@ -84,130 +52,119 @@ const ChatBot = () => {
             content: message,
           },
         ],
-        max_tokens: 1000,
-        temperature: 0.7,
+        max_tokens: 300,
+        temperature: 0.1,
       });
-      setIsLoading(false);
 
-      return {
-        id: 'chatcmpl-123',
-        object: 'chat.completion',
-        created: Date.now(),
-        model: 'gpt-3.5-turbo-0613',
-        choices: [
-          {
-            index: 0,
-            message: {
-              role: 'assistant',
-              content: response.data.choices[0].message.content,
-            },
-            finish_reason: 'stop',
-          },
-        ],
-        usage: {
-          prompt_tokens: 9,
-          completion_tokens: 12,
-          total_tokens: 21,
-        },
-      };
+      const assistantMessage = response.data.choices[0].message.content;
+      setIsTyping(false); // Set typing state to false
+
+      return assistantMessage;
     } catch (error) {
-      setIsLoading(false);
+      setIsTyping(false); // Set typing state to false in case of an error
       console.error('Error:', error);
-      return '';
+      return 'An error occurred while generating a response.';
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!userInput) return;
+
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'user', content: userInput},
+    ]);
+    setUserInput('');
+
+    setIsTyping(true); // Set typing state to true before generating a response
+
+    const botResponse = await generateResponse(userInput);
+
+    setIsTyping(false); // Set typing state to false after generating a response
+
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'assistant', content: botResponse},
+    ]);
+
+    // Scroll to the bottom of the chat
+    if (chatRef.current) {
+      chatRef.current.scrollToEnd({animated: true});
     }
   };
 
   const handlePredefinedQuestionClick = async question => {
-    // Set the predefined question as user input
-    setUserInput(question);
+    setUserInput(question); // Set the predefined question as user input
 
     // Send the predefined question as a message
-    setMessages(prevMessages => [...prevMessages, ` ${question}`]);
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'user', content: question},
+    ]);
 
-    // Generate and display the bot's response
+    setIsTyping(true); // Set typing state to true before generating a response
+
     const botResponse = await generateResponse(question);
 
-    if (
-      botResponse &&
-      botResponse.choices &&
-      botResponse.choices[0] &&
-      botResponse.choices[0].message
-    ) {
-      const assistantMessage = botResponse.choices[0].message.content;
-      setMessages(prevMessages => [
-        ...prevMessages,
-        `Moby: ${assistantMessage}`,
-      ]);
-    }
-  };
+    setIsTyping(false); // Set typing state to false after generating a response
 
-const sendMessage = async () => {
-    if (!userInput) return;
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {role: 'assistant', content: botResponse},
+    ]);
 
-    const newUserMessage = `User: ${userInput}`;
-    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
-    setUserInput('');
-
-    // Generate and display the bot's response
-    const botResponse = await generateResponse(userInput);
-
-    if (
-      botResponse &&
-      botResponse.choices &&
-      botResponse.choices[0] &&
-      botResponse.choices[0].message
-    ) {
-      const assistantMessage = `Moby: ${botResponse.choices[0].message.content}`;
-      const newMessages = [...messages, assistantMessage];
-      setMessages(newMessages);
-
-      // Save the updated chat history
-      saveChatHistory(newMessages);
-
+    // Scroll to the bottom of the chat
+    if (chatRef.current) {
+      chatRef.current.scrollToEnd({animated: true});
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Chat With Moby</Text>
-      <ScrollView style={styles.chatContainer}>
-        {predefinedQuestions.map((question, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.predefinedQuestion}
-            onPress={() => handlePredefinedQuestionClick(question)}>
-            <Text style={styles.predefinedQuestionText}>{question}</Text>
-          </TouchableOpacity>
-        ))}
+      <Text style={styles.heading}>Chat with Moby</Text>
+      {/* Predefined Questions */}
+
+      <ScrollView
+        ref={chatRef}
+        style={styles.chatContainer}
+        contentContainerStyle={styles.chatContent}>
+        <View style={styles.predefinedQuestionsContainer}>
+          {predefinedQuestions.map((question, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.predefinedQuestionButton}
+              onPress={() => handlePredefinedQuestionClick(question)}>
+              <Text style={styles.predefinedQuestionText}>{question}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         {messages.map((msg, index) => (
           <Text
             key={index}
             style={
-              msg.startsWith('Moby') ? styles.botMessage : styles.userMessage
+              msg.role === 'user' ? styles.userMessage : styles.botMessage
             }>
-            {msg}
+            {msg.content}
           </Text>
         ))}
-        {isLoading && (
-          <Text style={[styles.botMessage, {fontStyle:'italic'}]}>Moby is typing .....</Text>
+        {isTyping && (
+          <Text style={[styles.botMessage, {fontStyle: 'italic'}]}>
+            Moby is typing...
+          </Text>
         )}
       </ScrollView>
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={userInput}
           onChangeText={setUserInput}
           placeholder="Ask me anything"
-          placeholderTextColor={COLORS.GREY}
+          placeholderTextColor="black"
         />
-        <TouchableOpacity style={styles.button} onPress={sendMessage}>
-          <Icon
-            name="send" // Name of the icon you want to use
-            size={30} // Adjust the size as needed
-            color="black"
-          />
+        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+          <Icon name="send" size={25} color="black" />
         </TouchableOpacity>
-        
       </View>
     </View>
   );
@@ -222,20 +179,26 @@ const styles = {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: 'black', // Set the color to light gray or another valid color value
-    textAlign: 'center', // Center the text horizontally
-    alignSelf: 'center', // Center the text vertically
-    color: COLORS.PRIMARY,
+    color: 'black',
+    textAlign: 'center',
+    alignSelf: 'center',
   },
-
   chatContainer: {
     flex: 1,
     marginBottom: 16,
-    padding: 8,
+    padding: 16,
     backgroundColor: '#f4f4f4',
     borderRadius: 8,
+    paddingVertical: 2,
   },
-  predefinedQuestion: {
+  chatContent: {
+    justifyContent: 'flex-end',
+  },
+  predefinedQuestionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  predefinedQuestionButton: {
     backgroundColor: COLORS.LIGHT_GRAY,
     padding: 12,
     margin: 8,
@@ -243,8 +206,7 @@ const styles = {
     borderColor: COLORS.GREY,
     borderWidth: 1,
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    // alignItems: 'center',
+    alignItems: 'center',
   },
   predefinedQuestionText: {
     fontSize: 15,
@@ -252,8 +214,6 @@ const styles = {
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingHorizontal: 15,
-    // paddingVertical: 10,
     color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 30,
@@ -270,49 +230,33 @@ const styles = {
     fontSize: 13,
     paddingHorizontal: 20,
   },
-
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#075E54', // Set the background color to your desired color
-    padding: 8,
-    borderRadius: 12, // Rounded corners
-    marginVertical: 5,
-    fontSize: 15,
-    color: COLORS.WHITE,
-    borderBottomRightRadius: 0, // Truncate the bottom-right corner
-  },
-  botMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#25283C', // Set the background color for bot messages
+    backgroundColor: '#075E54',
     padding: 8,
     borderRadius: 12,
     marginVertical: 5,
-    color: COLORS.WHITE, // Set the text color for bot messages
     fontSize: 15,
-    borderTopLeftRadius: 0, // Truncate the bottom-right corner
+    color: COLORS.WHITE,
+    borderBottomRightRadius: 0,
   },
-  button: {
-    // backgroundColor: COLORS.BLACK,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    // marginBottom: 10,
-    // marginTop: 10,
+  botMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#25283C',
+    padding: 8,
+    borderRadius: 12,
+    marginVertical: 5,
+    color: COLORS.WHITE,
+    fontSize: 15,
+    borderTopLeftRadius: 0,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  loader: {
-    color: COLORS.GREY,
-    fontSize: 14,
-    flex: 1,
+  sendButton: {
+    // backgroundColor: COLORS.PRIMARY,
+    padding: 12,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    fontStyle: 'italic',
-    fontWeight: 'bold',
+    marginLeft: 8,
   },
 };
 
