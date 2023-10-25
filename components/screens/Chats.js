@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import axios from 'axios';
 import {
   View,
@@ -8,25 +8,57 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { OPENAI_KEY } from '../../';
-import { COLORS, DIMENS } from '../constants/styles';
+import {OPENAI_KEY} from '../../';
+import {COLORS, DIMENS} from '../constants/styles';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DataResultsContext from '../contexts/DataResultsContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const predefinedQuestions = [
-  "How can I prevent the spread of infectious diseases?",
-  "Tell me about the importance of handwashing.",
-  "What are the common symptoms of COVID-19?",
-  "Explain the benefits of vaccination.",
-  "How can I maintain a healthy diet?",
+  'How can I prevent the spread of infectious diseases?',
+  'Tell me about the importance of handwashing.',
+  'What are the common symptoms of COVID-19?',
+  'Explain the benefits of vaccination.',
+  'How can I maintain a healthy diet?',
   // Add more questions here
 ];
+
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
-  const { userNames } = useContext(DataResultsContext);
+  const {userNames} = useContext(DataResultsContext);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load chat history from local storage on component mount
+  useEffect(() => {
+    async function loadChatHistory() {
+      try {
+        const chatHistory = await AsyncStorage.getItem('chatHistory');
+        if (chatHistory) {
+          setMessages(JSON.parse(chatHistory));
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+      }
+    }
+    loadChatHistory();
+  }, []);
+
+  const saveChatHistory = async (newMessages) => {
+    try {
+      await AsyncStorage.setItem('chatHistory', JSON.stringify(newMessages));
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  };
+
+  // clear chat history
+  const clearChatHistory = async () => {
+    await AsyncStorage.removeItem('chatHistory');
+    setMessages([]);
+  };
+
 
   const instance = axios.create({
     baseURL: 'https://api.openai.com/v1/chat/completions',
@@ -90,7 +122,7 @@ const ChatBot = () => {
     setUserInput(question);
 
     // Send the predefined question as a message
-    setMessages(prevMessages => [...prevMessages, `User: ${question}`]);
+    setMessages(prevMessages => [...prevMessages, ` ${question}`]);
 
     // Generate and display the bot's response
     const botResponse = await generateResponse(question);
@@ -109,10 +141,11 @@ const ChatBot = () => {
     }
   };
 
-  const sendMessage = async () => {
+const sendMessage = async () => {
     if (!userInput) return;
 
-    setMessages(prevMessages => [...prevMessages, `User: ${userInput}`]); // Display user's message
+    const newUserMessage = `User: ${userInput}`;
+    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
     setUserInput('');
 
     // Generate and display the bot's response
@@ -124,11 +157,13 @@ const ChatBot = () => {
       botResponse.choices[0] &&
       botResponse.choices[0].message
     ) {
-      const assistantMessage = botResponse.choices[0].message.content;
-      setMessages(prevMessages => [
-        ...prevMessages,
-        `Moby: ${assistantMessage}`,
-      ]);
+      const assistantMessage = `Moby: ${botResponse.choices[0].message.content}`;
+      const newMessages = [...messages, assistantMessage];
+      setMessages(newMessages);
+
+      // Save the updated chat history
+      saveChatHistory(newMessages);
+
     }
   };
 
@@ -140,8 +175,7 @@ const ChatBot = () => {
           <TouchableOpacity
             key={index}
             style={styles.predefinedQuestion}
-            onPress={() => handlePredefinedQuestionClick(question)}
-          >
+            onPress={() => handlePredefinedQuestionClick(question)}>
             <Text style={styles.predefinedQuestionText}>{question}</Text>
           </TouchableOpacity>
         ))}
@@ -150,13 +184,12 @@ const ChatBot = () => {
             key={index}
             style={
               msg.startsWith('Moby') ? styles.botMessage : styles.userMessage
-            }
-          >
+            }>
             {msg}
           </Text>
         ))}
         {isLoading && (
-          <Text style={styles.botMessage}>Moby is typing .....</Text>
+          <Text style={[styles.botMessage, {fontStyle:'italic'}]}>Moby is typing .....</Text>
         )}
       </ScrollView>
       <View style={styles.inputContainer}>
@@ -174,6 +207,7 @@ const ChatBot = () => {
             color="black"
           />
         </TouchableOpacity>
+        
       </View>
     </View>
   );
@@ -206,15 +240,14 @@ const styles = {
     padding: 12,
     margin: 8,
     borderRadius: 12,
-    borderColor:COLORS.GREY,
-    borderWidth: 1, 
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
     justifyContent: 'center',
-    paddingHorizontal:10,
+    paddingHorizontal: 10,
     // alignItems: 'center',
   },
   predefinedQuestionText: {
     fontSize: 15,
-   
   },
   inputContainer: {
     flexDirection: 'row',
