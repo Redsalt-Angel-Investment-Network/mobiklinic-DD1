@@ -249,6 +249,9 @@ const styles = {
   },
   predefinedQuestionText: {
     fontSize: 15,
+    color:COLORS.BLACK, 
+    fontWeight:'light'
+
   },
   inputContainer: {
     flexDirection: 'row',
