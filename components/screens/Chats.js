@@ -148,6 +148,9 @@ const ChatBot = ({navigation}) => {
     }
   };
 
+  const refreshChats = () => {
+    setMessages([]); 
+    saveChats([]);   };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -159,7 +162,11 @@ const ChatBot = ({navigation}) => {
           <Icon name="info-circle" size={24} color="black" />
         </TouchableOpacity>
       </View>
-      {/* Predefined Questions */}
+      {messages.length > 0 && (
+        <TouchableOpacity style={styles.refreshButton} onPress={refreshChats}>
+          <Icon name="refresh" size={24} color="black" />
+        </TouchableOpacity>
+      )}
       <ScrollView
         ref={chatRef}
         style={styles.chatContainer}
@@ -249,9 +256,8 @@ const styles = {
   },
   predefinedQuestionText: {
     fontSize: 15,
-    color:COLORS.BLACK, 
-    fontWeight:'light'
-
+    color: COLORS.BLACK,
+    fontWeight: 'light',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -299,6 +305,10 @@ const styles = {
     alignItems: 'center',
     marginLeft: 8,
   },
+  refreshButton:{
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 };
 
 export default ChatBot;
