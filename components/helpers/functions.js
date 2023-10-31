@@ -304,6 +304,13 @@ export const signIn = async data => {
   // }
 };
 
+const areaCodes = [
+  {label: '+256', value: '+256'},
+  {label: '+1', value: '+1'},
+  {label: '+254', value: '+254'},
+  {label: '+255', value: '+255'},
+];
+
 export const signUp = async data => {
   const {
     firstName,

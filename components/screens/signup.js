@@ -1,54 +1,119 @@
-import * as React from 'react';
-
+import React, {useState} from 'react';
 import {
   View,
   Text,
   Image,
   TextInput,
   StyleSheet,
-  StatusBar,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
-
 import Icon from 'react-native-vector-icons/Feather';
 import {CustomStatusBar} from '../ui/custom.status.bar';
-import {signUp} from '../helpers/functions';
-import {validateUgandaPhoneNumber} from '../helpers/validation';
 import Loader from '../ui/loader';
 import {COLORS, DIMENS} from '../constants/styles';
+import {Picker} from '@react-native-picker/picker';
+import {validateUgandaPhoneNumber} from '../helpers/validation';
+import {URLS} from '../constants/API';
+
+const areaCodes = [
+  {label: '+256', value: '+256'},
+  {label: '+1', value: '+1'},
+  {label: '+254', value: '+254'},
+  {label: '+255', value: '+255'},
+];
 
 const SignUp = ({navigation}) => {
-  const [state, setState] = React.useState({
+  const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     phoneNumber: '',
     eMail: '',
     password: '',
     cPassword: '',
-    msg: '',
-    hasFocus: false,
   });
+  const [selectedAreaCode, setSelectedAreaCode] = useState('+256');
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasRegistered, setRegistered] = useState(false);
+  const [process, setProcess] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [hasRegistered, setRegistered] = React.useState(false);
-  const [process, setProcess] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState('');
-  const [phoneError, setPhoneError] = React.useState('');
+  const signUp = async () => {
+    setProcess('Registering, please wait!');
+    const formattedPhoneNumber = selectedAreaCode + formData.phoneNumber;
 
-  const _moveTo = screen => {
-    navigation.navigate(screen);
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      formattedPhoneNumber.length < 12 ||
+      !formData.password ||
+      !formData.cPassword
+    ) {
+      Alert.alert('Error', 'Please fill in the required fields correctly !', [
+        {
+          text: 'OK',
+          onPress: () => setIsLoading(false),
+        },
+      ]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${URLS.BASE}/auth/signup`, {
+        method: 'POST',
+        body: JSON.stringify({
+          phone: formattedPhoneNumber,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.eMail,
+          password: formData.password,
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          Accept: 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.message === 'Signup successful') {
+        setRegistered(true);
+      } else {
+        Alert.alert(
+          'Sign up failure',
+          'Please fill in the required fields correctly.',
+          [
+            {
+              text: 'OK',
+              onPress: () => setIsLoading(false),
+            },
+          ],
+        );
+      }
+    } catch (err) {
+      console.log(err.message);
+      Alert.alert(
+        'Failure',
+        'Something went wrong. Check your internet and try again!',
+        [
+          {
+            text: 'OK',
+            onPress: () => setIsLoading(false),
+          },
+        ],
+      );
+    }
   };
 
-  const {firstName, lastName, phoneNumber, password, cPassword, eMail, msg} =
-    state;
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <Loader>
         <Text>{process}</Text>
       </Loader>
     );
+  }
 
   if (hasRegistered) {
     return (
@@ -66,18 +131,17 @@ const SignUp = ({navigation}) => {
   return (
     <View style={styles.container}>
       <CustomStatusBar />
-
       <View style={styles.logoContainer}>
         <Image
           style={{width: 80, height: 80}}
           source={require('../imgs/logo.png')}
         />
-        <Text style={styles.title}>Sign up to become A Mobiklinic CHP.</Text>
+        <Text style={styles.title}>Sign up to become a Mobiklinic CHP.</Text>
       </View>
       <ScrollView style={styles.body}>
         <View style={styles.formContainer}>
           <View>
-            <Text style={styles.errorMsg}>{msg}</Text>
+            <Text style={styles.errorMsg}>{phoneError}</Text>
           </View>
           <View style={styles.labeled}>
             <Text style={styles.label}>First Name:</Text>
@@ -86,8 +150,8 @@ const SignUp = ({navigation}) => {
               autoCorrect={false}
               placeholderTextColor="grey"
               selectionColor={COLORS.SECONDARY}
-              onChangeText={firstName => setState({...state, firstName})}
-              value={firstName}
+              onChangeText={firstName => setFormData({...formData, firstName})}
+              value={formData.firstName}
               placeholder="Enter First name"
             />
           </View>
@@ -98,8 +162,8 @@ const SignUp = ({navigation}) => {
               autoCorrect={false}
               placeholderTextColor="grey"
               selectionColor={COLORS.SECONDARY}
-              onChangeText={lastName => setState({...state, lastName})}
-              value={lastName}
+              onChangeText={lastName => setFormData({...formData, lastName})}
+              value={formData.lastName}
               placeholder="Enter Last name"
             />
           </View>
@@ -110,40 +174,46 @@ const SignUp = ({navigation}) => {
               autoCorrect={false}
               placeholderTextColor="grey"
               selectionColor={COLORS.SECONDARY}
-              onChangeText={eMail => setState({...state, eMail})}
-              value={eMail}
+              onChangeText={eMail => setFormData({...formData, eMail})}
+              value={formData.eMail}
               keyboardType="email-address"
               placeholder="Enter Email"
             />
           </View>
-          <View style={styles.labeled}>
-            <Text style={styles.label}>Phone Number:</Text>
+          <View style={styles.inputContainer}>
+            <Picker
+              selectedValue={selectedAreaCode}
+              style={[styles.picker, {color: COLORS.BLACK}]}
+              placeholderTextColor={COLORS.BLACK}
+              onValueChange={itemValue => setSelectedAreaCode(itemValue)}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              {areaCodes.map(areaCode => (
+                <Picker.Item
+                  placeholderTextColor={COLORS.BLACK}
+                  key={areaCode.value}
+                  label={areaCode.label}
+                  value={areaCode.value}
+                />
+              ))}
+            </Picker>
             <TextInput
-              style={styles.input}
-              autoCorrect={false}
-              placeholderTextColor="grey"
-              keyboardType="numeric"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={phoneNumber => {
-                setState({...state, phoneNumber});
-                if (!validateUgandaPhoneNumber(phoneNumber)) {
-                  setPhoneError('Phone Number should begin with area code. e.g: 2567xxx...');
-                } else {
-                  setPhoneError('');
-                }
-              }}
-              value={phoneNumber}
-              placeholder="eg '256754XXXXXXX'"
+              placeholder="Phone Number"
+              placeholderTextColor={COLORS.GREY}
+              value={formData.phoneNumber}
+              style={[styles.input, {paddingHorizontal: 30}]}
+              onChangeText={text =>
+                setFormData({...formData, phoneNumber: text})
+              }
+              keyboardType="phone-pad"
             />
           </View>
-          {phoneError != '' && (
+          {phoneError !== '' && (
             <Text style={[styles.alignError, styles.errorMsg]}>
               {phoneError}
             </Text>
           )}
           <View style={styles.labeled}>
             <Text style={styles.label}>Password:</Text>
-
             <TextInput
               style={styles.input}
               password={true}
@@ -151,12 +221,11 @@ const SignUp = ({navigation}) => {
               autoCorrect={false}
               placeholderTextColor="grey"
               selectionColor={COLORS.SECONDARY}
-              onChangeText={password => setState({...state, password})}
-              value={password}
+              onChangeText={password => setFormData({...formData, password})}
+              value={formData.password}
               placeholder="Enter Password"
             />
           </View>
-
           <View style={styles.labeled}>
             <Text style={styles.label}>Confirm :</Text>
             <TextInput
@@ -167,89 +236,25 @@ const SignUp = ({navigation}) => {
               placeholderTextColor="grey"
               selectionColor={COLORS.SECONDARY}
               onChangeText={cPassword => {
-                setState({...state, cPassword});
-                if (password != cPassword) {
-                  setPasswordError('Make sure passwords are not different.');
+                setFormData({...formData, cPassword});
+                if (formData.password !== cPassword) {
+                  setPasswordError('Make sure passwords match.');
                 } else {
                   setPasswordError('');
                 }
               }}
-              value={cPassword}
+              value={formData.cPassword}
               placeholder="Enter Password again"
             />
           </View>
-          {passwordError != '' && (
+          {passwordError !== '' && (
             <Text style={[styles.alignError, styles.errorMsg]}>
               {passwordError}
             </Text>
           )}
-          {/* <TextInput
-            style={styles.input}
-            password={true}
-            secureTextEntry={true}
-            autoCorrect={false}
-            placeholderTextColor="grey"
-            selectionColor={COLORS.SECONDARY}
-            onChangeText={cPassword => {
-              setState({...state, cPassword});
-              if (password != cPassword) {
-                setPasswordError('Make sure passwords are not different.');
-              } else {
-                setPasswordError('');
-              }
-            }}
-            value={cPassword}
-            placeholder="Enter Password again"
-          /> */}
-
-          {/* {state.username != '' &&
-          state.firstName != '' &&
-          state.lastName != '' &&
-          state.phoneNumber != '' &&
-          state.password != '' &&
-          state.cPassword != '' ? (
-            <TouchableOpacity
-              style={[styles.btn, styles.btnPrimary]}
-              onPress={() => {
-                setIsLoading(true);
-                signUp({
-                  ...state,
-                  setIsLoading,
-                  setProcess,
-                  setRegistered,
-                });
-              }}>
-              <Text style={styles.whiteText}>Sign Up</Text>
-              <Icon
-                name="arrow-right"
-                size={20}
-                strokeSize={3}
-                color={COLORS.BLACK}
-              />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={[styles.btn, styles.btnInfo]}>
-              <Text style={styles.muteText}>Sign Up</Text>
-              <Icon
-                name="arrow-right"
-                size={25}
-                strokeSize={5}
-                color={COLORS.BLACK}
-              />
-            </TouchableOpacity>
-          )} */}
-
           <TouchableOpacity
             style={[styles.btn, styles.btnPrimary]}
-            onPress={() => {
-              setIsLoading(true);
-              signUp({
-                ...state,
-                setIsLoading,
-                setProcess,
-                setRegistered,
-              });
-            }}>
+            onPress={() => signUp()}>
             <Text style={styles.whiteText}>Sign Up</Text>
             <Icon
               name="arrow-right"
@@ -258,9 +263,8 @@ const SignUp = ({navigation}) => {
               color={COLORS.BLACK}
             />
           </TouchableOpacity>
-
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={[styles.linkItem]}>
+            <Text style={styles.linkItem}>
               Already have an account? Sign in
             </Text>
           </TouchableOpacity>
@@ -279,6 +283,20 @@ const styles = StyleSheet.create({
     // flex: 1,
     paddingTop: 50,
     // paddingHorizontal: 12,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
+    borderRadius: 10,
+    marginVertical: 15,
+  },
+  picker: {
+    flex: 1,
+    height: 50,
+    width: 50,
+    paddingHorizontal: 20,
   },
   logoContainer: {
     flexGrow: 2,
