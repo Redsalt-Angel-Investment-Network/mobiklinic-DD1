@@ -19,7 +19,7 @@ import {URLS} from '../constants/API';
 
 const areaCodes = [
   {label: '+256', value: '+256'},
-  {label: '+1', value: '+1'},
+  {label: '+257', value: '+257'},
   {label: '+254', value: '+254'},
   {label: '+255', value: '+255'},
 ];
@@ -198,9 +198,9 @@ const SignUp = ({navigation}) => {
             </Picker>
             <TextInput
               placeholder="Phone Number"
-              placeholderTextColor={COLORS.GREY}
+              placeholderTextColor="grey"
               value={formData.phoneNumber}
-              style={[styles.input, {paddingHorizontal: 30}]}
+              style={[styles.input, {paddingHorizontal: 20}]}
               onChangeText={text =>
                 setFormData({...formData, phoneNumber: text})
               }
@@ -287,10 +287,18 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    // marginTop: 10,
     borderColor: COLORS.GREY,
+    borderStyle: 'solid',
     borderWidth: 1,
-    borderRadius: 10,
-    marginVertical: 15,
+    backgroundColor: COLORS.WHITE_LOW,
+    borderRadius: 18,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    fontFamily: 'Roboto',
+    fontSize: 15,
+    color: COLORS.BLACK,
+    marginHorizontal: 15,
   },
   picker: {
     flex: 1,
