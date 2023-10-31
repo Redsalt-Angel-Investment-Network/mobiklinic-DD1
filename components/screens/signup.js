@@ -43,7 +43,7 @@ const SignUp = ({navigation}) => {
   const signUp = async () => {
     setProcess('Registering, please wait!');
     const formattedPhoneNumber = selectedAreaCode + formData.phoneNumber;
-
+  
     if (
       !formData.firstName ||
       !formData.lastName ||
@@ -51,7 +51,7 @@ const SignUp = ({navigation}) => {
       !formData.password ||
       !formData.cPassword
     ) {
-      Alert.alert('Error', 'Please fill in the required fields correctly !', [
+      Alert.alert('Error', 'Please fill in the required fields correctly!', [
         {
           text: 'OK',
           onPress: () => setIsLoading(false),
@@ -59,7 +59,7 @@ const SignUp = ({navigation}) => {
       ]);
       return;
     }
-
+  
     try {
       const response = await fetch(`${URLS.BASE}/auth/signup`, {
         method: 'POST',
@@ -75,35 +75,39 @@ const SignUp = ({navigation}) => {
           Accept: 'application/json',
         },
       });
-
+  
       const data = await response.json();
-
+  
       if (data.message === 'Signup successful') {
         setRegistered(true);
-      } else {
+      } else if (data.message === 'Phone number already exists') {
+        // Display a specific error message when the phone number already exists
         Alert.alert(
           'Sign up failure',
-          'Please fill in the required fields correctly.',
+          'Phone number already exists. Please use a different phone number.',
           [
             {
               text: 'OK',
               onPress: () => setIsLoading(false),
             },
-          ],
+          ]
         );
-      }
-    } catch (err) {
-      console.log(err.message);
-      Alert.alert(
-        'Failure',
-        'Something went wrong. Check your internet and try again!',
-        [
+      } else {
+        Alert.alert('Sign up failure', 'Phone number already exists', [
           {
             text: 'OK',
             onPress: () => setIsLoading(false),
           },
-        ],
-      );
+        ]);
+      }
+    } catch (err) {
+      console.log(err.message);
+      Alert.alert('Failure', 'Something went wrong. Check your internet and try again!', [
+        {
+          text: 'OK',
+          onPress: () => setIsLoading(false),
+        },
+      ]);
     }
   };
 
