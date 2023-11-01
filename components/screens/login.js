@@ -19,6 +19,8 @@ import DataResultsContext from '../contexts/DataResultsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {URLS} from '../constants/API';
+import PhoneInput from 'react-native-phone-number-input';
+
 
 export const clearStorage = async () => {
   await AsyncStorage.clear();
@@ -350,18 +352,29 @@ const Login = ({navigation}) => {
         <Text style={styles.title}>Sign in</Text>
       </View>
       <View style={styles.formContainer}>
-        <View style={styles.labeled}>
-          <TextInput
-            style={styles.input}
-            autoCorrect={false}
+      <PhoneInput
+            placeholder="778xxxxxx"
+            defaultCode="UG"
+            layout="first"
+            containerStyle={[
+              styles.phoneInputContainer,
+            
+            ]}
+            textInputStyle={{ color: 'black', paddingVertical: 10 }}
             placeholderTextColor="grey"
-            // keyboardType={'phone-pad'}
-            selectionColor={COLORS.SECONDARY}
-            onChangeText={text => setUser({...user, username: text})}
-            value={user.username}
-            placeholder="Phone number e.g: 256778xxxxxx"
+            style={styles.phoneInput}
+            textContainerStyle={styles.phoneInput}
+            textInputProps={{
+              style: styles.phoneInput,
+              placeholderTextColor: 'grey',
+              height: 40,
+              alignItems:'center', 
+              justifyContent:'center',
+              backgroundColor: 'rgba(255, 255, 255, 0)',
+            }}
+            dropdownImageStyle={styles.dropdownImage}
+            onChangeText={(text) => setUser({ ...user, username: text })}
           />
-        </View>
         <View style={styles.labeled}>
           <TextInput
             style={styles.input}
@@ -518,5 +531,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontSize: 16,
     fontFamily: 'Roboto',
+  },
+  phoneInput: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: COLORS.BLACK,
+    fontWeight: 'medium',
+    paddingLeft: 10,
+    backgroundColor:'rgba(255, 255, 255, 0)',
+    fontSize: 15,
+    borderTopEndRadius: 18,
+    borderBottomEndRadius: 18,
+    borderColor: COLORS.GREY,
+    height: 55,
+  },
+  dropdownImage: {
+    alignSelf: 'center',
+  },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: COLORS.GREY,
+    color: COLORS.BLACK,
+    borderWidth: 1,
+    backgroundColor: COLORS.WHITE_LOW, // Background color for the phone input container
+    borderRadius: 18, // Add border radius
+    marginBottom: 15,
+    // marginHorizontal: 15,
+    height: 55,
+    width: 365,
   },
 });
