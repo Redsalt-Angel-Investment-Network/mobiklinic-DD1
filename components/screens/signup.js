@@ -193,16 +193,21 @@ const SignUp = ({navigation}) => {
               placeholder="Phone Number"
               defaultCode="UG"
               layout="first"
-              containerStyle={styles.phoneInputContainer}
+              containerStyle={[
+                styles.phoneInputContainer,
+                {backgroundColor: COLORS.WHITE_LOW},
+              ]}
+              textInputStyle={{color: 'black', paddingVertical: 10}}
               placeholderTextColor="grey"
               style={styles.phoneInput}
+              textContainerStyle={styles.phoneInput}
               textInputProps={{
                 style: styles.phoneInput,
-                containerStyle: {
-                  backgroundColor: COLORS.WHITE_LOW, // Background color
-                  borderRadius: 18, // Border radius
-                },
+                placeholderTextColor: 'grey',
+                height: 40,
+                backgroundColor: 'rgba(255, 255, 255, 0)',
 
+                // placeholderTextColor: 'grey',
               }}
               dropdownImageStyle={styles.dropdownImage}
               onChangeText={text =>
@@ -420,11 +425,17 @@ const styles = StyleSheet.create({
   phoneInput: {
     flexDirection: 'row',
     flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
     color: COLORS.BLACK,
     fontWeight: 'medium',
     paddingLeft: 10,
+    backgroundColor:'rgba(255, 255, 255, 0)',
     fontSize: 15,
+    borderTopEndRadius: 18,
+    borderBottomEndRadius: 18,
+    borderColor: COLORS.GREY,
+    height: 55,
   },
   dropdownImage: {
     alignSelf: 'center',
@@ -433,13 +444,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderColor: COLORS.GREY,
+    color: COLORS.BLACK,
     borderWidth: 1,
     backgroundColor: COLORS.WHITE_LOW, // Background color for the phone input container
     borderRadius: 18, // Add border radius
-    // paddingHorizontal: 10, // Adjust as needed
     marginBottom: 15,
     marginHorizontal: 15,
-    // height: 50, // Adjust the height as needed
+    height: 55,
+    width: 338,
   },
 });
 
