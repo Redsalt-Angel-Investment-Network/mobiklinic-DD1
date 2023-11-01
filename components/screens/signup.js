@@ -16,6 +16,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {validateUgandaPhoneNumber} from '../helpers/validation';
 import {URLS} from '../constants/API';
+import PhoneInput from 'react-native-phone-number-input';
 
 const areaCodes = [
   {label: '+256', value: '+256'},
@@ -33,7 +34,6 @@ const SignUp = ({navigation}) => {
     password: '',
     cPassword: '',
   });
-  const [selectedAreaCode, setSelectedAreaCode] = useState('+256');
   const [isLoading, setIsLoading] = useState(false);
   const [hasRegistered, setRegistered] = useState(false);
   const [process, setProcess] = useState('');
@@ -42,12 +42,12 @@ const SignUp = ({navigation}) => {
 
   const signUp = async () => {
     setProcess('Registering, please wait!');
-    const formattedPhoneNumber = selectedAreaCode + formData.phoneNumber;
-  
+    const formattedPhoneNumber = formData.phoneNumber;
+
     if (
       !formData.firstName ||
       !formData.lastName ||
-      formattedPhoneNumber.length < 12 ||
+      !formData.phoneNumber ||
       !formData.password ||
       !formData.cPassword
     ) {
@@ -59,7 +59,7 @@ const SignUp = ({navigation}) => {
       ]);
       return;
     }
-  
+
     try {
       const response = await fetch(`${URLS.BASE}/auth/signup`, {
         method: 'POST',
@@ -72,12 +72,12 @@ const SignUp = ({navigation}) => {
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
-          Accept: 'application/json',
+          Accept: 'application.json',
         },
       });
-  
+
       const data = await response.json();
-  
+
       if (data.message === 'Signup successful') {
         setRegistered(true);
       } else if (data.message === 'Phone number already exists') {
@@ -90,7 +90,7 @@ const SignUp = ({navigation}) => {
               text: 'OK',
               onPress: () => setIsLoading(false),
             },
-          ]
+          ],
         );
       } else {
         Alert.alert('Sign up failure', 'Phone number already exists', [
@@ -102,12 +102,16 @@ const SignUp = ({navigation}) => {
       }
     } catch (err) {
       console.log(err.message);
-      Alert.alert('Failure', 'Something went wrong. Check your internet and try again!', [
-        {
-          text: 'OK',
-          onPress: () => setIsLoading(false),
-        },
-      ]);
+      Alert.alert(
+        'Failure',
+        'Something went wrong. Check your internet and try again!',
+        [
+          {
+            text: 'OK',
+            onPress: () => setIsLoading(false),
+          },
+        ],
+      );
     }
   };
 
@@ -184,31 +188,26 @@ const SignUp = ({navigation}) => {
               placeholder="Enter Email"
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Picker
-              selectedValue={selectedAreaCode}
-              style={[styles.picker, {color: COLORS.BLACK}]}
-              placeholderTextColor={COLORS.BLACK}
-              onValueChange={itemValue => setSelectedAreaCode(itemValue)}
-              dropdownIconColor={COLORS.GREY_LIGHTER}>
-              {areaCodes.map(areaCode => (
-                <Picker.Item
-                  placeholderTextColor={COLORS.BLACK}
-                  key={areaCode.value}
-                  label={areaCode.label}
-                  value={areaCode.value}
-                />
-              ))}
-            </Picker>
-            <TextInput
+          <View>
+            <PhoneInput
               placeholder="Phone Number"
+              defaultCode="UG"
+              layout="first"
+              containerStyle={styles.phoneInputContainer}
               placeholderTextColor="grey"
-              value={formData.phoneNumber}
-              style={[styles.input, {paddingHorizontal: 20}]}
+              style={styles.phoneInput}
+              textInputProps={{
+                style: styles.phoneInput,
+                containerStyle: {
+                  backgroundColor: COLORS.WHITE_LOW, // Background color
+                  borderRadius: 18, // Border radius
+                },
+
+              }}
+              dropdownImageStyle={styles.dropdownImage}
               onChangeText={text =>
                 setFormData({...formData, phoneNumber: text})
               }
-              keyboardType="phone-pad"
             />
           </View>
           {phoneError !== '' && (
@@ -291,18 +290,17 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // marginTop: 10,
     borderColor: COLORS.GREY,
-    borderStyle: 'solid',
     borderWidth: 1,
     backgroundColor: COLORS.WHITE_LOW,
     borderRadius: 18,
     paddingHorizontal: 20,
     marginBottom: 15,
-    fontFamily: 'Roboto',
-    fontSize: 15,
-    color: COLORS.BLACK,
     marginHorizontal: 15,
+    width: 35,
+    height: 20,
+    flex: 1, // Allow the input to expand and fill the available space
+    height: 50,
   },
   picker: {
     flex: 1,
@@ -418,6 +416,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontSize: 16,
     fontFamily: 'Roboto',
+  },
+  phoneInput: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'center',
+    color: COLORS.BLACK,
+    fontWeight: 'medium',
+    paddingLeft: 10,
+    fontSize: 15,
+  },
+  dropdownImage: {
+    alignSelf: 'center',
+  },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
+    backgroundColor: COLORS.WHITE_LOW, // Background color for the phone input container
+    borderRadius: 18, // Add border radius
+    // paddingHorizontal: 10, // Adjust as needed
+    marginBottom: 15,
+    marginHorizontal: 15,
+    // height: 50, // Adjust the height as needed
   },
 });
 
