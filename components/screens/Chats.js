@@ -195,12 +195,11 @@ const ChatBot = ({navigation}) => {
           <Icon name="refresh" size={24} color="black" />
         </TouchableOpacity>
       )}
-      
+
       <ScrollView
         ref={chatRef}
         style={styles.chatContainer}
         contentContainerStyle={styles.chatContent}>
-      
         {messages.map((msg, index) => (
           <Text
             key={index}
@@ -210,22 +209,24 @@ const ChatBot = ({navigation}) => {
             {msg.content}
           </Text>
         ))}
-      
+
         {isTyping && (
           <Text style={[styles.botMessage, {fontStyle: 'italic'}]}>
             Moby is typing...
           </Text>
         )}
-            <View style={styles.predefinedQuestionsContainer}>
-          {predefinedQuestions.map((question, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.predefinedQuestionButton}
-              onPress={() => handlePredefinedQuestionClick(question)}>
-              <Text style={styles.predefinedQuestionText}>{question}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+     {messages.length === 0 && (
+  <View style={styles.predefinedQuestionsContainer}>
+    {predefinedQuestions.map((question, index) => (
+      <TouchableOpacity
+        key={index}
+        style={styles.predefinedQuestionButton}
+        onPress={() => handlePredefinedQuestionClick(question)}>
+        <Text style={styles.predefinedQuestionText}>{question}</Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+)}
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
@@ -293,7 +294,7 @@ const styles = {
     color: COLORS.BLACK,
     fontWeight: 'light',
   },
-  
+
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -312,7 +313,6 @@ const styles = {
     fontWeight: 'medium',
     fontSize: 13,
     paddingHorizontal: 20,
-
   },
   userMessage: {
     alignSelf: 'flex-end',
@@ -341,10 +341,10 @@ const styles = {
     alignItems: 'center',
     marginLeft: 8,
   },
-  refreshButton:{
+  refreshButton: {
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 };
 
 export default ChatBot;
