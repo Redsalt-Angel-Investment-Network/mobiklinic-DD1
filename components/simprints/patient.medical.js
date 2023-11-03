@@ -22,7 +22,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
 import CopyRight from './copyright';
-import {URLS} from '../constants/API';
+import {API_URL} from '@env';
 
 const PatientMedical = ({navigation}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
@@ -133,7 +133,7 @@ const PatientMedical = ({navigation}) => {
       const conditionToPost =
         selectedCondition === 'Other' ? customCondition : selectedCondition; // Use custom condition when "Other" is selected
 
-      const response = await fetch(`${URLS.BASE}/${patientId}/diagnosis`, {
+      const response = await fetch(`${API_URL}/${patientId}/diagnosis`, {
         method: 'POST',
         body: JSON.stringify({
           condition: conditionToPost,

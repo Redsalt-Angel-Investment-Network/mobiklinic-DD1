@@ -11,6 +11,7 @@ import {
 import Loader from '../ui/loader';
 import {URLS} from '../constants/API';
 import DataResultsContext from '../contexts/DataResultsContext';
+import {API_URL} from '@env';
 
 const Appointments = () => {
   const [patientData, setPatientData] = useState(null);
@@ -21,7 +22,7 @@ const Appointments = () => {
 
   useEffect(() => {
     // Fetch patient data from the API endpoint
-    fetch(`${URLS.BASE}/${userLog}/patients`)
+    fetch(`${API_URL}/${userLog}/patients`)
       .then(response => response.json())
       .then(data => {
         // Sort patient data by appointment date (ascending)

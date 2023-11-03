@@ -17,7 +17,7 @@ import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {AuthContext} from '../contexts/auth';
 import CopyRight from '../simprints/copyright';
-import { URLS } from '../constants/API';
+import {API_URL} from '@env';
 
 const Profile = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -78,9 +78,7 @@ const Profile = ({navigation}) => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `${URLS.BASE}/${userLog}/patients`,
-      );
+      const response = await axios.get(`${API_URL}/${userLog}/patients`);
 
       if (response.status === 200) {
         const sortedData = response.data.sort(
@@ -142,7 +140,7 @@ const Profile = ({navigation}) => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `${URLS.BASE}/vaccinations/${userNames}`,
+        `${API_URL}/vaccinations/${userNames}`,
       );
 
       if (response.status === 200) {
@@ -175,9 +173,7 @@ const Profile = ({navigation}) => {
   const fetchDiagnosis = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `${URLS.BASE}/diagnosis/${userNames}`,
-      );
+      const response = await axios.get(`${API_URL}/diagnosis/${userNames}`);
 
       if (response.status === 200) {
         const sortedData = response.data.sort(
@@ -208,9 +204,7 @@ const Profile = ({navigation}) => {
   const fetchAntenatal = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `${URLS.BASE}/antenantals/${userNames}`,
-      );
+      const response = await axios.get(`${API_URL}/antenantals/${userNames}`);
 
       if (response.status === 200) {
         const sortedData = response.data.sort(
@@ -377,7 +371,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: 'black',
-
   },
   header: {
     fontSize: 22,

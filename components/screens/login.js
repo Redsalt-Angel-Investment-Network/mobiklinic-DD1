@@ -11,7 +11,7 @@ import {
 
 import Icon from 'react-native-vector-icons/Feather';
 import {COLORS, DIMENS} from '../constants/styles';
-
+import {API_URL} from '@env';
 import {AuthContext} from '../contexts/auth';
 import {CustomStatusBar} from '../ui/custom.status.bar';
 import Loader from '../ui/loader';
@@ -20,7 +20,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {URLS} from '../constants/API';
 import PhoneInput from 'react-native-phone-number-input';
-
 
 export const clearStorage = async () => {
   await AsyncStorage.clear();
@@ -53,7 +52,7 @@ export const tokensRefresh = async user => {
   const refresh = user.tokens.refresh;
 
   try {
-    const response = await fetch(`${URLS.BASE}/tokens/refresh`, {
+    const response = await fetch(`${API_URL}/tokens/refresh`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${refresh}`,
@@ -160,7 +159,7 @@ export const DOWNLOAD = async data => {
   // await AsyncStorage.removeItem("@doctors");
   // await AsyncStorage.removeItem("@ambulances");
   const {accessToken, items, userId, per_page} = data;
-  axios.defaults.baseURL = URLS.BASE;
+  axios.defaults.baseURL = API_URL;
   axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   axios.defaults.headers.post['Content-Type'] =
     'application/json; charset=UTF-8';
@@ -248,7 +247,7 @@ const Login = ({navigation}) => {
 
     try {
       console.log('Starting network request');
-      let response = await fetch(`${URLS.BASE}/auth/login`, {
+      let response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         body: JSON.stringify({
           phone: username,
@@ -352,29 +351,26 @@ const Login = ({navigation}) => {
         <Text style={styles.title}>Sign in</Text>
       </View>
       <View style={styles.formContainer}>
-      <PhoneInput
-            placeholder="778xxxxxx"
-            defaultCode="UG"
-            layout="first"
-            containerStyle={[
-              styles.phoneInputContainer,
-            
-            ]}
-            textInputStyle={{ color: 'black', paddingVertical: 10 }}
-            placeholderTextColor="grey"
-            style={styles.phoneInput}
-            textContainerStyle={styles.phoneInput}
-            textInputProps={{
-              style: styles.phoneInput,
-              placeholderTextColor: 'grey',
-              height: 40,
-              alignItems:'center', 
-              justifyContent:'center',
-              backgroundColor: 'rgba(255, 255, 255, 0)',
-            }}
-            dropdownImageStyle={styles.dropdownImage}
-            onChangeText={(text) => setUser({ ...user, username: text })}
-          />
+        <PhoneInput
+          placeholder="778xxxxxx"
+          defaultCode="UG"
+          layout="first"
+          containerStyle={[styles.phoneInputContainer]}
+          textInputStyle={{color: 'black', paddingVertical: 10}}
+          placeholderTextColor="grey"
+          style={styles.phoneInput}
+          textContainerStyle={styles.phoneInput}
+          textInputProps={{
+            style: styles.phoneInput,
+            placeholderTextColor: 'grey',
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+          }}
+          dropdownImageStyle={styles.dropdownImage}
+          onChangeText={text => setUser({...user, username: text})}
+        />
         <View style={styles.labeled}>
           <TextInput
             style={styles.input}
@@ -540,7 +536,7 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
     fontWeight: 'medium',
     paddingLeft: 10,
-    backgroundColor:'rgba(255, 255, 255, 0)',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     fontSize: 15,
     borderTopEndRadius: 18,
     borderBottomEndRadius: 18,
