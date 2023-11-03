@@ -256,14 +256,15 @@ const styles = {
     alignItems: 'center',
     marginBottom: 16,
     paddingHorizontal: 16,
+
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
     color: 'black',
-    textAlign: 'center',
-    alignSelf: 'center',
+    // textAlign: 'center',
+    // alignSelf: 'center',
   },
   chatContainer: {
     flex: 1,
@@ -339,6 +340,7 @@ const styles = {
     borderTopLeftRadius: 0,
     marginLeft: 8,
     marginBottom: 8,
+    padding:12,
   },
   sendButton: {
     padding: 12,
