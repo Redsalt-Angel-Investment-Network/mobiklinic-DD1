@@ -11,6 +11,8 @@ import {
 import {openDatabase} from 'react-native-sqlite-storage';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
+import {OPEN_API_KEY} from '@env'
+
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 const db = openDatabase({name: 'chatHistory.db'});
@@ -87,7 +89,7 @@ const ChatBot = ({navigation}) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization:
-        'Bearer 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',
+        `Bearer ${OPEN_API_KEY}`,
     },
   });
 
