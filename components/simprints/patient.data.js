@@ -22,7 +22,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
 import {countryData} from './country.selector';
-import {URLS} from '../constants/API';
+import {API_URL} from '@env';
 
 const PatientData = ({navigation}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
@@ -116,7 +116,7 @@ const PatientData = ({navigation}) => {
         return;
       }
 
-      const response = await fetch(`${URLS.BASE}/${userLog}/patients`, {
+      const response = await fetch(`${API_URL}/${userLog}/patients`, {
         method: 'POST',
         body: JSON.stringify({
           firstName: state.firstName,

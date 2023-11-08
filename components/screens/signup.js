@@ -17,6 +17,7 @@ import {Picker} from '@react-native-picker/picker';
 import {validateUgandaPhoneNumber} from '../helpers/validation';
 import {URLS} from '../constants/API';
 import PhoneInput from 'react-native-phone-number-input';
+import {API_URL} from '@env';
 
 const areaCodes = [
   {label: '+256', value: '+256'},
@@ -61,7 +62,7 @@ const SignUp = ({navigation}) => {
     }
 
     try {
-      const response = await fetch(`${URLS.BASE}/auth/signup`, {
+      const response = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
         body: JSON.stringify({
           phone: formattedPhoneNumber,
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
     fontWeight: 'medium',
     paddingLeft: 10,
-    backgroundColor:'rgba(255, 255, 255, 0)',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     fontSize: 15,
     borderTopEndRadius: 18,
     borderBottomEndRadius: 18,

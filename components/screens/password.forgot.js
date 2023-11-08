@@ -16,6 +16,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
 import {Picker} from '@react-native-picker/picker';
+import {API_URL} from '@env';
 
 const areaCodes = [
   {label: '+256', value: '+256'},
@@ -33,7 +34,7 @@ const ForgotPassword = ({navigation}) => {
       const formattedPhoneNumber = selectedAreaCode + phoneNumber;
       // Log the correctly formatted phone number before sending the request
       console.log('Phone Number Sent to Database:', formattedPhoneNumber);
-      await axios.post(`${URLS.BASE}/auth/forgot-password`, {
+      await axios.post(`${API_URL}/auth/forgot-password`, {
         phone: formattedPhoneNumber,
       });
 

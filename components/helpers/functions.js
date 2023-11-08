@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert} from 'react-native';
 import axios from 'axios';
-import {URLS} from '../constants/API';
+import {API_URL} from '@env';
 import uniqWith from 'lodash/uniqWith';
 import isEqual from 'lodash/isEqual';
 import DataResultsContext from '../contexts/DataResultsContext';
@@ -34,7 +34,7 @@ export const tokensRefresh = async user => {
   const refresh = user.tokens.refresh;
 
   try {
-    const response = fetch(`${URLS.BASE}/tokens/refresh`, {
+    const response = fetch(`${API_URL}/tokens/refresh`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${refresh}`,
@@ -141,7 +141,7 @@ export const DOWNLOAD = async data => {
   // await AsyncStorage.removeItem("@doctors");
   // await AsyncStorage.removeItem("@ambulances");
   const {accessToken, items, userId, per_page} = data;
-  axios.defaults.baseURL = URLS.BASE;
+  axios.defaults.baseURL = API_URL;
   axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   axios.defaults.headers.post['Content-Type'] =
     'application/json; charset=UTF-8';
@@ -217,7 +217,7 @@ export const signIn = async data => {
   // } else {
   try {
     console.log('Starting network request');
-    let response = await fetch(`${URLS.BASE}/auth/login`, {
+    let response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       body: JSON.stringify({
         phone: username,
@@ -344,7 +344,7 @@ export const signUp = async data => {
   }
 
   try {
-    await fetch(`${URLS.BASE}/auth/signup`, {
+    await fetch(`${API_URL}/auth/signup`, {
       method: 'POST',
       body: JSON.stringify({
         phone: phoneNumber,

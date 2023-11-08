@@ -15,6 +15,7 @@ import CopyRight from '../simprints/copyright';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
+import {API_URL} from '@env';
 
 const ResetPassword = ({navigation}) => {
   const [resetToken, setResetToken] = useState('');
@@ -28,7 +29,7 @@ const ResetPassword = ({navigation}) => {
         newPassword,
       };
 
-      await axios.post(`${URLS.BASE}/auth/reset-password`, requestBody);
+      await axios.post(`${API_URL}/auth/reset-password`, requestBody);
 
       Alert.alert(
         'Password Reset Successful',

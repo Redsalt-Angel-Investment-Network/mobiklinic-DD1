@@ -23,7 +23,7 @@ import Loader from '../ui/loader';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
-import { URLS } from '../constants/API';
+import {API_URL} from '@env';
 
 const GetPatients = () => {
   const navigation = useNavigation();
@@ -49,9 +49,7 @@ const GetPatients = () => {
   const fetchData = async () => {
     console.log('GUID:', guid);
     try {
-      const response = await fetch(
-        `${URLS.BASE}/patients/${guid}`,
-      );
+      const response = await fetch(`${API_URL}/patients/${guid}`);
       // console.log('Response:', response);
       if (response.ok) {
         const data = await response.json();
@@ -307,7 +305,7 @@ const GetPatients = () => {
                       <Text style={styles.userDataLabel}>
                         Is Pregnant:{' '}
                         <Text style={styles.userDataValue}>
-                        {diagnosis.isPregnant}
+                          {diagnosis.isPregnant}
                         </Text>
                       </Text>
 

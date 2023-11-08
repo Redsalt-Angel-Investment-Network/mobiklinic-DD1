@@ -15,10 +15,10 @@ import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
 import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
-import {URLS} from '../constants/API';
+import {API_URL} from '@env';
 
 const PatientList = ({navigation}) => {
-  const {userLog, userNames, refusalData, patientId, setPatientId} =
+  const {userLog, refusalData, patientId, setPatientId} =
     useContext(DataResultsContext);
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,6 +28,7 @@ const PatientList = ({navigation}) => {
   const [isNoUserFound, setIsNoUserFound] = useState(false);
   const [patientsEnrolledCount, setPatientsEnrolledCount] = useState(0);
   const [expandedUserId, setExpandedUserId] = useState(null);
+  // const {reason} = refusalData;
 
   const formatDate = date => {
     if (date) {
@@ -64,7 +65,8 @@ const PatientList = ({navigation}) => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${URLS.BASE}/${userLog}/patients`);
+      const response = await axios.get(`${API_URL}/${userLog}/patients`);
+      // const response = await axios.get(`https://mobi-be-production.up.railway.app/patients`);
 
       if (response.status === 200) {
         const currentDate = new Date();
@@ -152,10 +154,10 @@ const PatientList = ({navigation}) => {
 
     const addData = () => {
       setPatientId(item.id);
-      console.log('Adding data for patient ID:', patientId.id);
+      console.log('Adding data for patient ID:', item.id);
 
       navigation.navigate('SelectActivity', {
-        patientId: patientId,
+        patientId: item.id,
         paramKey: {firstName: item.firstName, lastName: item.lastName},
       });
     };
@@ -191,7 +193,10 @@ const PatientList = ({navigation}) => {
               Phone Number:
               <Text style={styles.userDataValue}>{item.phoneNumber}</Text>
             </Text>
-
+            {/* <Text style={styles.userDataLabel}>
+              Reason for not using simprints:{'\t'}
+              <Text style={styles.userDataValue}>{reason}</Text>
+            </Text> */}
             <Text style={styles.userDataLabel}>
               Date Of Birth:
               <Text style={styles.userDataValue}>
@@ -252,12 +257,12 @@ const PatientList = ({navigation}) => {
                       </Text>
                     </Text>
 
-                    <Text style={styles.userDataLabel}>
-                      Dose:{' '}
+                    {/* <Text style={styles.userDataLabel}>
+                      Dose:
                       <Text style={styles.userDataValue}>
-                        {vaccination.dose}
+                        {vaccination.vaccinatedBy}
                       </Text>
-                    </Text>
+                    </Text> */}
 
                     <Text style={styles.userDataLabel}>
                       Card Number:{' '}
@@ -390,7 +395,7 @@ const PatientList = ({navigation}) => {
                 {item.diagnoses.map((diagnosis, index) => (
                   <View key={index}>
                     <Text style={styles.userDataLabel}>
-                      Condition Diagnosed:{'\t'}
+                      Pregnacy Status:{'\t'}
                       <Text style={styles.userDataValue}>
                         {diagnosis.condition}
                       </Text>
@@ -425,7 +430,7 @@ const PatientList = ({navigation}) => {
                         {formatDate(new Date(diagnosis.followUpDate))}
                       </Text>
                     </Text>
-                    {console.log('Diagnoses:', item.diagnoses)}
+                    {console.log(diagnosis.medicines)}
                     {diagnosis.medicines && diagnosis.medicines.length > 0 && (
                       <View>
                         <Text style={styles.userDataLabel}>MEDICINES</Text>
@@ -433,8 +438,8 @@ const PatientList = ({navigation}) => {
                           <View key={medIndex}>
                             <Text style={styles.userDataLabel}>
                               Medicine Name:
-                              <Text>
-                                Prescriptions/Medicine: {medicine.name}
+                              <Text style={styles.userDataValue}>
+                                {medicine.name}
                               </Text>
                             </Text>
 
@@ -459,19 +464,17 @@ const PatientList = ({navigation}) => {
                     <View style={styles.line} />
                   </View>
                 ))}
+
+                <TouchableOpacity onPress={addData} style={styles.buttonSec}>
+                  <Text style={styles.buttonText}>Follow Up Patient</Text>
+                </TouchableOpacity>
               </View>
             )}
-            <TouchableOpacity onPress={addData} style={styles.buttonSec}>
-              <Text style={styles.buttonText}>Add Data</Text>
-            </TouchableOpacity>
+            {/* <TouchableOpacity onPress={addData} style={styles.buttonSec}>
+              <Text style={styles.buttonText}>Follow Up Patient</Text>
+            </TouchableOpacity> */}
           </View>
         )}
-
-        <TouchableOpacity
-          style={styles.buttonSec}
-          onPress={navigation.navigate('PatientData')}>
-          <Text style={styles.buttonText}>No user found</Text>
-        </TouchableOpacity>
       </View>
     );
   };
@@ -527,11 +530,7 @@ const PatientList = ({navigation}) => {
               }
             />
           ) : (
-            <TouchableOpacity
-              style={styles.buttonSec}
-              onPress={navigation.navigate('PatientData')}>
-              <Text style={styles.buttonText}>No user found</Text>
-            </TouchableOpacity>
+            <Text style={styles.noUserFoundText}>No user found</Text>
           )
         ) : (
           <Loader />
@@ -701,3 +700,5 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
+
+// export default PatientList;

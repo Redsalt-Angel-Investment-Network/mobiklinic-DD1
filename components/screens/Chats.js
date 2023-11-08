@@ -11,6 +11,8 @@ import {
 import {openDatabase} from 'react-native-sqlite-storage';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
+import {OPEN_API_KEY} from '@env'
+
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 const db = openDatabase({name: 'chatHistory.db'});
@@ -26,7 +28,7 @@ const ChatBot = ({navigation}) => {
     // Create a table for chat history when the component mounts
     db.transaction(txn => {
       txn.executeSql(
-        'CREATE TABLE IF NOT EXISTS chat_history (id INTEGER PRIMARY KEY AUTOINCREMENT,  user_id INTEGER, role TEXT, content TEXT)',
+        'CREATE TABLE IF NOT EXISTS chat_history (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, role TEXT, content TEXT)',
         [],
         () => {
           // Table created successfully or already exists
@@ -87,7 +89,7 @@ const ChatBot = ({navigation}) => {
     headers: {
       'Content-Type': 'application/json',
       Authorization:
-        'Bearer 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',
+        `Bearer ${OPEN_API_KEY}`,
     },
   });
 
@@ -215,18 +217,18 @@ const ChatBot = ({navigation}) => {
             Moby is typing...
           </Text>
         )}
-     {messages.length === 0 && (
-  <View style={styles.predefinedQuestionsContainer}>
-    {predefinedQuestions.map((question, index) => (
-      <TouchableOpacity
-        key={index}
-        style={styles.predefinedQuestionButton}
-        onPress={() => handlePredefinedQuestionClick(question)}>
-        <Text style={styles.predefinedQuestionText}>{question}</Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-)}
+        {messages.length === 0 && (
+          <View style={styles.predefinedQuestionsContainer}>
+            {predefinedQuestions.map((question, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.predefinedQuestionButton}
+                onPress={() => handlePredefinedQuestionClick(question)}>
+                <Text style={styles.predefinedQuestionText}>{question}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
@@ -248,6 +250,7 @@ const styles = {
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: COLORS.LIGHT_GRAY,
   },
   header: {
     flexDirection: 'row',
@@ -255,22 +258,23 @@ const styles = {
     alignItems: 'center',
     marginBottom: 16,
     paddingHorizontal: 16,
+
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
     color: 'black',
-    textAlign: 'center',
-    alignSelf: 'center',
+    // textAlign: 'center',
+    // alignSelf: 'center',
   },
   chatContainer: {
     flex: 1,
     marginBottom: 16,
     padding: 16,
-    backgroundColor: '#f4f4f4',
+    // backgroundColor: COLORS.WHITE,
     borderRadius: 8,
-    paddingVertical: 2,
+    paddingVertical: 16,
   },
   chatContent: {
     justifyContent: 'flex-end',
@@ -278,54 +282,57 @@ const styles = {
   predefinedQuestionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    // justifyContent: 'center',
   },
   predefinedQuestionButton: {
-    backgroundColor: COLORS.LIGHT_GRAY,
+    backgroundColor: COLORS.PRIMARY,
     padding: 12,
     margin: 8,
     borderRadius: 12,
-    borderColor: COLORS.GREY,
+    borderColor: COLORS.PRIMARY,
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   predefinedQuestionText: {
     fontSize: 15,
-    color: COLORS.BLACK,
-    fontWeight: 'light',
+    color: COLORS.WHITE,
+    fontWeight: 'bold',
   },
 
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    color: COLORS.BLACK,
-    marginTop: 10,
-    marginBottom: 30,
+    marginTop: 16,
+    marginBottom: 16,
     borderColor: COLORS.GREY,
     borderStyle: 'solid',
     borderWidth: 1,
     borderRadius: 10,
+    backgroundColor: COLORS.WHITE,
   },
   input: {
     flex: 1,
-    justifyContent: 'center',
+    paddingLeft: 16,
     color: COLORS.BLACK,
-    fontWeight: 'medium',
-    fontSize: 13,
-    paddingHorizontal: 20,
+    fontSize: 16, // In
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#075E54',
-    padding: 8,
+    alignItems: 'flex-end',
+    backgroundColor: COLORS.PRIMARY,
+    padding: 12,
     borderRadius: 12,
     marginVertical: 5,
     fontSize: 15,
     color: COLORS.WHITE,
     borderBottomRightRadius: 0,
+    marginRight: 8,
+    marginBottom: 8,
   },
   botMessage: {
     alignSelf: 'flex-start',
+    alignItems: 'flex-start',
     backgroundColor: '#25283C',
     padding: 8,
     borderRadius: 12,
@@ -333,6 +340,9 @@ const styles = {
     color: COLORS.WHITE,
     fontSize: 15,
     borderTopLeftRadius: 0,
+    marginLeft: 8,
+    marginBottom: 8,
+    padding:12,
   },
   sendButton: {
     padding: 12,
