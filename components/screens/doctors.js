@@ -141,21 +141,25 @@ const Doctors = ({navigation}) => {
             <ListItem.Subtitle style={STYLES.subtitle}>
               <View style={STYLES.wrapper}>
                 <View style={STYLES.subtitle}>
-                  <Text style={STYLES.label}>Specilisation</Text>
-                  <Text>{item.specialisation}</Text>
+                  <Text style={STYLES.label}>Specilisation:</Text>
+                  <Text style={STYLES.label}>{item.specialisation}</Text>
                 </View>
                 <View style={STYLES.subtitle}>
-                  <Text style={STYLES.label}>Hospital</Text>
-                  <Text>{item.hospital}</Text>
+                  <Text style={STYLES.label}>Hospital:</Text>
+                  <Text style={STYLES.label}>{item.hospital}</Text>
                 </View>
                 <View style={STYLES.subtitle}>
+                  <Text style={STYLES.label}>Phone Number:</Text>
+                  <Text style={STYLES.label}>{item.phone}</Text>
+                </View>
+                {/* <View style={STYLES.subtitle}>
                   <Text style={STYLES.label}>District</Text>
-                  <Text>{item.district}</Text>
-                </View>
-                <View style={STYLES.subtitle}>
+                  <Text style={STYLES.label}>{item.district}</Text>
+                </View> */}
+                {/* <View style={STYLES.subtitle}>
                   <Text style={STYLES.label}>Languages</Text>
-                  <Text>{item.languages}</Text>
-                </View>
+                  <Text style={STYLES.label}>{item.languages}</Text>
+                </View> */}
               </View>
             </ListItem.Subtitle>
           </ListItem.Content>
@@ -231,6 +235,8 @@ const STYLES = StyleSheet.create({
   listTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color:COLORS.BLACK
+
   },
   subtitle: {
     flexDirection: 'row',
@@ -240,6 +246,7 @@ const STYLES = StyleSheet.create({
   label: {
     fontWeight: 'bold',
     marginRight: 5,
+    color:COLORS.BLACK
   },
   leftHeader: {
     flex: 1,
@@ -253,6 +260,7 @@ const STYLES = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    
   },
   textColor: {
     color: COLORS.BLACK,
