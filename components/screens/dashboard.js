@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -10,35 +10,41 @@ import Icon from 'react-native-vector-icons/Feather';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FoIcon from 'react-native-vector-icons/Fontisto';
 import FAIcon from 'react-native-vector-icons/FontAwesome';
-import { COLORS, DIMENS } from '../constants/styles';
+import {COLORS, DIMENS} from '../constants/styles';
 import Emoji from 'react-native-emoji';
 import CustomHeader from '../parts/custom-header';
-import { CustomStatusBar } from '../ui/custom.status.bar';
-import { signOut } from '../helpers/functions';
-import { AuthContext } from '../contexts/auth';
+import {CustomStatusBar} from '../ui/custom.status.bar';
+import {signOut} from '../helpers/functions';
+import {AuthContext} from '../contexts/auth';
 import DataResultsContext from '../contexts/DataResultsContext';
 import CopyRight from '../simprints/copyright';
-
-const Dashboard = ({ navigation }) => {
-  const { setTokens, setUser } = React.useContext(AuthContext);
-  const { userNames } = useContext(DataResultsContext);
+const Dashboard = ({navigation}) => {
+  const {setTokens, setUser} = React.useContext(AuthContext);
+  const {userNames} = useContext(DataResultsContext);
 
   return (
     <View style={STYLES.wrapper}>
       <CustomStatusBar />
 
       <View style={STYLES.hero}>
-        <Text style={STYLES.heroHeading}>
-          Hey{' '}
-          <Text style={{ color: COLORS.WHITE }}>
-            {userNames} <Emoji name="wave" />
+        <View style={STYLES.menuColumn}>
+          <TouchableOpacity onPress={() => navigation.navigate('DrawerLogged')}>
+            <Icon name="menu" size={25} color={COLORS.WHITE} />
+          </TouchableOpacity>
+        </View>
+        <View yle={STYLES.heroTextContainer}>
+          <Text style={STYLES.heroHeading}>
+            Hey{' '}
+            <Text style={{color: COLORS.WHITE}}>
+              {userNames} <Emoji name="wave" />
+            </Text>
+            ,
           </Text>
-          ,
-        </Text>
-        <Text style={STYLES.heroParagraph}>Welcome back!</Text>
-        <Text style={STYLES.heroParagraph}>
-          Choose an option below to continue.
-        </Text>
+          <Text style={STYLES.heroParagraph}>Welcome back!</Text>
+          <Text style={STYLES.heroParagraph}>
+            Choose an option below to continue.
+          </Text>
+        </View>
       </View>
 
       <View style={STYLES.container}>
@@ -109,21 +115,21 @@ const Dashboard = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-              style={STYLES.card}
-              onPress={() => {
-                setTokens(null);
-                signOut(setUser);
-              }}>
-              <View style={STYLES.cardIcon}>
-                <MIcon
-                  name="logout"
-                  size={40}
-                  strokeSize={3}
-                  color={COLORS.PRIMARY}
-                />
-              </View>
-              <Text style={STYLES.cardTitle}>Logout</Text>
-            </TouchableOpacity>
+            style={STYLES.card}
+            onPress={() => {
+              setTokens(null);
+              signOut(setUser);
+            }}>
+            <View style={STYLES.cardIcon}>
+              <MIcon
+                name="logout"
+                size={40}
+                strokeSize={3}
+                color={COLORS.PRIMARY}
+              />
+            </View>
+            <Text style={STYLES.cardTitle}>Logout</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <CopyRight />
@@ -137,7 +143,9 @@ const STYLES = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
   },
   hero: {
-    padding: 20,
+    padding: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.PRIMARY,
   },
   heroHeading: {
@@ -150,10 +158,16 @@ const STYLES = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.WHITE,
   },
+  menuColumn: {
+    marginRight: 15,
+  },
+  heroTextContainer: {
+    flex: 1,
+  },
   container: {
     flexDirection: 'row',
     flex: 1,
-    paddingHorizontal:10,
+    paddingHorizontal: 10,
   },
   column: {
     flex: 1,
@@ -167,7 +181,7 @@ const STYLES = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
-    marginTop:10, 
+    marginTop: 10,
   },
   cardIcon: {
     width: 50,

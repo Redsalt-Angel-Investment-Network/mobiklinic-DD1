@@ -1,6 +1,6 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import {DrawerNavigationLogged} from './drawers';
+// import DrawerNavigationLogged from './drawer.logged';
 import Diagnose from '../screens/diagnosis';
 import Ambulances from '../screens/ambulance';
 import Doctors from '../screens/doctors';
@@ -23,6 +23,8 @@ import SelectAction from '../simprints/select.action';
 import ReceivedChats from '../screens/Received.Chats';
 import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
+import Dashboard from '../screens/dashboard';
+import DrawerLogged from '../navigators/drawer.logged';
 
 const Stack = createStackNavigator();
 
@@ -32,7 +34,7 @@ function AuthStack() {
       <Stack.Screen
         name="Dashboard"
         options={{headerShown: false}}
-        component={DrawerNavigationLogged}
+        component={Dashboard}
       />
       <Stack.Screen
         name="Doctors"
@@ -44,11 +46,11 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Ambulances}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Diagnose"
         options={{headerShown: false}}
         component={Diagnose}
-      />
+      /> */}
       <Stack.Screen
         name="ViewDiagnosis"
         options={{headerShown: false}}
@@ -130,12 +132,16 @@ function AuthStack() {
         options={{headerShown: false}}
         component={ReceivedChats}
       />
-        <Stack.Screen
+      <Stack.Screen
         name="Appointments"
         options={{headerShown: false}}
         component={Appointments}
       />
-     
+      <Stack.Screen
+        name="DrawerLogged"
+        options={{headerShown: false}}
+        component={DrawerLogged}
+      />
     </Stack.Navigator>
   );
 }
