@@ -25,13 +25,14 @@ const Dashboard = ({navigation}) => {
   return (
     <View style={STYLES.wrapper}>
       <CustomStatusBar />
-
-      <View style={STYLES.hero}>
-        <View style={STYLES.menuColumn}>
+      <View style={STYLES.menuColumn}>
           <TouchableOpacity onPress={() => navigation.navigate('DrawerLogged')}>
-            <Icon name="menu" size={25} color={COLORS.WHITE} />
+            <Icon name="menu" size={25} color={COLORS.BLACK} />
           </TouchableOpacity>
+          <Text style={STYLES.menuHeading}>Dashboard</Text>
         </View>
+      <View style={STYLES.hero}>
+       
         <View yle={STYLES.heroTextContainer}>
           <Text style={STYLES.heroHeading}>
             Hey{' '}
@@ -53,7 +54,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('SelectAction')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="heart" size={50} color={COLORS.PRIMARY} />
+              <Icon name="heart" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Enrol Patient</Text>
           </TouchableOpacity>
@@ -62,7 +63,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('Appointments')}>
             <View style={STYLES.cardIcon}>
-              <MIcon name="calendar" size={50} color={COLORS.PRIMARY} />
+              <MIcon name="calendar" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Appointments</Text>
           </TouchableOpacity>
@@ -71,7 +72,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('PatientLists')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="users" size={50} color={COLORS.PRIMARY} />
+              <Icon name="users" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Search Patient</Text>
           </TouchableOpacity>
@@ -80,7 +81,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('Profile')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="user" size={50} color={COLORS.PRIMARY} />
+              <Icon name="user" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Profile</Text>
           </TouchableOpacity>
@@ -91,7 +92,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('Ambulance')}>
             <View style={STYLES.cardIcon}>
-              <MIcon name="ambulance" size={50} color={COLORS.PRIMARY} />
+              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Ambulances</Text>
           </TouchableOpacity>
@@ -100,7 +101,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('Doctors')}>
             <View style={STYLES.cardIcon}>
-              <FoIcon name="doctor" size={50} color={COLORS.PRIMARY} />
+              <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Doctors</Text>
           </TouchableOpacity>
@@ -109,7 +110,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('Chats')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="message-circle" size={50} color={COLORS.PRIMARY} />
+              <Icon name="message-circle" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Ask Moby</Text>
           </TouchableOpacity>
@@ -160,6 +161,16 @@ const STYLES = StyleSheet.create({
   },
   menuColumn: {
     marginRight: 15,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+
+  },
+  menuHeading: {
+    // marginTop: 5,
+    fontSize: 18,
+     color: COLORS.BLACK,
+    marginHorizontal:50
   },
   heroTextContainer: {
     flex: 1,
