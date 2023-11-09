@@ -104,8 +104,8 @@ android {
         applicationId "com.mobiklinicapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "3.0"
     }
 
     splits {
@@ -118,10 +118,10 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storeFile file('Mobiklinic_App keystore file.jks')
+            storePassword 'mobiklinic#@23!'
+            keyAlias 'key0'
+            keyPassword 'mobiklinic#@23!'
         }
     }
     buildTypes {
