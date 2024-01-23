@@ -10,7 +10,7 @@ import FollowUp from '../screens/diagnosis.follow.up';
 import Chat from '../screens/Chat';
 import Chats from '../screens/Chats';
 import Profile from '../screens/profile';
-import PatientData from '../simprints/patient.data';
+import PatientData from '../simprints/patient.profile';
 import SimprintsConnect from '../simprints/simprintsID';
 import PatientMedical from '../simprints/patient.medical';
 import Vaccination from '../simprints/vaccination';
@@ -141,11 +141,7 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Appointments}
       />
-      <Stack.Screen
-        name="DrawerLogged"
-        options={{headerShown: false}}
-        component={DrawerLogged}
-      />
+
       <Stack.Screen
         name="Urinalysis"
         options={{headerShown: false}}
@@ -172,6 +168,7 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Inspection}
       />
+
     </Stack.Navigator>
   );
 }

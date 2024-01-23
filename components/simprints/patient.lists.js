@@ -223,7 +223,7 @@ const PatientList = ({navigation}) => {
               Sex: <Text style={styles.userDataValue}>{item.sex}</Text>
             </Text>
             <Text style={styles.userDataLabel}>
-              Weight:{' '}
+              Weight:
               <Text style={styles.userDataValue}>{item.weight} kgs</Text>
             </Text>
 
@@ -233,10 +233,34 @@ const PatientList = ({navigation}) => {
             <Text style={styles.userDataLabel}>
               Created At:{' '}
               <Text style={styles.userDataValue}>
-                {' '}
                 {formatDate(new Date(item.createdAt))}
               </Text>
             </Text>
+            <Text style={styles.userDataLabel}>
+              Marital Status{' '}
+              <Text style={styles.userDataValue}>{item.maritalStatus}</Text>
+            </Text>
+
+            <Text style={styles.userDataLabel}>
+              Next Of Kin:
+              <Text style={styles.userDataValue}>{item.nextOfKin}</Text>
+            </Text>
+
+            <Text style={styles.userDataLabel}>
+              Next Of Kin Contact:
+              <Text style={styles.userDataValue}>{item.nextOfKinContact}</Text>
+            </Text>
+
+            <Text style={styles.userDataLabel}>
+              Occupation:
+              <Text style={styles.userDataValue}>{item.occupation}</Text>
+            </Text>
+
+            <Text style={styles.userDataLabel}>
+              Ethinicity:
+              <Text style={styles.userDataValue}>{item.ethinicity}</Text>
+            </Text>
+
             <View style={styles.line} />
             {item.vaccinations && item.vaccinations.length > 0 && (
               <View>
