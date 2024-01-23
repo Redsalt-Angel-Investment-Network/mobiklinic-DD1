@@ -416,7 +416,7 @@ const PatientData = ({navigation}) => {
               <Picker
                 selectedValue={selectedLanguage}
                 style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
-                onValueChange={handleLanguageChange}>
+                onValueChange={handleEthinicityChange}>
                 <Picker.Item label="Select a language" value="" />
                 {countryData
                   .find(country => country.name === selectedCountry)
@@ -473,7 +473,8 @@ const STYLES = StyleSheet.create({
   body: {
     flex: 2,
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    // paddingVertical: 30,
+    marginBottom:30,
   },
   alert: {
     color: COLORS.GREY,
@@ -488,7 +489,7 @@ const STYLES = StyleSheet.create({
     fontWeight: 'bold',
   },
   label: {
-    fontWeight: 'medium',
+    fontWeight: 'bold',
     marginLeft: 5,
     marginRight: 5,
     color: COLORS.BLACK,
@@ -568,20 +569,19 @@ const STYLES = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    // paddingVertical: 10,
-    color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 10,
-    borderColor: COLORS.GREY,
-    borderStyle: 'solid',
-    borderWidth: 1,
+    backgroundColor: COLORS.GREY_LIGHTER,
     borderRadius: 10,
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
   },
   field: {
     flex: 1,
     justifyContent: 'center',
     color: COLORS.BLACK,
     fontWeight: 'medium',
+
   },
   guid: {
     textAlign: 'left',
@@ -591,11 +591,12 @@ const STYLES = StyleSheet.create({
     display: 'none',
   },
   submit: {
+    alignItems: 'center',
     backgroundColor: COLORS.BLACK,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 20,
     marginTop: 10,
   },
   submitText: {
@@ -681,10 +682,5 @@ const STYLES = StyleSheet.create({
     fontSize: 15,
     color: COLORS.BLACK,
   },
-  datePickerText: {
-    paddingVertical: 10,
-    paddingLeft: 30,
-    fontSize: 14,
-    color: COLORS.BLACK,
-  },
+
 });
