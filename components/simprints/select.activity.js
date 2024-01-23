@@ -141,6 +141,17 @@ const SelectActivity = ({navigation, route}) => {
           </View>
         </View>
 
+        <View>
+          <TouchableOpacity
+            style={STYLES.buttonSec}
+            onPress={() => navigation.navigate('Dashboard')}>
+            <Text style={STYLES.buttonText}>
+              <Icon name="arrow-left" size={18} color={COLORS.PRIMARY} />
+              Home Page
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <CopyRight />
       </View>
     </View>
@@ -307,5 +318,21 @@ const STYLES = StyleSheet.create({
     color: '#888',
     fontSize: 12,
     marginTop: 100,
+  },
+  buttonSec: {
+    backgroundColor: COLORS.WHITE,
+    paddingVertical: 10,
+    // paddingHorizontal: 15,
+    borderRadius: 10,
+    marginVertical: 20,
+    borderWidth: 2,
+    borderColor: COLORS.PRIMARY,
+  },
+  buttonText: {
+    color: COLORS.PRIMARY,
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    paddingHorizontal: 10,
   },
 });
