@@ -194,11 +194,7 @@ const PatientData = ({navigation}) => {
           <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
       }
-      title={
-        <Text style={[STYLES.centerHeader, STYLES.subtitle]}>
-          BENEFICIARY PROFILE
-        </Text>
-      }
+      title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK </Text>}
     />
   );
 
@@ -210,7 +206,7 @@ const PatientData = ({navigation}) => {
       {_header()}
 
       <ScrollView style={STYLES.body}>
-        {/* <Text style={STYLES.title}>Beneficiary Profile</Text> */}
+        <Text style={STYLES.title}>Beneficiary Profile</Text>
 
         {/* First Name */}
         <View style={STYLES.labeled}>
@@ -474,7 +470,7 @@ const STYLES = StyleSheet.create({
     flex: 2,
     paddingHorizontal: 20,
     // paddingVertical: 30,
-    marginBottom:30,
+    marginBottom: 30,
   },
   alert: {
     color: COLORS.GREY,
@@ -581,7 +577,6 @@ const STYLES = StyleSheet.create({
     justifyContent: 'center',
     color: COLORS.BLACK,
     fontWeight: 'medium',
-
   },
   guid: {
     textAlign: 'left',
@@ -682,5 +677,4 @@ const STYLES = StyleSheet.create({
     fontSize: 15,
     color: COLORS.BLACK,
   },
-
 });
