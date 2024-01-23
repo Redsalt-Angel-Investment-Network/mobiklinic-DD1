@@ -29,6 +29,7 @@ import Urinalysis from '../renal/urinalysis';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
 import Inspection from '../renal/inspection';
+import SelectRenalActivity from '../renal/select.renal';
 
 const Stack = createStackNavigator();
 
@@ -162,13 +163,16 @@ function AuthStack() {
         options={{headerShown: false}}
         component={History}
       />
-
       <Stack.Screen
         name="Inspection"
         options={{headerShown: false}}
         component={Inspection}
       />
-
+      <Stack.Screen
+        name="SelectRenalActivity"
+        options={{headerShown: false}}
+        component={SelectRenalActivity}
+      />
     </Stack.Navigator>
   );
 }

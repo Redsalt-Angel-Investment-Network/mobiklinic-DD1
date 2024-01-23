@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../parts/custom-header';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CopyRight from '../simprints/copyright';
+import CopyRight from '../copyright';
 
 const About = ({navigation}) => {
   const openWebsite = () => {

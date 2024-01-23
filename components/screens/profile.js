@@ -16,7 +16,7 @@ import Loader from '../ui/loader';
 import CustomHeader from '../ui/custom-header';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {AuthContext} from '../contexts/auth';
-import CopyRight from '../simprints/copyright';
+import CopyRight from '../copyright';
 import {API_URL} from '@env';
 
 const Profile = ({navigation}) => {

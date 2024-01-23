@@ -17,7 +17,7 @@ import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Feather';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 import {COLORS, DIMENS} from '../constants/styles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {
   _removeStorageItem,
   generateRandomCode,
@@ -30,7 +30,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import {DiagnosisContext} from '../providers/Diagnosis';
 import CustomHeader from '../ui/custom-header';
 import Loader from '../ui/loader';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 
 const SelectActivity = ({navigation, route}) => {
   const _header = () => (
@@ -126,16 +126,12 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('Dashboard')}>
+                onPress={() => navigation.navigate('SelectRenalActivity')}>
                 <View style={STYLES.cardIcon}>
-                  <MIcon
-                    name="home"
-                    size={40}
-                    strokeSize={3}
-                    color={COLORS.BLACK}
-                  />
+                <FontAwesomeIcon name="medkit" size={40} color={COLORS.BLACK} />
+
                 </View>
-                <Text style={STYLES.cardTitle}>Home</Text>
+                <Text style={STYLES.cardTitle}>Renal Health</Text>
               </TouchableOpacity>
             </View>
           </View>

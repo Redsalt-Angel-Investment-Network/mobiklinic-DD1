@@ -11,7 +11,7 @@ import {
 import Icon from 'react-native-vector-icons/Feather';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../parts/custom-header';
-import CopyRight from '../simprints/copyright';
+import CopyRight from '../copyright';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const GetStarted = ({navigation}) => {

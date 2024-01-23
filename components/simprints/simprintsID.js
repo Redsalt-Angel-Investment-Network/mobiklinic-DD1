@@ -20,7 +20,7 @@ import DataResultsContext from '../contexts/DataResultsContext';
 import Icon from 'react-native-vector-icons/Feather';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 
 const {IdentificationModule} = NativeModules;
 const {IdentificationPlus} = NativeModules;

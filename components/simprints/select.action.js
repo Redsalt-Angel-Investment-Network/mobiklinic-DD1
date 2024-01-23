@@ -30,7 +30,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import {DiagnosisContext} from '../providers/Diagnosis';
 import CustomHeader from '../ui/custom-header';
 import Loader from '../ui/loader';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 
 const SelectAction = ({navigation, route}) => {
   const _header = () => (

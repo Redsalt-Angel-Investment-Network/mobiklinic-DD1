@@ -21,7 +21,7 @@ import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 import {API_URL} from '@env';
 
 const PatientMedical = ({navigation}) => {

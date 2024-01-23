@@ -17,7 +17,7 @@ import {CustomStatusBar} from '../ui/custom.status.bar';
 import {signOut} from '../helpers/functions';
 import {AuthContext} from '../contexts/auth';
 import DataResultsContext from '../contexts/DataResultsContext';
-import CopyRight from '../simprints/copyright';
+import CopyRight from '../copyright';
 const Dashboard = ({navigation}) => {
   const {setTokens, setUser} = React.useContext(AuthContext);
   const {userNames} = useContext(DataResultsContext);

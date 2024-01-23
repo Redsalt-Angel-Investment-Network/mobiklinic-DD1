@@ -22,7 +22,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MultiSelectView from 'react-native-multiselect-view';
 import {format} from 'date-fns';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 import {API_URL} from '@env';
 
 const AntenatalCare = ({navigation}) => {
