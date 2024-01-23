@@ -19,6 +19,10 @@ const History = ({navigation}) => {
     utiTabs: '',
     herbsQuestion: '',
     utiHerbs: '',
+    smoke: '',
+    smokeFrequency: '',
+    heartProblem: '',
+    heartProblemDisese: '',
   });
 
   const _header = () => (
@@ -120,6 +124,88 @@ const History = ({navigation}) => {
                   />
                 </View>
               )}
+            </>
+          )}
+        </View>
+
+        {/* smoke */}
+        <View>
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Do you Smoke?:</Text>
+            <Picker
+              placeholder="Do you Smoke?"
+              placeholderTextColor={COLORS.GREY}
+              selectedValue={state.smoke}
+              onValueChange={value => setState({...state, smoke: value})}
+              style={[STYLES.field, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              <Picker.Item label="" value="" />
+              <Picker.Item label="YES" value="YES" />
+              <Picker.Item label="NO" value="NO" />
+              <Picker.Item
+                label="PREFER NOT TO SAY"
+                value="PREFER NOT TO SAY"
+              />
+            </Picker>
+          </View>
+
+          {state.smoke === 'YES' && (
+            <>
+              <View style={STYLES.labeled}>
+                <Text style={STYLES.label}>How Often do you smoke?</Text>
+                <TextInput
+                  style={STYLES.field}
+                  value={state.smokeFrequency}
+                  onChangeText={text =>
+                    setState({...state, smokeFrequency: text})
+                  }
+                  placeholder="How Often do you smoke?"
+                  placeholderTextColor={COLORS.GREY}
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
+            </>
+          )}
+        </View>
+
+        {/* heart problem */}
+        <View>
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Do you Have a Heart Disease?:</Text>
+            <Picker
+              placeholder="Do you Smoke?"
+              placeholderTextColor={COLORS.GREY}
+              selectedValue={state.heartProblem}
+              onValueChange={value => setState({...state, heartProblem: value})}
+              style={[STYLES.field, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              <Picker.Item label="" value="" />
+              <Picker.Item label="YES" value="YES" />
+              <Picker.Item label="NO" value="NO" />
+              <Picker.Item
+                label="PREFER NOT TO SAY"
+                value="PREFER NOT TO SAY"
+              />
+            </Picker>
+          </View>
+
+          {state.heartProblem === 'YES' && (
+            <>
+              <View style={STYLES.labeled}>
+                <Text style={STYLES.label}>Heart Disease</Text>
+                <TextInput
+                  style={STYLES.field}
+                  value={state.heartProblemDisese}
+                  onChangeText={text =>
+                    setState({...state, heartProblemDisese: text})
+                  }
+                  placeholder="Which heart disease do you have?"
+                  placeholderTextColor={COLORS.GREY}
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
             </>
           )}
         </View>
