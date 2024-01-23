@@ -13,6 +13,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import Icon from 'react-native-vector-icons/Feather';
 import CopyRight from '../copyright';
 
+
 const SelectRenalActivity = ({navigation}) => {
   return (
     <View style={styles.wrapper}>
@@ -27,11 +28,11 @@ const SelectRenalActivity = ({navigation}) => {
         <View style={styles.column}>
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('PatientMedical')}>
+            onPress={() => navigation.navigate('History')}>
             <View style={styles.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={styles.cardTitle}>Monitoring</Text>
+            <Text style={styles.cardTitle}>Screening</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.column}>
@@ -41,7 +42,7 @@ const SelectRenalActivity = ({navigation}) => {
             <View style={styles.cardIcon}>
               <FontAwesomeIcon name="medkit" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={styles.cardTitle}>Screening</Text>
+            <Text style={styles.cardTitle}>Monitoring</Text>
           </TouchableOpacity>
         </View>
       </View>
