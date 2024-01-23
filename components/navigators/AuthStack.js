@@ -25,6 +25,10 @@ import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
 import DrawerLogged from '../navigators/drawer.logged';
+import Urinalysis from '../renal/urinalysis';
+import Monitoring from '../renal/monitoring';
+import History from '../renal/history';
+import Inspection from '../renal/inspection';
 
 const Stack = createStackNavigator();
 
@@ -141,6 +145,32 @@ function AuthStack() {
         name="DrawerLogged"
         options={{headerShown: false}}
         component={DrawerLogged}
+      />
+      <Stack.Screen
+        name="Urinalysis"
+        options={{headerShown: false}}
+        component={Urinalysis}
+      />
+      <Stack.Screen
+        name="Monitoring"
+        options={{headerShown: false}}
+        component={Monitoring}
+      />
+      <Stack.Screen
+        name="DrawerLogged"
+        options={{headerShown: false}}
+        component={DrawerLogged}
+      />
+      <Stack.Screen
+        name="History"
+        options={{headerShown: false}}
+        component={History}
+      />
+
+      <Stack.Screen
+        name="Inspection"
+        options={{headerShown: false}}
+        component={Inspection}
       />
     </Stack.Navigator>
   );
