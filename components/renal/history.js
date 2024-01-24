@@ -401,7 +401,7 @@ const History = ({navigation}) => {
         </View>
         <TouchableOpacity
           style={STYLES.submit}
-          onPress={() => navigation.navigate('SelectRenalActivity')}>
+          onPress={() => navigation.navigate('Inspection')}>
           <Text style={STYLES.submitText}>Submit</Text>
         </TouchableOpacity>
       </ScrollView>
