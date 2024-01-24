@@ -23,6 +23,14 @@ const History = ({navigation}) => {
     smokeFrequency: '',
     heartProblem: '',
     heartProblemDisese: '',
+    alchoholConsumption: '',
+    alchoholConsumptionFrequecy: '',
+    kidneyDiseaseHistory: '',
+    kidneyDisease: '',
+    urineFrequence: '',
+    waterFrequency: '',
+    longTimeDiseaseHistory: '',
+    longTimeDisease: '',
   });
 
   const _header = () => (
@@ -51,7 +59,6 @@ const History = ({navigation}) => {
 
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Beneficiary History</Text>
-
         {/* UTI History */}
         <View>
           <View style={STYLES.labeled}>
@@ -127,48 +134,52 @@ const History = ({navigation}) => {
             </>
           )}
         </View>
-
-        {/* smoke */}
-        <View>
-          <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Do you Smoke?:</Text>
-            <Picker
-              placeholder="Do you Smoke?"
-              placeholderTextColor={COLORS.GREY}
-              selectedValue={state.smoke}
-              onValueChange={value => setState({...state, smoke: value})}
-              style={[STYLES.field, {color: COLORS.BLACK}]}
-              dropdownIconColor={COLORS.GREY_LIGHTER}>
-              <Picker.Item label="" value="" />
-              <Picker.Item label="YES" value="YES" />
-              <Picker.Item label="NO" value="NO" />
-              <Picker.Item
-                label="PREFER NOT TO SAY"
-                value="PREFER NOT TO SAY"
-              />
-            </Picker>
-          </View>
-
-          {state.smoke === 'YES' && (
-            <>
-              <View style={STYLES.labeled}>
-                <Text style={STYLES.label}>How Often do you smoke?</Text>
-                <TextInput
-                  style={STYLES.field}
-                  value={state.smokeFrequency}
-                  onChangeText={text =>
-                    setState({...state, smokeFrequency: text})
-                  }
-                  placeholder="How Often do you smoke?"
-                  placeholderTextColor={COLORS.GREY}
-                  multiline={true}
-                  numberOfLines={4}
-                />
-              </View>
-            </>
-          )}
+        {/* Urine Frequency */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Urine Frequency?</Text>
+          <Picker
+            placeholder="Select Urine Frequency"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.urineFrequence}
+            onValueChange={value => setState({...state, urineFrequency: value})}
+            style={[STYLES.field, {color: COLORS.BLACK}]}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="" value="" />
+            {[
+              'Once a day',
+              'Twice a day',
+              'Thrice a day',
+              'Four a day',
+              'I dunno',
+            ].map(option => (
+              <Picker.Item label={option} value={option} key={option} />
+            ))}
+            <Picker.Item label="PREFER NOT TO SAY" value="PREFER NOT TO SAY" />
+          </Picker>
         </View>
-
+        {/* Water Frequency */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Water Frequency?</Text>
+          <Picker
+            placeholder="Select Urine Frequency"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.waterFrequency}
+            onValueChange={value => setState({...state, waterFrequency: value})}
+            style={[STYLES.field, {color: COLORS.BLACK}]}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="" value="" />
+            {[
+              'Once a day',
+              'Twice a day',
+              'Thrice a day',
+              'Four a day',
+              'I dunno',
+            ].map(option => (
+              <Picker.Item label={option} value={option} key={option} />
+            ))}
+            <Picker.Item label="PREFER NOT TO SAY" value="PREFER NOT TO SAY" />
+          </Picker>
+        </View>
         {/* heart problem */}
         <View>
           <View style={STYLES.labeled}>
@@ -209,8 +220,188 @@ const History = ({navigation}) => {
             </>
           )}
         </View>
+        {/* Kidney Disease History */}
+        <View>
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Ever had a Kidney Disease:</Text>
+            <Picker
+              placeholder="Ever had a kidney disease?"
+              placeholderTextColor={COLORS.GREY}
+              selectedValue={state.kidneyDiseaseHistory}
+              onValueChange={value =>
+                setState({...state, kidneyDiseaseHistory: value})
+              }
+              style={[STYLES.field, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              <Picker.Item label="" value="" />
+              <Picker.Item label="YES" value="YES" />
+              <Picker.Item label="NO" value="NO" />
+              <Picker.Item
+                label="PREFER NOT TO SAY"
+                value="PREFER NOT TO SAY"
+              />
+            </Picker>
+          </View>
 
-        <TouchableOpacity style={STYLES.submit}>
+          {state.kidneyDiseaseHistory === 'YES' && (
+            <>
+              <View style={STYLES.labeled}>
+                <Text style={STYLES.label}>Kidney Disease</Text>
+                <TextInput
+                  style={STYLES.field}
+                  value={state.kidneyDisease}
+                  onChangeText={text =>
+                    setState({...state, kidneyDisease: text})
+                  }
+                  placeholder="Kidney Disease"
+                  placeholderTextColor={COLORS.GREY}
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
+            </>
+          )}
+        </View>
+        {/* Long time Disease */}
+        <View>
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Persistent Long time Disease:</Text>
+            <Picker
+              placeholder="Do you have a persistent disease"
+              placeholderTextColor={COLORS.GREY}
+              selectedValue={state.longTimeDiseaseHistory}
+              onValueChange={value =>
+                setState({...state, longTimeDiseaseHistory: value})
+              }
+              style={[STYLES.field, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              <Picker.Item label="" value="" />
+              <Picker.Item label="YES" value="YES" />
+              <Picker.Item label="NO" value="NO" />
+              <Picker.Item
+                label="PREFER NOT TO SAY"
+                value="PREFER NOT TO SAY"
+              />
+            </Picker>
+          </View>
+
+          {state.longTimeDiseaseHistory === 'YES' && (
+            <>
+              <View style={STYLES.labeled}>
+                <Text style={STYLES.label}> What is the Disease</Text>
+                <TextInput
+                  style={STYLES.field}
+                  value={state.longTimeDisease}
+                  onChangeText={text =>
+                    setState({...state, longTimeDisease: text})
+                  }
+                  placeholder="Disease"
+                  placeholderTextColor={COLORS.GREY}
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
+            </>
+          )}
+        </View>
+        {/* smoke */}
+        <View>
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Do you Smoke?</Text>
+            <Picker
+              placeholder="Do you Smoke?"
+              placeholderTextColor={COLORS.GREY}
+              selectedValue={state.smoke}
+              onValueChange={value => setState({...state, smoke: value})}
+              style={[STYLES.field, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              <Picker.Item label="" value="" />
+              <Picker.Item label="YES" value="YES" />
+              <Picker.Item label="NO" value="NO" />
+              <Picker.Item
+                label="PREFER NOT TO SAY"
+                value="PREFER NOT TO SAY"
+              />
+            </Picker>
+          </View>
+
+          {state.smoke === 'YES' && (
+            <>
+              <View style={STYLES.labeled}>
+                <Text style={STYLES.label}>How Often do you smoke?</Text>
+                <TextInput
+                  style={STYLES.field}
+                  value={state.smokeFrequency}
+                  onChangeText={text =>
+                    setState({...state, smokeFrequency: text})
+                  }
+                  placeholder="How Often do you smoke?"
+                  placeholderTextColor={COLORS.GREY}
+                  multiline={true}
+                  numberOfLines={4}
+                />
+              </View>
+            </>
+          )}
+        </View>
+        {/* Alcholol Consumption */}
+        <View>
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Do you drink alcholol?:</Text>
+            <Picker
+              placeholder="Do you Smoke?"
+              placeholderTextColor={COLORS.GREY}
+              selectedValue={state.alchoholConsumption}
+              onValueChange={value =>
+                setState({...state, alchoholConsumption: value})
+              }
+              style={[STYLES.field, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY_LIGHTER}>
+              <Picker.Item label="" value="" />
+              <Picker.Item label="YES" value="YES" />
+              <Picker.Item label="NO" value="NO" />
+              <Picker.Item
+                label="PREFER NOT TO SAY"
+                value="PREFER NOT TO SAY"
+              />
+            </Picker>
+          </View>
+
+          {state.alchoholConsumption === 'YES' && (
+            <>
+              <View style={STYLES.labeled}>
+                <Text style={STYLES.label}>Alchol Consumption?</Text>
+                <Picker
+                  placeholder="Select Urine Frequency"
+                  placeholderTextColor={COLORS.GREY}
+                  selectedValue={state.alchoholConsumptionFrequecy}
+                  onValueChange={value =>
+                    setState({...state, alchoholConsumptionFrequecy: value})
+                  }
+                  style={[STYLES.field, {color: COLORS.BLACK}]}
+                  dropdownIconColor={COLORS.GREY_LIGHTER}>
+                  <Picker.Item label="" value="" />
+                  {[
+                    'Once a day',
+                    'Twice a day',
+                    'Thrice a day',
+                    'Four a day',
+                    'I dunno',
+                  ].map(option => (
+                    <Picker.Item label={option} value={option} key={option} />
+                  ))}
+                  <Picker.Item
+                    label="PREFER NOT TO SAY"
+                    value="PREFER NOT TO SAY"
+                  />
+                </Picker>
+              </View>
+            </>
+          )}
+        </View>
+        <TouchableOpacity
+          style={STYLES.submit}
+          onPress={() => navigation.navigate('SelectRenalActivity')}>
           <Text style={STYLES.submitText}>Submit</Text>
         </TouchableOpacity>
       </ScrollView>
