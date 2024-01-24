@@ -24,10 +24,6 @@ const Inspection = ({navigation}) => {
       diastolicPressure: '',
       heartPulse: '',
     },
-    bloodSugar: {
-      fastBloodSugar: '',
-      randomBloodSugar: '',
-    },
   });
 
   const calculateBMI = (weight, height) => {
@@ -177,39 +173,6 @@ const Inspection = ({navigation}) => {
                 })
               }
               placeholder="Heart Pulse"
-              placeholderTextColor={COLORS.GREY}
-              keyboardType="numeric"
-            />
-          </View>
-        </View>
-
-        {/* Blood Sugar */}
-        <View>
-          <Text style={STYLES.label}>Blood Sugar:</Text>
-          <View style={STYLES.wrap}>
-            <TextInput
-              style={STYLES.smallInput}
-              value={state.bloodSugar.fastBloodSugar}
-              onChangeText={text =>
-                setState({
-                  ...state,
-                  bloodSugar: {...state.bloodSugar, fastBloodSugar: text},
-                })
-              }
-              placeholder="Fast Blood Sugar"
-              placeholderTextColor={COLORS.GREY}
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={STYLES.smallInput}
-              value={state.bloodSugar.randomBloodSugar}
-              onChangeText={text =>
-                setState({
-                  ...state,
-                  bloodSugar: {...state.bloodSugar, randomBloodSugar: text},
-                })
-              }
-              placeholder="Random Blood Sugar"
               placeholderTextColor={COLORS.GREY}
               keyboardType="numeric"
             />

@@ -15,16 +15,21 @@ import {Picker} from '@react-native-picker/picker';
 
 const Urinalysis = ({navigation}) => {
   const [state, setState] = useState({
-    apperance: '',
-    specificGravity: '',
-    glucose: '',
-    protein: '',
-    leokcytes: '',
-    nitrite: '',
-    ketone: '',
-    bilubine: '',
-    urobilinogen: '',
-    ph: '',
+    appearance: {
+      color: '',
+      clarity: '',
+    },
+    chemistry: {
+      specificGravity: '',
+      glucose: '',
+      protein: '',
+      leokcytes: '',
+      nitrite: '',
+      ketone: '',
+      bilubine: '',
+      urobilinogen: '',
+      ph: '',
+    },
   });
 
   const _header = () => (
@@ -55,15 +60,42 @@ const Urinalysis = ({navigation}) => {
         <Text style={STYLES.title}>Urinalysis Tests - Macroscopy</Text>
 
         {/* Urine Appearance */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Urine Appearance:</Text>
-          <TextInput
-            style={STYLES.field}
-            value={state.apperance}
-            onChangeText={text => setState({...state, apperance: text})}
-            placeholder="Enter urine appearance"
+        <Text style={STYLES.label}>Urine Appearance:</Text>
+        <View style={STYLES.wrap}>
+          <Picker
+            placeholder="Any Past Cases of UTIS?"
             placeholderTextColor={COLORS.GREY}
-          />
+            selectedValue={state.appearance.color}
+            onValueChange={value =>
+              setState({
+                ...state,
+                appearance: {...state.appearance, color: value},
+              })
+            }
+            style={[STYLES.smallInput, {color: COLORS.BLACK}]}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Color" value="Color" />
+            <Picker.Item label="clear" value="clear" />
+            <Picker.Item label="cloudy" value="cloudy" />
+          </Picker>
+
+          <Picker
+            placeholder="Any Past Cases of UTIS?"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.appearance.clarity}
+            onValueChange={value =>
+              setState({
+                ...state,
+                appearance: {...state.appearance, clarity: value},
+              })
+            }
+            style={[STYLES.smallInput, {color: COLORS.BLACK}]}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Clarity" value="Clarity" />
+            <Picker.Item label="odour" value="colourless" />
+            <Picker.Item label="Pale yellow" value="Pale yellow" />
+            <Picker.Item label="brown" value="brown" />
+          </Picker>
         </View>
 
         {/* Specific Gravity */}
@@ -71,8 +103,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Specific Gravity:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.specificGravity}
-            onChangeText={text => setState({...state, specificGravity: text})}
+            value={state.chemistry.specificGravity}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, specificGravity: text},
+              })
+            }
             placeholder="Enter specific gravity"
             placeholderTextColor={COLORS.GREY}
           />
@@ -83,8 +120,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Glucose:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.glucose}
-            onChangeText={text => setState({...state, glucose: text})}
+            value={state.chemistry.glucose}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, glucose: text},
+              })
+            }
             placeholder="Enter glucose"
             placeholderTextColor={COLORS.GREY}
           />
@@ -95,8 +137,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Protein:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.protein}
-            onChangeText={text => setState({...state, protein: text})}
+            value={state.chemistry.protein}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, protein: text},
+              })
+            }
             placeholder="Enter protein"
             placeholderTextColor={COLORS.GREY}
           />
@@ -107,8 +154,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Leukocytes:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.leokcytes}
-            onChangeText={text => setState({...state, leokcytes: text})}
+            value={state.chemistry.leokcytes}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, leokcytes: text},
+              })
+            }
             placeholder="Enter leukocytes"
             placeholderTextColor={COLORS.GREY}
           />
@@ -119,8 +171,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Nitrite:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.nitrite}
-            onChangeText={text => setState({...state, nitrite: text})}
+            value={state.chemistry.nitrite}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, nitrite: text},
+              })
+            }
             placeholder="Enter nitrite"
             placeholderTextColor={COLORS.GREY}
           />
@@ -131,8 +188,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Ketone:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.ketone}
-            onChangeText={text => setState({...state, ketone: text})}
+            value={state.chemistry.ketone}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, ketone: text},
+              })
+            }
             placeholder="Enter ketone"
             placeholderTextColor={COLORS.GREY}
           />
@@ -143,8 +205,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Bilirubine:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.bilubine}
-            onChangeText={text => setState({...state, bilubine: text})}
+            value={state.chemistry.bilubine}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, bilubine: text},
+              })
+            }
             placeholder="Enter bilirubine"
             placeholderTextColor={COLORS.GREY}
           />
@@ -155,8 +222,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>Urobilinogen:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.urobilinogen}
-            onChangeText={text => setState({...state, urobilinogen: text})}
+            value={state.chemistry.urobilinogen}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, urobilinogen: text},
+              })
+            }
             placeholder="Enter urobilinogen"
             placeholderTextColor={COLORS.GREY}
           />
@@ -167,8 +239,13 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.label}>pH Level:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.ph}
-            onChangeText={text => setState({...state, ph: text})}
+            value={state.chemistry.ph}
+            onChangeText={text =>
+              setState({
+                ...state,
+                chemistry: {...state.chemistry, ph: text},
+              })
+            }
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
           />
@@ -355,14 +432,13 @@ const STYLES = StyleSheet.create({
     width: 180,
     height: 40,
     textAlign: 'left',
-    color: COLORS.BLACK,
-    borderRadius: 10,
     paddingHorizontal: 15,
-    borderColor: COLORS.GREY,
-    borderStyle: 'solid',
-    borderWidth: 1,
+    marginTop: 10,
     marginBottom: 10,
     backgroundColor: COLORS.GREY_LIGHTER,
+    borderRadius: 10,
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
   },
   wrap: {
     flex: 1,
