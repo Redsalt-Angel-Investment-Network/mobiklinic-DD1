@@ -97,12 +97,10 @@ const Urinalysis = ({navigation}) => {
             <Picker.Item label="brown" value="brown" />
           </Picker>
         </View>
-
-        {/* Specific Gravity */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Specific Gravity:</Text>
+        <View style={STYLES.wrap}>
+          {/* Specific Gravity */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.specificGravity}
             onChangeText={text =>
               setState({
@@ -110,16 +108,13 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, specificGravity: text},
               })
             }
-            placeholder="Enter specific gravity"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Specific gravity"
+            placeholderTextColor={COLORS.BLACK}
           />
-        </View>
 
-        {/* Glucose */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Glucose:</Text>
+          {/* Glucose */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.glucose}
             onChangeText={text =>
               setState({
@@ -127,16 +122,15 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, glucose: text},
               })
             }
-            placeholder="Enter glucose"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Glucose"
+            placeholderTextColor={COLORS.BLACK}
           />
         </View>
 
-        {/* Protein */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Protein:</Text>
+        <View style={STYLES.wrap}>
+          {/* Protein */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.protein}
             onChangeText={text =>
               setState({
@@ -144,16 +138,13 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, protein: text},
               })
             }
-            placeholder="Enter protein"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Protein"
+            placeholderTextColor={COLORS.BLACK}
           />
-        </View>
 
-        {/* Leukocytes */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Leukocytes:</Text>
+          {/* Leukocytes */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.leokcytes}
             onChangeText={text =>
               setState({
@@ -161,16 +152,15 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, leokcytes: text},
               })
             }
-            placeholder="Enter leukocytes"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Leukocytes"
+            placeholderTextColor={COLORS.BLACK}
           />
         </View>
 
-        {/* Nitrite */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Nitrite:</Text>
+        <View style={STYLES.wrap}>
+          {/* Nitrite */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.nitrite}
             onChangeText={text =>
               setState({
@@ -178,16 +168,13 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, nitrite: text},
               })
             }
-            placeholder="Enter nitrite"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Nitrite"
+            placeholderTextColor={COLORS.BLACK}
           />
-        </View>
 
-        {/* Ketone */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Ketone:</Text>
+          {/* Ketone */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.ketone}
             onChangeText={text =>
               setState({
@@ -195,16 +182,15 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, ketone: text},
               })
             }
-            placeholder="Enter ketone"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Enter Ketone"
+            placeholderTextColor={COLORS.BLACK}
           />
         </View>
 
-        {/* Bilirubine */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Bilirubine:</Text>
+        <View style={STYLES.wrap}>
+          {/* Bilirubine */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.bilubine}
             onChangeText={text =>
               setState({
@@ -212,16 +198,13 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, bilubine: text},
               })
             }
-            placeholder="Enter bilirubine"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Bilirubine"
+            placeholderTextColor={COLORS.BLACK}
           />
-        </View>
 
-        {/* Urobilinogen */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Urobilinogen:</Text>
+          {/* Urobilinogen */}
           <TextInput
-            style={STYLES.field}
+            style={STYLES.smallInput}
             value={state.chemistry.urobilinogen}
             onChangeText={text =>
               setState({
@@ -229,14 +212,14 @@ const Urinalysis = ({navigation}) => {
                 chemistry: {...state.chemistry, urobilinogen: text},
               })
             }
-            placeholder="Enter urobilinogen"
-            placeholderTextColor={COLORS.GREY}
+            placeholder="Urobilinogen"
+            placeholderTextColor={COLORS.BLACK}
           />
         </View>
 
         {/* pH Level */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>pH Level:</Text>
+          <Text style={STYLES.label}>PH Level:</Text>
           <TextInput
             style={STYLES.field}
             value={state.chemistry.ph}
