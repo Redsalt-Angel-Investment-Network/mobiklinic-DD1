@@ -218,8 +218,8 @@ const Inspection = ({navigation}) => {
 
         <TouchableOpacity
           style={STYLES.submit}
-          onPress={() => navigation.navigate('SelectRenalActivity')}>
-          <Text style={STYLES.submitText}>Submit</Text>
+          onPress={() => navigation.navigate('Urinalysis')}>
+          <Text style={STYLES.submitText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
