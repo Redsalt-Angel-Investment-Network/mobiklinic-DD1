@@ -54,14 +54,10 @@ const Urinalysis = ({navigation}) => {
 
     // Validate Glucose
     const glucoseValue = state.chemistry.glucose;
-    const validGlucoseValues = [
-      'negative',
-      'trace',
-    ];
+    const validGlucoseValues = ['negative', 'trace'];
     validatedState.glucoseValid = validGlucoseValues.includes(
       glucoseValue.toLowerCase(),
     );
-
 
     setValidation(validatedState);
   };
@@ -87,18 +83,14 @@ const Urinalysis = ({navigation}) => {
         : 'pH level is above the normal range.',
     );
   };
-
   const renderSpecificGravityValidationMessage = () => {
     const abnormalSG = !validation.specificGravityValid;
-    const sgValue = parseFloat(state.chemistry.specificGravity);
 
     return renderDoctorAdviceMessage(
       abnormalSG,
       abnormalSG
         ? 'Abnormal specific gravity detected. Please consult a doctor.'
-        : sgValue < 1.005
-        ? 'Specific gravity is below the normal range.'
-        : 'Specific gravity is above the normal range.',
+        : 'Specific gravity is within the normal range.',
     );
   };
 
@@ -111,7 +103,7 @@ const Urinalysis = ({navigation}) => {
         ? 'Abnormal glucose level detected. Please consult a doctor.'
         : state.chemistry.glucose.toLowerCase() === 'trace'
         ? 'Trace level detected. Consider making lifestyle changes.'
-        : 'Glucose level is within normal range.'
+        : 'Glucose level is within normal range.',
     );
   };
 
@@ -181,41 +173,37 @@ const Urinalysis = ({navigation}) => {
           </Picker>
         </View>
 
-        <View style={STYLES.wrap}>
-          {/* Specific Gravity */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.specificGravity}
-            onChangeText={text =>
+        {/* specific Gravity */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Specific Gravity:</Text>
+          <Picker
+            placeholder="Select Specific Gravity"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.specificGravity}
+            onValueChange={value =>
               setState({
                 ...state,
-                chemistry: {...state.chemistry, specificGravity: text},
+                chemistry: {...state.chemistry, specificGravity: value},
               })
             }
-            placeholder="Specific gravity"
-            placeholderTextColor={COLORS.BLACK}
-          />
+            style={[
+              STYLES.field,
+              !validation.specificGravityValid ? {borderColor: 'red'} : null,
+            ]}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Select Specific Gravity" value="" />
+            <Picker.Item label="1.005" value="1.005" />
+            <Picker.Item label="1.010" value="1.010" />
+            <Picker.Item label="1.015" value="1.015" />
+            <Picker.Item label="1.025" value="1.025" />
+            <Picker.Item label="1.030" value="1.030" />
+          </Picker>
         </View>
+        {renderSpecificGravityValidationMessage()}
 
         {/* Glucose */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Glucose:</Text>
-          {/* <TextInput
-            style={[
-              STYLES.field,
-              !validation.glucoseValid ? {borderColor: 'red'} : null,
-            ]}
-            value={state.chemistry.glucose}
-            onChangeText={text =>
-              setState({
-                ...state,
-                chemistry: {...state.chemistry, glucose: text},
-              })
-            }
-            placeholder="Enter glucose"
-            placeholderTextColor={COLORS.GREY}
-            onBlur={validateInput}
-          /> */}
           <Picker
             placeholder="Enter glucose"
             placeholderTextColor={COLORS.GREY}
