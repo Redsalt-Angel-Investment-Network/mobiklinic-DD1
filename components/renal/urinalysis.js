@@ -26,7 +26,7 @@ const Urinalysis = ({navigation}) => {
       leokcytes: '',
       nitrite: '',
       ketone: '',
-      bilubine: '',
+      bilirubin: '',
       urobilinogen: '',
       ph: '',
     },
@@ -37,6 +37,7 @@ const Urinalysis = ({navigation}) => {
     leukocytesValidateMessage: '',
     nitriteValidateMessage: '',
     ketoneValidateMessage: '',
+    bilirubinValidateMessage: '',
   });
 
   // validate values to make sure they are in range else flag them
@@ -93,8 +94,7 @@ const Urinalysis = ({navigation}) => {
       setState({
         ...state,
         specificGravityValidateMessage:
-          'Specific gravity values are abnormal. 
-          The Doctor will be notified',
+          'Specific gravity values are abnormal. The Doctor will be notified',
       });
     } else {
       setState({
@@ -170,6 +170,23 @@ const Urinalysis = ({navigation}) => {
       });
     }
     return ketoneValues.includes(ketone.toLowerCase());
+  };
+
+  const checkBilirubin = bilirubin => {
+    const bilirubinValues = ['negative'];
+    if (bilirubin !== 'negative') {
+      setState({
+        ...state,
+        bilirubinValidateMessage:
+          'Bilirubin values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        bilirubinValidateMessage: '',
+      });
+    }
+    return bilirubinValues.includes(bilirubin.toLowerCase());
   };
 
   const _header = () => (
@@ -453,36 +470,43 @@ const Urinalysis = ({navigation}) => {
         {state.ketoneValidateMessage !== '' && (
           <Text style={STYLES.errorMessage}>{state.ketoneValidateMessage}</Text>
         )}
-        <View style={STYLES.wrap}>
-          {/* Ketone */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.ketone}
-            onChangeText={text =>
+
+        {/* bilirubin */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Bilirubin:</Text>
+
+          <Picker
+            placeholder="Enter Bilirubin Values"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.bilirubin}
+            onValueChange={value => {
+              const isValid = checkBilirubin(value);
+
               setState({
                 ...state,
-                chemistry: {...state.chemistry, ketone: text},
-              })
-            }
-            placeholder="Enter Ketone"
-            placeholderTextColor={COLORS.BLACK}
-          />
+                chemistry: {
+                  ...state.chemistry,
+                  bilirubin: value,
+                },
+                bilirubinValidateMessage: isValid ? '' : 'Put bilirubin values',
+              });
+            }}
+            onBlur={() => checkBilirubin(state.chemistry.bilirubin)}
+            style={STYLES.field}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter Bilirubin Value" value="" />
+            <Picker.Item label="negative" value="negative" />
+            <Picker.Item label="positive" value="postive" />
+          </Picker>
         </View>
+        {state.bilirubinValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.bilirubinValidateMessage}
+          </Text>
+        )}
 
         <View style={STYLES.wrap}>
-          {/* Bilirubine */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.bilubine}
-            onChangeText={text =>
-              setState({
-                ...state,
-                chemistry: {...state.chemistry, bilubine: text},
-              })
-            }
-            placeholder="Bilirubine"
-            placeholderTextColor={COLORS.BLACK}
-          />
+       
 
           {/* Urobilinogen */}
           <TextInput
