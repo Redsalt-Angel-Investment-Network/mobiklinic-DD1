@@ -35,6 +35,7 @@ const Urinalysis = ({navigation}) => {
     phValidateMessage: '',
     proteinValidateMessage: '',
     leukocytesValidateMessage: '',
+    nitriteValidateMessage: '',
   });
 
   // validate data
@@ -140,6 +141,23 @@ const Urinalysis = ({navigation}) => {
       });
     }
     return leukocytesValues.includes(leukocytes.toLowerCase());
+  };
+
+  const checkNitrite = nitrite => {
+    const nitriteValues = ['negative'];
+    if (nitrite !== 'negative') {
+      setState({
+        ...state,
+        nitriteValidateMessage:
+          'Nitrite values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        nitriteValidateMessage: '',
+      });
+    }
+    return nitriteValues.includes(nitrite.toLowerCase());
   };
 
   const _header = () => (
@@ -354,21 +372,41 @@ const Urinalysis = ({navigation}) => {
           </Text>
         )}
 
-        <View style={STYLES.wrap}>
-          {/* Nitrite */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.nitrite}
-            onChangeText={text =>
+        {/* Nitrites */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Nitrites:</Text>
+
+          <Picker
+            placeholder="Enter Nitrites"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.nitrite}
+            onValueChange={value => {
+              const isValid = checkNitrite(value);
+
               setState({
                 ...state,
-                chemistry: {...state.chemistry, nitrite: text},
-              })
-            }
-            placeholder="Nitrite"
-            placeholderTextColor={COLORS.BLACK}
-          />
+                chemistry: {
+                  ...state.chemistry,
+                  nitrite: value,
+                },
+                nitriteValidateMessage: isValid ? '' : 'Put Nitrite values',
+              });
+            }}
+            onBlur={() => checkNitrite(state.chemistry.nitrite)}
+            style={STYLES.field}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter Nitrite Value" value="" />
+            <Picker.Item label="negative" value="negative" />
+            <Picker.Item label="postive" value="positive" />
+          </Picker>
+        </View>
+        {state.nitriteValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.nitriteValidateMessage}
+          </Text>
+        )}
 
+        <View style={STYLES.wrap}>
           {/* Ketone */}
           <TextInput
             style={STYLES.smallInput}
