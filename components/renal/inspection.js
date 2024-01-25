@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import CustomHeader from '../ui/custom-header';
@@ -24,6 +25,7 @@ const Inspection = ({navigation}) => {
       diastolicPressure: '',
       heartPulse: '',
     },
+    validationMessage: '',
   });
 
   const calculateBMI = (weight, height) => {
@@ -36,6 +38,30 @@ const Inspection = ({navigation}) => {
     return bmi.toFixed(2);
   };
 
+  // Function to check systolic blood pressure range
+  const checkSystolicBP = systolicPressure => {
+    const systolic = parseFloat(systolicPressure);
+    if (isNaN(systolic)) {
+      setState({
+        ...state,
+        validationMessage: 'Please enter a valid number.', // Handle invalid input
+      });
+      return;
+    }
+
+    if (systolic < 100 || systolic > 139) {
+      setState({
+        ...state,
+        validationMessage:
+          'Systolic blood pressure is outside the normal range. Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        validationMessage: '',
+      });
+    }
+  };
   const _header = () => (
     <CustomHeader
       left={
@@ -124,20 +150,27 @@ const Inspection = ({navigation}) => {
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.systolicPressure}
-              onChangeText={text =>
+              onChangeText={text => {
+                checkSystolicBP(text);
                 setState({
                   ...state,
                   bloodPressure: {
                     ...state.bloodPressure,
                     systolicPressure: text,
                   },
-                })
-              }
+                });
+              }}
               placeholder="Systolic"
               placeholderTextColor={COLORS.GREY}
               keyboardType="numeric"
+              onBlur={() => checkSystolicBP(state.bloodPressure.systolicPressure)}
+
             />
           </View>
+          {/* Display validation message in red below the text input */}
+          {state.validationMessage !== '' && (
+            <Text style={STYLES.errorMessage}>{state.validationMessage}</Text>
+          )}
 
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Diastolic Blood Pressure:</Text>
@@ -410,4 +443,10 @@ const STYLES = StyleSheet.create({
     fontSize: 15,
     color: COLORS.BLACK,
   },
+  errorMessage:{
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 5,
+  }
 });
