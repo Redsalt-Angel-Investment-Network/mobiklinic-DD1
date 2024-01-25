@@ -25,7 +25,8 @@ const Inspection = ({navigation}) => {
       diastolicPressure: '',
       heartPulse: '',
     },
-    validationMessage: '',
+    systolicValidationMessage: '', // Separate state for systolic validation
+    diastolicValidationMessage: '',
   });
 
   const calculateBMI = (weight, height) => {
@@ -44,7 +45,7 @@ const Inspection = ({navigation}) => {
     if (isNaN(systolic)) {
       setState({
         ...state,
-        validationMessage: 'Please enter a valid number.', // Handle invalid input
+        systolicValidationMessage: 'Please enter a valid number.', // Handle invalid input
       });
       return;
     }
@@ -52,16 +53,41 @@ const Inspection = ({navigation}) => {
     if (systolic < 100 || systolic > 139) {
       setState({
         ...state,
-        validationMessage:
+        systolicValidationMessage:
           'Systolic blood pressure is outside the normal range. Doctor will be notified',
       });
     } else {
       setState({
         ...state,
-        validationMessage: '',
+        systolicValidationMessage: '',
       });
     }
   };
+
+  const checkDiastolicBP = diastolicPressure => {
+    const diastolic = parseFloat(diastolicPressure);
+    if (isNaN(diastolic)) {
+      setState({
+        ...state,
+        diastolicValidationMessage: 'Please enter a valid number.',
+      });
+      return;
+    }
+
+    if (diastolic < 60 || diastolic > 89) {
+      setState({
+        ...state,
+        diastolicValidationMessage:
+          'Diastolic blood pressure is outside the normal range. Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        diastolicValidationMessage: '',
+      });
+    }
+  };
+
   const _header = () => (
     <CustomHeader
       left={
@@ -163,13 +189,14 @@ const Inspection = ({navigation}) => {
               placeholder="Systolic"
               placeholderTextColor={COLORS.GREY}
               keyboardType="numeric"
-              onBlur={() => checkSystolicBP(state.bloodPressure.systolicPressure)}
-
+              onBlur={() =>
+                checkSystolicBP(state.bloodPressure.systolicPressure)
+              }
             />
           </View>
           {/* Display validation message in red below the text input */}
-          {state.validationMessage !== '' && (
-            <Text style={STYLES.errorMessage}>{state.validationMessage}</Text>
+          {state.systolicValidationMessage !== '' && (
+            <Text style={STYLES.errorMessage}>{state.systolicValidationMessage}</Text>
           )}
 
           <View style={STYLES.labeled}>
@@ -178,20 +205,28 @@ const Inspection = ({navigation}) => {
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.diastolicPressure}
-              onChangeText={text =>
+              onChangeText={text => {
+                checkDiastolicBP(text);
                 setState({
                   ...state,
                   bloodPressure: {
                     ...state.bloodPressure,
                     diastolicPressure: text,
                   },
-                })
-              }
+                });
+              }}
               placeholder="Diastolic"
               placeholderTextColor={COLORS.GREY}
               keyboardType="numeric"
+              onBlur={() =>
+                checkDiastolicBP(state.bloodPressure.diastolicPressure)
+              }
             />
           </View>
+          {/* Display validation message in red below the text input */}
+          {state.diastolicValidationMessage !== '' && (
+            <Text style={STYLES.errorMessage}>{state.diastolicValidationMessage}</Text>
+          )}
 
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Heart Pluse:</Text>
@@ -443,10 +478,10 @@ const STYLES = StyleSheet.create({
     fontSize: 15,
     color: COLORS.BLACK,
   },
-  errorMessage:{
+  errorMessage: {
     color: 'red',
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
-  }
+  },
 });
