@@ -37,7 +37,8 @@ const Urinalysis = ({navigation}) => {
     nitriteValidateMessage: '',
     ketoneValidateMessage: '',
     bilirubinValidateMessage: '',
-
+    colorValidateMessage: '',
+    clarityValidateMessage: '',
   });
 
   // validate values to make sure they are in range else flag them
@@ -172,6 +173,40 @@ const Urinalysis = ({navigation}) => {
     return ketoneValues.includes(ketone.toLowerCase());
   };
 
+  const checkColor = color => {
+    const colorValues = ['clear'];
+    if (color !== 'clear') {
+      setState({
+        ...state,
+        colorValidateMessage:
+          'Color values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        colorValidateMessage: '',
+      });
+    }
+    return colorValues.includes(color.toLowerCase());
+  };
+
+  const checkClarity = clarity => {
+    const clarityValues = ['colourless'];
+    if (clarity !== 'colourless') {
+      setState({
+        ...state,
+        clarityValidateMessage:
+          'Clarity values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        clarityValidateMessage: '',
+      });
+    }
+    return clarityValues.includes(clarity.toLowerCase());
+  };
+
   const checkBilirubin = bilirubin => {
     const bilirubinValues = ['negative'];
     if (bilirubin !== 'negative') {
@@ -222,13 +257,20 @@ const Urinalysis = ({navigation}) => {
             placeholder="Any Past Cases of UTIS?"
             placeholderTextColor={COLORS.GREY}
             selectedValue={state.appearance.color}
-            onValueChange={value =>
+            onValueChange={value => {
+              const isValid = checkColor(value);
+
               setState({
                 ...state,
-                appearance: {...state.appearance, color: value},
-              })
-            }
+                appearance: {
+                  ...state.appearance,
+                  color: value,
+                },
+                colorValidateMessage: isValid ? '' : 'Put what you see',
+              });
+            }}
             style={[STYLES.smallInput, {color: COLORS.BLACK}]}
+            onBlur={() => checkColor(state.appearance.color)}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Color" value="Color" />
             <Picker.Item label="clear" value="clear" />
@@ -236,23 +278,37 @@ const Urinalysis = ({navigation}) => {
           </Picker>
 
           <Picker
-            placeholder="Any Past Cases of UTIS?"
             placeholderTextColor={COLORS.GREY}
             selectedValue={state.appearance.clarity}
-            onValueChange={value =>
+            onValueChange={value => {
+              const isValid = checkClarity(value);
+
               setState({
                 ...state,
-                appearance: {...state.appearance, clarity: value},
-              })
-            }
+                appearance: {
+                  ...state.appearance,
+                  clarity: value,
+                },
+                clarityValidateMessage: isValid ? '' : 'Put what you see',
+              });
+            }}
             style={[STYLES.smallInput, {color: COLORS.BLACK}]}
+            onBlur={() => checkClarity(state.appearance.clarity)}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Clarity" value="Clarity" />
-            <Picker.Item label="odour" value="colourless" />
+            <Picker.Item label="colourless" value="colourless" />
             <Picker.Item label="Pale yellow" value="Pale yellow" />
             <Picker.Item label="brown" value="brown" />
           </Picker>
         </View>
+        {state.clarityValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.clarityValidateMessage}
+          </Text>
+        )}
+        {state.colorValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>{state.colorValidateMessage}</Text>
+        )}
 
         {/* specific Gravity */}
         <View style={STYLES.labeled}>
@@ -286,6 +342,7 @@ const Urinalysis = ({navigation}) => {
             <Picker.Item label="1.030" value="1.030" />
           </Picker>
         </View>
+        
         {state.specificGravityValidateMessage !== '' && (
           <Text style={STYLES.errorMessage}>
             {state.specificGravityValidateMessage}
@@ -314,6 +371,7 @@ const Urinalysis = ({navigation}) => {
             onBlur={() => checkGlucose(state.chemistry.glucose)}
             style={STYLES.field}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter Glucose value" value=" " />
             <Picker.Item label="negative" value="negative" />
             <Picker.Item label="trace" value="trace" />
             <Picker.Item label="15mmol" value="15mmol" />
@@ -344,7 +402,7 @@ const Urinalysis = ({navigation}) => {
                   ...state.chemistry,
                   protein: value,
                 },
-                glucoseValidateMessage: isValid ? '' : 'Put Protein values',
+                proteinValidateMessage: isValid ? '' : 'Put Protein values',
               });
             }}
             onBlur={() => checkProtein(state.chemistry.protein)}
