@@ -33,6 +33,7 @@ const Urinalysis = ({navigation}) => {
     glucoseValidateMessage: '',
     specificGravityValidateMessage: '',
     phValidateMessage: '',
+    proteinValidateMessage: '',
   });
 
   // validate data
@@ -42,48 +43,7 @@ const Urinalysis = ({navigation}) => {
     glucoseValid: true,
   });
 
-  const validateInput = () => {
-    const validatedState = {...validation};
-
-    // Validate pH
-    const phValue = parseFloat(state.chemistry.ph);
-    validatedState.phValid =
-      !isNaN(phValue) && phValue >= 7.0 && phValue <= 7.1;
-
-    // Validate Specific Gravity
-    const sgValue = parseFloat(state.chemistry.specificGravity);
-    validatedState.specificGravityValid =
-      !isNaN(sgValue) && sgValue >= 1.005 && sgValue <= 1.025;
-
-    // Validate Glucose
-    const glucoseValue = state.chemistry.glucose;
-    const validGlucoseValues = ['negative', 'trace'];
-    validatedState.glucoseValid = validGlucoseValues.includes(
-      glucoseValue.toLowerCase(),
-    );
-
-    setValidation(validatedState);
-  };
-
-  const renderDoctorAdviceMessage = (abnormalCondition, adviceMessage) => {
-    return abnormalCondition ? (
-      <Text style={{color: 'red', marginTop: 5, textAlign: 'center'}}>
-        {adviceMessage}
-      </Text>
-    ) : null;
-  };
-
-  const renderSpecificGravityValidationMessage = () => {
-    const abnormalSG = !validation.specificGravityValid;
-
-    return renderDoctorAdviceMessage(
-      abnormalSG,
-      abnormalSG
-        ? 'Abnormal specific gravity detected. Please consult a doctor.'
-        : 'Specific gravity is within the normal range.',
-    );
-  };
-
+  // validate values to make sure they are in range else flag them
   const checkPH = ph => {
     const phValue = parseFloat(ph);
     if (isNaN(phValue)) {
@@ -147,6 +107,23 @@ const Urinalysis = ({navigation}) => {
     }
   };
 
+  const checkProtein = protein => {
+    const proteinValues = ['negative', 'trace'];
+    if (protein !== 'negative' && protein !== 'trace') {
+      setState({
+        ...state,
+        proteinValidateMessage:
+          'Protein values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        proteinValidateMessage: '',
+      });
+    }
+    return proteinValues.includes(protein.toLowerCase());
+  };
+
   const _header = () => (
     <CustomHeader
       left={
@@ -165,7 +142,6 @@ const Urinalysis = ({navigation}) => {
       title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK </Text>}
     />
   );
-
   return (
     <View style={STYLES.wrapper}>
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
@@ -286,22 +262,45 @@ const Urinalysis = ({navigation}) => {
             {state.glucoseValidateMessage}
           </Text>
         )}
+        {/* Protein */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Protein:</Text>
 
-        <View style={STYLES.wrap}>
-          {/* Protein */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.protein}
-            onChangeText={text =>
+          <Picker
+            placeholder="Enter Protein"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.protein}
+            onValueChange={value => {
+              const isValid = checkProtein(value);
+
               setState({
                 ...state,
-                chemistry: {...state.chemistry, protein: text},
-              })
-            }
-            placeholder="Protein"
-            placeholderTextColor={COLORS.BLACK}
-          />
+                chemistry: {
+                  ...state.chemistry,
+                  protein: value,
+                },
+                glucoseValidateMessage: isValid ? '' : 'Put Protein values',
+              });
+            }}
+            onBlur={() => checkProtein(state.chemistry.protein)}
+            style={STYLES.field}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter Protein Value" value="" />
+            <Picker.Item label="negative" value="negative" />
+            <Picker.Item label="trace" value="trace" />
+            <Picker.Item label="0.3g/l" value="0.3g/l" />
+            <Picker.Item label="1.0g/l" value="1.0g/l" />
+            <Picker.Item label="3.0g/l" value="3.0g/l" />
+            <Picker.Item label=">20g/l" value=">20g/l" />
+          </Picker>
+        </View>
+        {state.proteinValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.proteinValidateMessage}
+          </Text>
+        )}
 
+        <View style={STYLES.wrap}>
           {/* Leukocytes */}
           <TextInput
             style={STYLES.smallInput}
