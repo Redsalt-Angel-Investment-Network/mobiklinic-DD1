@@ -30,6 +30,9 @@ const Urinalysis = ({navigation}) => {
       urobilinogen: '',
       ph: '',
     },
+    glucoseValidateMessage: '',
+    specificGravityValidateMessage: '',
+    phValidateMessage: '',
   });
 
   // validate data
@@ -70,19 +73,6 @@ const Urinalysis = ({navigation}) => {
     ) : null;
   };
 
-  const renderPHValidationMessage = () => {
-    const abnormalPH = !validation.phValid;
-    const phValue = parseFloat(state.chemistry.ph);
-
-    return renderDoctorAdviceMessage(
-      abnormalPH,
-      abnormalPH
-        ? 'Abnormal pH level detected. Please consult a doctor.'
-        : phValue < 7.0
-        ? 'pH level is below the normal range.'
-        : 'pH level is above the normal range.',
-    );
-  };
   const renderSpecificGravityValidationMessage = () => {
     const abnormalSG = !validation.specificGravityValid;
 
@@ -94,17 +84,67 @@ const Urinalysis = ({navigation}) => {
     );
   };
 
-  const renderGlucoseValidationMessage = () => {
-    const abnormalGlucose = !validation.glucoseValid;
+  const checkPH = ph => {
+    const phValue = parseFloat(ph);
+    if (isNaN(phValue)) {
+      setState({
+        ...state,
+        phValidateMessage: 'Please enter a valid number',
+      });
+      return false;
+    }
+    if (phValue < 7.0 || phValue > 7.1) {
+      setState({
+        ...state,
+        phValidateMessage:
+          'PH values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        phValidateMessage: '',
+      });
+    }
+  };
+  const checkGlucose = glucose => {
+    const validGlucoseValues = ['negative', 'trace'];
 
-    return renderDoctorAdviceMessage(
-      abnormalGlucose,
-      abnormalGlucose
-        ? 'Abnormal glucose level detected. Please consult a doctor.'
-        : state.chemistry.glucose.toLowerCase() === 'trace'
-        ? 'Trace level detected. Consider making lifestyle changes.'
-        : 'Glucose level is within normal range.',
-    );
+    if (glucose !== 'negative' && glucose !== 'trace') {
+      setState({
+        ...state,
+        glucoseValidateMessage:
+          'Glucose values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        glucoseValidateMessage: '',
+      });
+    }
+    return validGlucoseValues.includes(glucose.toLowerCase());
+  };
+
+  const checkSpecificGravity = specificGravity => {
+    const sgValue = parseFloat(specificGravity);
+    if (isNaN(sgValue)) {
+      setState({
+        ...state,
+        specificGravityValidateMessage: 'Please enter a valid number',
+      });
+      return false;
+    }
+    if (sgValue < 1.005 || sgValue > 1.025) {
+      setState({
+        ...state,
+        specificGravityValidateMessage:
+          'Specific gravity values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        specificGravityValidateMessage: '',
+      });
+    }
   };
 
   const _header = () => (
@@ -180,16 +220,22 @@ const Urinalysis = ({navigation}) => {
             placeholder="Select Specific Gravity"
             placeholderTextColor={COLORS.GREY}
             selectedValue={state.chemistry.specificGravity}
-            onValueChange={value =>
+            onValueChange={value => {
+              const isValid = checkSpecificGravity(value);
+
               setState({
                 ...state,
-                chemistry: {...state.chemistry, specificGravity: value},
-              })
-            }
-            style={[
-              STYLES.field,
-              !validation.specificGravityValid ? {borderColor: 'red'} : null,
-            ]}
+                chemistry: {
+                  ...state.chemistry,
+                  specificGravity: value,
+                },
+                specificGravityValidateMessage: isValid
+                  ? ''
+                  : 'Put Specific Gravity values',
+              });
+            }}
+            style={STYLES.field}
+            onBlur={() => checkSpecificGravity(state.chemistry.specificGravity)}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Select Specific Gravity" value="" />
             <Picker.Item label="1.005" value="1.005" />
@@ -199,7 +245,11 @@ const Urinalysis = ({navigation}) => {
             <Picker.Item label="1.030" value="1.030" />
           </Picker>
         </View>
-        {renderSpecificGravityValidationMessage()}
+        {state.specificGravityValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.specificGravityValidateMessage}
+          </Text>
+        )}
 
         {/* Glucose */}
         <View style={STYLES.labeled}>
@@ -208,28 +258,34 @@ const Urinalysis = ({navigation}) => {
             placeholder="Enter glucose"
             placeholderTextColor={COLORS.GREY}
             selectedValue={state.chemistry.glucose}
-            onValueChange={value =>
+            onValueChange={value => {
+              const isValid = checkGlucose(value);
+
               setState({
                 ...state,
-                chemistry: {...state.chemistry, glucose: value},
-              })
-            }
-            style={[
-              STYLES.field,
-              !validation.glucoseValid ? {borderColor: 'red'} : null,
-            ]}
-            onBlur={validateInput}
+                chemistry: {
+                  ...state.chemistry,
+                  glucose: value,
+                },
+                glucoseValidateMessage: isValid ? '' : 'Put Glucose values',
+              });
+            }}
+            onBlur={() => checkGlucose(state.chemistry.glucose)}
+            style={STYLES.field}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="negative" value="negative" />
             <Picker.Item label="trace" value="trace" />
-            <Picker.Item label="5" value="5" />
             <Picker.Item label="15mmol" value="15mmol" />
             <Picker.Item label="30mmol" value="30mmol" />
             <Picker.Item label="60mmol" value="60mmol" />
             <Picker.Item label="110mmol" value="110mmol" />
           </Picker>
         </View>
-        {renderGlucoseValidationMessage()}
+        {state.glucoseValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.glucoseValidateMessage}
+          </Text>
+        )}
 
         <View style={STYLES.wrap}>
           {/* Protein */}
@@ -327,16 +383,24 @@ const Urinalysis = ({navigation}) => {
           <TextInput
             style={STYLES.field}
             value={state.chemistry.ph}
-            onChangeText={text =>
+            onChangeText={text => {
+              checkPH(text);
               setState({
                 ...state,
-                chemistry: {...state.chemistry, ph: text},
-              })
-            }
+                chemistry: {
+                  ...state.chemistry,
+                  ph: text,
+                },
+              });
+            }}
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
+            onBlur={() => checkPH(state.chemistry.ph)}
           />
         </View>
+        {state.phValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>{state.phValidateMessage}</Text>
+        )}
 
         <TouchableOpacity
           style={STYLES.submit}
@@ -568,5 +632,11 @@ const STYLES = StyleSheet.create({
     paddingLeft: 12,
     fontSize: 15,
     color: COLORS.BLACK,
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 5,
   },
 });

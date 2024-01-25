@@ -25,7 +25,7 @@ const Inspection = ({navigation}) => {
       diastolicPressure: '',
       heartPulse: '',
     },
-    systolicValidationMessage: '', // Separate state for systolic validation
+    systolicValidationMessage: '', 
     diastolicValidationMessage: '',
     pluseValidationMessage: '',
   });
