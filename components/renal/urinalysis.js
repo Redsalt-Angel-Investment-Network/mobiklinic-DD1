@@ -27,7 +27,6 @@ const Urinalysis = ({navigation}) => {
       nitrite: '',
       ketone: '',
       bilirubin: '',
-      urobilinogen: '',
       ph: '',
     },
     glucoseValidateMessage: '',
@@ -38,6 +37,7 @@ const Urinalysis = ({navigation}) => {
     nitriteValidateMessage: '',
     ketoneValidateMessage: '',
     bilirubinValidateMessage: '',
+
   });
 
   // validate values to make sure they are in range else flag them
@@ -505,24 +505,6 @@ const Urinalysis = ({navigation}) => {
           </Text>
         )}
 
-        <View style={STYLES.wrap}>
-       
-
-          {/* Urobilinogen */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.urobilinogen}
-            onChangeText={text =>
-              setState({
-                ...state,
-                chemistry: {...state.chemistry, urobilinogen: text},
-              })
-            }
-            placeholder="Urobilinogen"
-            placeholderTextColor={COLORS.BLACK}
-          />
-        </View>
-
         {/* pH Level */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>PH Level:</Text>
@@ -541,6 +523,7 @@ const Urinalysis = ({navigation}) => {
             }}
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
+            keyboardType="numeric"
             onBlur={() => checkPH(state.chemistry.ph)}
           />
         </View>
