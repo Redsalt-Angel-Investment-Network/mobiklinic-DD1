@@ -27,6 +27,7 @@ const Inspection = ({navigation}) => {
     },
     systolicValidationMessage: '', // Separate state for systolic validation
     diastolicValidationMessage: '',
+    pluseValidationMessage: '',
   });
 
   const calculateBMI = (weight, height) => {
@@ -84,6 +85,30 @@ const Inspection = ({navigation}) => {
       setState({
         ...state,
         diastolicValidationMessage: '',
+      });
+    }
+  };
+
+  const checkPluseBP = heartPulse => {
+    const pluse = parseFloat(heartPulse);
+    if (isNaN(pluse)) {
+      setState({
+        ...state,
+        pluseValidationMessage: 'Please enter a valid number.',
+      });
+      return;
+    }
+
+    if (pluse < 60 || pluse > 100) {
+      setState({
+        ...state,
+        pluseValidationMessage:
+          'Heart pulse is outside the normal range. Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        pluseValidationMessage: '',
       });
     }
   };
@@ -196,12 +221,14 @@ const Inspection = ({navigation}) => {
           </View>
           {/* Display validation message in red below the text input */}
           {state.systolicValidationMessage !== '' && (
-            <Text style={STYLES.errorMessage}>{state.systolicValidationMessage}</Text>
+            <Text style={STYLES.errorMessage}>
+              {state.systolicValidationMessage}
+            </Text>
           )}
 
+          {/* diastolic pressure */}
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Diastolic Blood Pressure:</Text>
-
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.diastolicPressure}
@@ -225,28 +252,41 @@ const Inspection = ({navigation}) => {
           </View>
           {/* Display validation message in red below the text input */}
           {state.diastolicValidationMessage !== '' && (
-            <Text style={STYLES.errorMessage}>{state.diastolicValidationMessage}</Text>
+            <Text style={STYLES.errorMessage}>
+              {state.diastolicValidationMessage}
+            </Text>
           )}
 
+          {/* blood pressure */}
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Heart Pluse:</Text>
 
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.heartPulse}
-              onChangeText={text =>
+              onChangeText={text => {
+                checkPluseBP(text);
                 setState({
                   ...state,
-                  bloodPressure: {...state.bloodPressure, heartPulse: text},
-                })
-              }
+                  bloodPressure: {
+                    ...state.bloodPressure,
+                    heartPulse: text,
+                  },
+                });
+              }}
               placeholder="Heart Pulse"
               placeholderTextColor={COLORS.GREY}
               keyboardType="numeric"
+              onBlur={() => checkPluseBP(state.bloodPressure.heartPulse)}
             />
           </View>
         </View>
-
+        {/* Display validation message in red below the text input */}
+        {state.pluseValidationMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.pluseValidationMessage}
+          </Text>
+        )}
         <TouchableOpacity
           style={STYLES.submit}
           onPress={() => navigation.navigate('Urinalysis')}>
