@@ -36,13 +36,7 @@ const Urinalysis = ({navigation}) => {
     proteinValidateMessage: '',
     leukocytesValidateMessage: '',
     nitriteValidateMessage: '',
-  });
-
-  // validate data
-  const [validation, setValidation] = useState({
-    phValid: true,
-    specificGravityValid: true,
-    glucoseValid: true,
+    ketoneValidateMessage: '',
   });
 
   // validate values to make sure they are in range else flag them
@@ -99,7 +93,8 @@ const Urinalysis = ({navigation}) => {
       setState({
         ...state,
         specificGravityValidateMessage:
-          'Specific gravity values are abnormal. The Doctor will be notified',
+          'Specific gravity values are abnormal. 
+          The Doctor will be notified',
       });
     } else {
       setState({
@@ -158,6 +153,23 @@ const Urinalysis = ({navigation}) => {
       });
     }
     return nitriteValues.includes(nitrite.toLowerCase());
+  };
+
+  const checkKetone = ketone => {
+    const ketoneValues = ['negative'];
+    if (ketone !== 'negative') {
+      setState({
+        ...state,
+        ketoneValidateMessage:
+          'Ketone values are abnormal. The Doctor will be notified. There should never be ketone in urine',
+      });
+    } else {
+      setState({
+        ...state,
+        ketoneValidateMessage: '',
+      });
+    }
+    return ketoneValues.includes(ketone.toLowerCase());
   };
 
   const _header = () => (
@@ -406,6 +418,41 @@ const Urinalysis = ({navigation}) => {
           </Text>
         )}
 
+        {/* Ketones */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Ketones:</Text>
+
+          <Picker
+            placeholder="Enter Ketone Values"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.ketone}
+            onValueChange={value => {
+              const isValid = checkKetone(value);
+
+              setState({
+                ...state,
+                chemistry: {
+                  ...state.chemistry,
+                  ketone: value,
+                },
+                ketoneValidateMessage: isValid ? '' : 'Put Ketone values',
+              });
+            }}
+            onBlur={() => checkKetone(state.chemistry.ketone)}
+            style={STYLES.field}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter Ketone Value" value="" />
+            <Picker.Item label="negative" value="negative" />
+            <Picker.Item label="trace(0.5mmol)" value="trace(0.5mmol)" />
+            <Picker.Item label="1.5mmol(small)" value="1.5mmol(small)" />
+            <Picker.Item label="4.0mmol(moderate)" value="4.0mmol(moderate)" />
+            <Picker.Item label="8.0mmol(large)" value="8.0mmol(large)" />
+            <Picker.Item label="16mmol(large) " value="16mmol(large) " />
+          </Picker>
+        </View>
+        {state.ketoneValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>{state.ketoneValidateMessage}</Text>
+        )}
         <View style={STYLES.wrap}>
           {/* Ketone */}
           <TextInput
