@@ -34,6 +34,7 @@ const Urinalysis = ({navigation}) => {
     specificGravityValidateMessage: '',
     phValidateMessage: '',
     proteinValidateMessage: '',
+    leukocytesValidateMessage: '',
   });
 
   // validate data
@@ -122,6 +123,23 @@ const Urinalysis = ({navigation}) => {
       });
     }
     return proteinValues.includes(protein.toLowerCase());
+  };
+
+  const checkLeukocytes = leukocytes => {
+    const leukocytesValues = ['negative'];
+    if (leukocytes !== 'negative') {
+      setState({
+        ...state,
+        leukocytesValidateMessage:
+          'Leukocytes values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        leukocytesValidateMessage: '',
+      });
+    }
+    return leukocytesValues.includes(leukocytes.toLowerCase());
   };
 
   const _header = () => (
@@ -300,21 +318,41 @@ const Urinalysis = ({navigation}) => {
           </Text>
         )}
 
-        <View style={STYLES.wrap}>
-          {/* Leukocytes */}
-          <TextInput
-            style={STYLES.smallInput}
-            value={state.chemistry.leokcytes}
-            onChangeText={text =>
+        {/* Leukocytes */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Leukocytes:</Text>
+
+          <Picker
+            placeholder="Enter Leukocytes"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.leokcytes}
+            onValueChange={value => {
+              const isValid = checkLeukocytes(value);
+
               setState({
                 ...state,
-                chemistry: {...state.chemistry, leokcytes: text},
-              })
-            }
-            placeholder="Leukocytes"
-            placeholderTextColor={COLORS.BLACK}
-          />
+                chemistry: {
+                  ...state.chemistry,
+                  leokcytes: value,
+                },
+                leukocytesValidateMessage: isValid
+                  ? ''
+                  : 'Put Leukocytes values',
+              });
+            }}
+            onBlur={() => checkLeukocytes(state.chemistry.leokcytes)}
+            style={STYLES.field}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter Leokcytes Value" value="" />
+            <Picker.Item label="negative" value="negative" />
+            <Picker.Item label="postive" value="positive" />
+          </Picker>
         </View>
+        {state.leukocytesValidateMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.leukocytesValidateMessage}
+          </Text>
+        )}
 
         <View style={STYLES.wrap}>
           {/* Nitrite */}
