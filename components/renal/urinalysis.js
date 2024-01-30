@@ -310,6 +310,9 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.errorMessage}>{state.colorValidateMessage}</Text>
         )}
 
+        {/* Chemistry */}
+        <Text style={STYLES.label}>Urine Chemistry:</Text>
+
         {/* specific Gravity */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Specific Gravity:</Text>
@@ -342,7 +345,7 @@ const Urinalysis = ({navigation}) => {
             <Picker.Item label="1.030" value="1.030" />
           </Picker>
         </View>
-        
+
         {state.specificGravityValidateMessage !== '' && (
           <Text style={STYLES.errorMessage}>
             {state.specificGravityValidateMessage}

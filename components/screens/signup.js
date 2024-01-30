@@ -8,113 +8,81 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Button,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import {CustomStatusBar} from '../ui/custom.status.bar';
 import Loader from '../ui/loader';
-import {COLORS, DIMENS} from '../constants/styles';
-import {Picker} from '@react-native-picker/picker';
-import {validateUgandaPhoneNumber} from '../helpers/validation';
-import {URLS} from '../constants/API';
-import PhoneInput from 'react-native-phone-number-input';
-import {API_URL} from '@env';
 
-const areaCodes = [
-  {label: '+256', value: '+256'},
-  {label: '+257', value: '+257'},
-  {label: '+254', value: '+254'},
-  {label: '+255', value: '+255'},
-];
+import {COLORS, DIMENS} from '../constants/styles';
+import {API_URL} from '@env';
+import axios from 'axios';
 
 const SignUp = ({navigation}) => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    eMail: '',
-    password: '',
-    cPassword: '',
-  });
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasRegistered, setRegistered] = useState(false);
   const [process, setProcess] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [phoneError, setPhoneError] = useState('');
+  const [error, setError] = useState('');
 
-  const signUp = async () => {
+  const handleSubmit = async () => {
     setProcess('Registering, please wait!');
-    const formattedPhoneNumber = formData.phoneNumber;
+    setError('');
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.phoneNumber ||
-      !formData.password ||
-      !formData.cPassword
-    ) {
-      Alert.alert('Error', 'Please fill in the required fields correctly!', [
-        {
-          text: 'OK',
-          onPress: () => setIsLoading(false),
-        },
-      ]);
-      return;
-    }
+   
+
+    setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        body: JSON.stringify({
-          phone: formattedPhoneNumber,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.eMail,
-          password: formData.password,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-          Accept: 'application.json',
-        },
+      const response = await axios.post(`${API_URL}/api/auth/local/register`, {
+        email,
+        username,
+        password,
+        phone,
       });
 
-      const data = await response.json();
-
-      if (data.message === 'Signup successful') {
+      if (response.status === 200) {
         setRegistered(true);
-      } else if (data.message === 'Phone number already exists') {
-        // Display a specific error message when the phone number already exists
-        Alert.alert(
-          'Sign up failure',
-          'Phone number already exists. Please use a different phone number.',
-          [
-            {
-              text: 'OK',
-              onPress: () => setIsLoading(false),
-            },
-          ],
-        );
       } else {
-        Alert.alert('Sign up failure', 'Phone number already exists', [
+        Alert.alert('Sign up failure', [
           {
             text: 'OK',
             onPress: () => setIsLoading(false),
           },
         ]);
       }
-    } catch (err) {
-      console.log(err.message);
-      Alert.alert(
-        'Failure',
-        'Something went wrong. Check your internet and try again!',
-        [
-          {
-            text: 'OK',
-            onPress: () => setIsLoading(false),
-          },
-        ],
-      );
+    } catch (error) {
+      console.error(error.response.data);
+      setError('An error occurred. Please try again later.');
+      Alert.alert('Failure', 'An error occurred. Please try again later.', [
+        {
+          text: 'OK',
+          onPress: () => setIsLoading(false),
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // const validateEmail = email => {
+  //   // Email validation logic
+  // };
+
+  // const validateUsername = username => {
+  //   // Username validation logic
+  // };
+
+  // const validatePassword = password => {
+  //   // Password validation logic
+  // };
+
+  // const validatePhoneNumber = phone => {
+  //   // Phone number validation logic
+  // };
 
   if (isLoading) {
     return (
@@ -149,121 +117,56 @@ const SignUp = ({navigation}) => {
       </View>
       <ScrollView style={styles.body}>
         <View style={styles.formContainer}>
-          <View>
-            <Text style={styles.errorMsg}>{phoneError}</Text>
-          </View>
+          {error && <Text style={styles.error}>{error}</Text>}
           <View style={styles.labeled}>
-            <Text style={styles.label}>First Name:</Text>
+            <Text style={styles.label}>Email:</Text>
             <TextInput
+              placeholder="Enter your email address"
+              value={email}
+              onChangeText={setEmail}
               style={styles.input}
-              autoCorrect={false}
               placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={firstName => setFormData({...formData, firstName})}
-              value={formData.firstName}
-              placeholder="Enter First name"
             />
           </View>
-          <View style={styles.labeled}>
-            <Text style={styles.label}>Last Name:</Text>
-            <TextInput
-              style={styles.input}
-              autoCorrect={false}
-              placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={lastName => setFormData({...formData, lastName})}
-              value={formData.lastName}
-              placeholder="Enter Last name"
-            />
-          </View>
-          <View style={styles.labeled}>
-            <Text style={styles.label}>Email Address:</Text>
-            <TextInput
-              style={styles.input}
-              autoCorrect={false}
-              placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={eMail => setFormData({...formData, eMail})}
-              value={formData.eMail}
-              keyboardType="email-address"
-              placeholder="Enter Email"
-            />
-          </View>
-          <View>
-            <PhoneInput
-              placeholder="Phone Number"
-              defaultCode="UG"
-              layout="first"
-              containerStyle={[
-                styles.phoneInputContainer,
-                {backgroundColor: COLORS.WHITE_LOW},
-              ]}
-              textInputStyle={{color: 'black', paddingVertical: 10}}
-              placeholderTextColor="grey"
-              style={styles.phoneInput}
-              textContainerStyle={styles.phoneInput}
-              textInputProps={{
-                style: styles.phoneInput,
-                placeholderTextColor: 'grey',
-                height: 40,
-                backgroundColor: 'rgba(255, 255, 255, 0)',
 
-                // placeholderTextColor: 'grey',
-              }}
-              dropdownImageStyle={styles.dropdownImage}
-              onChangeText={text =>
-                setFormData({...formData, phoneNumber: text})
-              }
+          <View style={styles.labeled}>
+            <Text style={styles.label}>UserName:</Text>
+            <TextInput
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              style={styles.input}
+              placeholderTextColor="grey"
             />
           </View>
-          {phoneError !== '' && (
-            <Text style={[styles.alignError, styles.errorMsg]}>
-              {phoneError}
-            </Text>
-          )}
           <View style={styles.labeled}>
             <Text style={styles.label}>Password:</Text>
             <TextInput
+              placeholder="Enter Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholderTextColor="grey"
               style={styles.input}
-              password={true}
               secureTextEntry={true}
               autoCorrect={false}
-              placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={password => setFormData({...formData, password})}
-              value={formData.password}
-              placeholder="Enter Password"
             />
           </View>
           <View style={styles.labeled}>
-            <Text style={styles.label}>Confirm :</Text>
+            <Text style={styles.label}>Phone Number:</Text>
+
             <TextInput
+              placeholder="Enter phone number"
+              value={phone}
               style={styles.input}
-              password={true}
-              secureTextEntry={true}
-              autoCorrect={false}
+              onChangeText={setPhone}
+              keyboardType="numeric"
               placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={cPassword => {
-                setFormData({...formData, cPassword});
-                if (formData.password !== cPassword) {
-                  setPasswordError('Make sure passwords match.');
-                } else {
-                  setPasswordError('');
-                }
-              }}
-              value={formData.cPassword}
-              placeholder="Enter Password again"
             />
           </View>
-          {passwordError !== '' && (
-            <Text style={[styles.alignError, styles.errorMsg]}>
-              {passwordError}
-            </Text>
-          )}
+
           <TouchableOpacity
             style={[styles.btn, styles.btnPrimary]}
-            onPress={() => signUp()}>
+            onPress={handleSubmit}>
             <Text style={styles.whiteText}>Sign Up</Text>
             <Icon
               name="arrow-right"
@@ -283,15 +186,15 @@ const SignUp = ({navigation}) => {
   );
 };
 
+export default SignUp;
+
 const styles = StyleSheet.create({
   container: {
-    flex: 3,
+    flex: 1,
     backgroundColor: COLORS.WHITE,
   },
   body: {
-    // flex: 1,
     paddingTop: 50,
-    // paddingHorizontal: 12,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -301,12 +204,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE_LOW,
     borderRadius: 18,
     paddingHorizontal: 20,
-    marginBottom: 15,
-    marginHorizontal: 15,
-    width: 35,
-    height: 20,
+    // marginBottom: 15,
+    // width: 35,
+    // height: 20,
     flex: 1, // Allow the input to expand and fill the available space
-    height: 50,
+    // height: 50,
   },
   picker: {
     flex: 1,
@@ -321,8 +223,8 @@ const styles = StyleSheet.create({
     padding: DIMENS.FORM.PADDING,
   },
   title: {
-    color: COLORS.BLACK,
-    fontSize: 14,
+    color: COLORS.PRIMARY,
+    fontSize: 17,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     padding: DIMENS.PADDING,
@@ -336,26 +238,24 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE_LOW,
   },
   label: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
     color: COLORS.BLACK,
   },
   labeled: {
     flexDirection: 'row',
     alignItems: 'center',
-    // marginTop: 10,
+    justifyContent: 'center',
     borderColor: COLORS.GREY,
     borderStyle: 'solid',
     borderWidth: 1,
     backgroundColor: COLORS.WHITE_LOW,
     borderRadius: 18,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     marginBottom: 15,
-    fontFamily: 'Roboto',
-    fontSize: 15,
+    // fontFamily: 'Roboto',
     color: COLORS.BLACK,
-    marginHorizontal: 15,
+    // marginHorizontal: 15,
   },
   linkItem: {
     paddingTop: DIMENS.PADDING,
@@ -371,13 +271,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.PRIMARY,
   },
   input: {
-    // borderColor: COLORS.WHITE_LOW,
-    flex: 1,
+    flex: 2,
     justifyContent: 'center',
     color: COLORS.BLACK,
     fontWeight: 'medium',
     paddingLeft: 10,
-    fontSize: 15,
+    fontSize: 16,
   },
   btn: {
     padding: DIMENS.PADDING,
@@ -455,5 +354,3 @@ const styles = StyleSheet.create({
     width: 338,
   },
 });
-
-export default SignUp;
