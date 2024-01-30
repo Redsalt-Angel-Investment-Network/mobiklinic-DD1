@@ -28,6 +28,8 @@ const SignUp = ({navigation}) => {
   const [hasRegistered, setRegistered] = useState(false);
   const [process, setProcess] = useState('');
   const [error, setError] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const {userNames, setUserNames} = useContext(DataResultsContext);
 
   const handleSubmit = async () => {
@@ -37,6 +39,7 @@ const SignUp = ({navigation}) => {
     setIsLoading(true);
 
     try {
+      const username = `${firstName}${lastName}`;
       const response = await axios.post(`${API_URL}/api/auth/local/register`, {
         email,
         username,
@@ -118,7 +121,39 @@ const SignUp = ({navigation}) => {
       </View>
       <ScrollView style={styles.body}>
         <View style={styles.formContainer}>
-          {error && <Text style={styles.error}>{error}</Text>}
+          <View style={styles.labeled}>
+            <Text style={styles.label}>First Name:</Text>
+            <TextInput
+              placeholder="Enter your first name"
+              value={firstName}
+              onChangeText={setFirstName}
+              style={styles.input}
+              placeholderTextColor="grey"
+            />
+          </View>
+
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Last Name:</Text>
+            <TextInput
+              placeholder="Enter your last name"
+              value={lastName}
+              onChangeText={setLastName}
+              style={styles.input}
+              placeholderTextColor="grey"
+            />
+          </View>
+
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Phone Number:</Text>
+            <TextInput
+              placeholder="Enter phone number"
+              value={phone}
+              style={styles.input}
+              onChangeText={setPhone}
+              keyboardType="numeric"
+              placeholderTextColor="grey"
+            />
+          </View>
           <View style={styles.labeled}>
             <Text style={styles.label}>Email:</Text>
             <TextInput
@@ -131,16 +166,6 @@ const SignUp = ({navigation}) => {
           </View>
 
           <View style={styles.labeled}>
-            <Text style={styles.label}>UserName:</Text>
-            <TextInput
-              placeholder="Username"
-              value={username}
-              onChangeText={setUsername}
-              style={styles.input}
-              placeholderTextColor="grey"
-            />
-          </View>
-          <View style={styles.labeled}>
             <Text style={styles.label}>Password:</Text>
             <TextInput
               placeholder="Enter Password"
@@ -150,18 +175,6 @@ const SignUp = ({navigation}) => {
               style={styles.input}
               secureTextEntry={true}
               autoCorrect={false}
-            />
-          </View>
-          <View style={styles.labeled}>
-            <Text style={styles.label}>Phone Number:</Text>
-
-            <TextInput
-              placeholder="Enter phone number"
-              value={phone}
-              style={styles.input}
-              onChangeText={setPhone}
-              keyboardType="numeric"
-              placeholderTextColor="grey"
             />
           </View>
 
@@ -296,8 +309,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 15,
-    marginVertical: 10,
-    marginHorizontal: 15,
+    marginVertical: 12,
+    // marginHorizontal: 15,
   },
   btnInfo: {
     backgroundColor: COLORS.WHITE_LOW,
@@ -318,9 +331,9 @@ const styles = StyleSheet.create({
   },
   whiteText: {
     color: COLORS.BLACK,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     paddingHorizontal: 15,
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Roboto',
   },
   phoneInput: {
