@@ -30,11 +30,10 @@ const SignUp = ({navigation}) => {
   const [error, setError] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const {userNames, setUserNames} = useContext(DataResultsContext);
+  const {setUserNames} = useContext(DataResultsContext);
 
   const handleSubmit = async () => {
     setProcess('Registering, please wait!');
-    setError('');
 
     setIsLoading(true);
 
@@ -47,8 +46,9 @@ const SignUp = ({navigation}) => {
         phone,
       });
 
-      if (response.status === 200) {
-        setUser(username);
+      if (response && response.data && response.data.status === 200) {
+        setUserNames(username);
+        console.log(setUserNames);
         setRegistered(true);
       } else {
         Alert.alert('Sign up failure', [
@@ -60,33 +60,10 @@ const SignUp = ({navigation}) => {
       }
     } catch (error) {
       console.error(error.response.data);
-      setError('An error occurred. Please try again later.');
-      Alert.alert('Failure', 'An error occurred. Please try again later.', [
-        {
-          text: 'OK',
-          onPress: () => setIsLoading(false),
-        },
-      ]);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // const validateEmail = email => {
-  //   // Email validation logic
-  // };
-
-  // const validateUsername = username => {
-  //   // Username validation logic
-  // };
-
-  // const validatePassword = password => {
-  //   // Password validation logic
-  // };
-
-  // const validatePhoneNumber = phone => {
-  //   // Phone number validation logic
-  // };
 
   if (isLoading) {
     return (
