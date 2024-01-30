@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import Loader from '../ui/loader';
 import {COLORS, DIMENS} from '../constants/styles';
 import {API_URL} from '@env';
 import axios from 'axios';
+import DataResultsContext from '../contexts/DataResultsContext';
 
 const SignUp = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -27,12 +28,11 @@ const SignUp = ({navigation}) => {
   const [hasRegistered, setRegistered] = useState(false);
   const [process, setProcess] = useState('');
   const [error, setError] = useState('');
+  const {userNames, setUserNames} = useContext(DataResultsContext);
 
   const handleSubmit = async () => {
     setProcess('Registering, please wait!');
     setError('');
-
-   
 
     setIsLoading(true);
 
@@ -45,6 +45,7 @@ const SignUp = ({navigation}) => {
       });
 
       if (response.status === 200) {
+        setUser(username);
         setRegistered(true);
       } else {
         Alert.alert('Sign up failure', [
