@@ -90,14 +90,13 @@ export const tokensRefresh = async user => {
 
   return null;
 };
-
 export const RETRIEVE_LOCAL_USER = async () => {
   console.log('Retrieving local user');
   try {
     let user = await AsyncStorage.getItem('@user');
     return JSON.parse(user) || null;
   } catch (err) {
-    new Error(err);
+    console.error(err);
   }
 };
 export const SAVE_LOCAL_USER = async (user = {}) => {
@@ -140,9 +139,9 @@ export const cyrb53 = function (str, seed = 0) {
 export const DOWNLOAD = async data => {
   // await AsyncStorage.removeItem("@doctors");
   // await AsyncStorage.removeItem("@ambulances");
-  const {accessToken, items, userId, per_page} = data;
+  const {jwt, items, userId, per_page} = data;
   axios.defaults.baseURL = API_URL;
-  axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+  axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
   axios.defaults.headers.post['Content-Type'] =
     'application/json; charset=UTF-8';
   axios.defaults.headers.post['Accept'] = 'application/json';
@@ -401,7 +400,6 @@ export const signUp = async data => {
 export const signOut = async callback => {
   callback();
 };
-
 export const clearStorage = async () => {
   await AsyncStorage.clear();
 };
