@@ -24,7 +24,6 @@ import ReceivedChats from '../screens/Received.Chats';
 import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
-import DrawerLogged from '../navigators/drawer.logged';
 import Urinalysis from '../renal/urinalysis';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
@@ -153,11 +152,7 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Monitoring}
       />
-      <Stack.Screen
-        name="DrawerLogged"
-        options={{headerShown: false}}
-        component={DrawerLogged}
-      />
+  
       <Stack.Screen
         name="History"
         options={{headerShown: false}}

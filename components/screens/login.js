@@ -25,67 +25,12 @@ import {
   _removeStorageItem,
   RETRIEVE_LOCAL_USER,
   SAVE_LOCAL_USER, 
+  DOWNLOAD, 
+  cyrb53,
   
 } from '../helpers/functions';
 
 
-
-export const cyrb53 = function (str, seed = 0) {
-  let h1 = 0xdeadbeef ^ seed,
-    h2 = 0x41c6ce57 ^ seed;
-
-  for (let i = 0, ch; i < str.length; i++) {
-    ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-
-  h1 =
-    Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^
-    Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 =
-    Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^
-    Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-};
-
-export const DOWNLOAD = async data => {
-  // await AsyncStorage.removeItem("@doctors");
-  // await AsyncStorage.removeItem("@ambulances");
-  const {jwt, items, userId, per_page} = data;
-  axios.defaults.baseURL = API_URL;
-  axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-  axios.defaults.headers.post['Content-Type'] =
-    'application/json; charset=UTF-8';
-  axios.defaults.headers.post['Accept'] = 'application/json';
-  const DATA_CATEGORY = ['diagnosis', 'chats'];
-  for (let i = 0; i < items.length; i++) {
-    try {
-      const {
-        data: {total},
-      } = await axios.get(`/${items[i]}`);
-
-      let pages = Math.round(total / per_page);
-      pages = pages < 1 ? 1 : pages;
-      let _downloaded = 0;
-      for (let page = 1; page <= pages; page++) {
-        const response = await axios.get(`/${items[i]}?page=${page}`);
-        const _items = response.data[items[i]];
-
-        let itemsOnDevice = await AsyncStorage.getItem(`@${items[i]}`);
-        itemsOnDevice = JSON.parse(itemsOnDevice) || [];
-        const all = uniqWith([..._items, ...itemsOnDevice], isEqual);
-        AsyncStorage.setItem(`@${items[i]}`, JSON.stringify(all));
-      }
-    } catch (error) {
-      console.log('Downlod', error);
-    }
-
-    if (i >= items.length) {
-      return true;
-    }
-  }
-};
 
 const Login = ({navigation}) => {
   const {

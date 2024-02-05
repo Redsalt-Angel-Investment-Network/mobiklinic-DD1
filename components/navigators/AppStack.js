@@ -6,6 +6,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Login from '../screens/login';
 import ForgotPassword from '../screens/password.forgot';
 import ResetPassword from '../screens/password.reset';
+import DrawerLogged from '../navigators/drawer.logged';
+
 
 const Stack = createStackNavigator();
 
@@ -44,6 +46,11 @@ function AppStack() {
         name="ResetPassword"
         options={{headerShown: false}}
         component={ResetPassword}
+      />
+          <Stack.Screen
+        name="DrawerLogged"
+        options={{headerShown: false}}
+        component={DrawerLogged}
       />
     </Stack.Navigator>
   );
