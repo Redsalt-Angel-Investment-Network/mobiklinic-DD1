@@ -1,4 +1,6 @@
-import React, {useState, useContext} from 'react';
+import {useFormik} from 'formik';
+import * as Yup from 'yup';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -20,71 +22,98 @@ import axios from 'axios';
 import DataResultsContext from '../contexts/DataResultsContext';
 
 const SignUp = ({navigation}) => {
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const {setUserNames} = useContext(DataResultsContext);
   const [isLoading, setIsLoading] = useState(false);
   const [hasRegistered, setRegistered] = useState(false);
   const [process, setProcess] = useState('');
-  const [error, setError] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const {setUserNames} = useContext(DataResultsContext);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async () => {
-    setProcess('Registering, please wait!');
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required('First name is required'),
+      lastName: Yup.string().required('Last name is required'),
+      username: Yup.string().required('Phone number is required'),
+      email: Yup.string()
+        .email('Invalid email address')
+        .required('Email is required'),
+      password: Yup.string()
+        .required('Password is required')
+        .min(6, 'Password must be at least 6 characters'),
+    }),
+    onSubmit: async values => {
+      try {
+        const response = await axios.post(
+          `${API_URL}/api/auth/local/register`,
+          {
+            email: values.email,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            password: values.password,
+            username: values.username,
+          },
+        );
 
-    setIsLoading(true);
+        if (response && response.data && response.data.status === 200) {
+          const username = `${values.firstName} ${values.lastName}`;
+          setUserNames(username);
+          console.log(setUserNames);
+          setRegistered(true);
+        } else {
+          Alert.alert('Sign up failure', [
+            {
+              text: 'OK',
+              onPress: () => setIsLoading(false),
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error(error.response.data);
+        const errorMessage =
+          error.response.data && error.response.data.message
+            ? error.response.data.message.join(', ') 
+            : 'Registration failed. Please try again.';
 
-    try {
-      const username = `${firstName}${lastName}`;
-      const response = await axios.post(`${API_URL}/api/auth/local/register`, {
-        email,
-        username,
-        password,
-        phone,
-      });
-
-      if (response && response.data && response.data.status === 200) {
-        setUserNames(username);
-        console.log(setUserNames);
-        setRegistered(true);
-      } else {
-        Alert.alert('Sign up failure', [
+        Alert.alert('Sign up failure', errorMessage, [
           {
             text: 'OK',
             onPress: () => setIsLoading(false),
           },
         ]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error(error.response.data);
-    } finally {
+    },
+  });
+
+  const {values, touched, errors, handleChange, handleBlur, handleSubmit} =
+    formik;
+
+  if (isLoading) return <Loader />;
+
+  useEffect(() => {
+    if (hasRegistered) {
       setIsLoading(false);
+      return (
+        <View>
+          <Loader />
+          <Text style={[styles.subTitle]}>Registration successful!</Text>
+          <TouchableOpacity
+            style={[styles.btn, styles.btnPrimary]}
+            onPress={() => navigation.navigate('Login')}>
+            <Text>Login now</Text>
+          </TouchableOpacity>
+        </View>
+      );
     }
-  };
-
-  if (isLoading) {
-    return (
-      <Loader>
-        <Text>{process}</Text>
-      </Loader>
-    );
-  }
-
-  if (hasRegistered) {
-    return (
-      <Loader loader={false}>
-        <Text style={[styles.subTitle]}>Registration successful!</Text>
-        <TouchableOpacity
-          style={[styles.btn, styles.btnPrimary]}
-          onPress={() => navigation.navigate('Login')}>
-          <Text>Login now</Text>
-        </TouchableOpacity>
-      </Loader>
-    );
-  }
+  }, [hasRegistered]);
 
   return (
     <View style={styles.container}>
@@ -102,58 +131,85 @@ const SignUp = ({navigation}) => {
             <Text style={styles.label}>First Name:</Text>
             <TextInput
               placeholder="Enter your first name"
-              value={firstName}
-              onChangeText={setFirstName}
+              value={values.firstName}
+              onChangeText={handleChange('firstName')}
+              onBlur={handleBlur('firstName')}
               style={styles.input}
               placeholderTextColor="grey"
             />
           </View>
+          {touched.firstName && errors.firstName && (
+            <Text style={styles.errorText}>{errors.firstName}</Text>
+          )}
 
           <View style={styles.labeled}>
             <Text style={styles.label}>Last Name:</Text>
             <TextInput
               placeholder="Enter your last name"
-              value={lastName}
-              onChangeText={setLastName}
+              value={values.lastName}
+              onChangeText={handleChange('lastName')}
+              onBlur={handleBlur('lastName')}
               style={styles.input}
               placeholderTextColor="grey"
             />
           </View>
+          {touched.lastName && errors.lastName && (
+            <Text style={styles.errorText}>{errors.lastName}</Text>
+          )}
 
           <View style={styles.labeled}>
             <Text style={styles.label}>Phone Number:</Text>
             <TextInput
               placeholder="Enter phone number"
-              value={phone}
+              value={values.username}
               style={styles.input}
-              onChangeText={setPhone}
+              onChangeText={handleChange('username')}
+              onBlur={handleBlur('username')}
               keyboardType="numeric"
               placeholderTextColor="grey"
             />
           </View>
+          {touched.username && errors.username && (
+            <Text style={styles.errorText}>{errors.username}</Text>
+          )}
           <View style={styles.labeled}>
             <Text style={styles.label}>Email:</Text>
             <TextInput
               placeholder="Enter your email address"
-              value={email}
-              onChangeText={setEmail}
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
               style={styles.input}
               placeholderTextColor="grey"
             />
           </View>
+          {touched.email && errors.email && (
+            <Text style={styles.errorText}>{errors.email}</Text>
+          )}
 
           <View style={styles.labeled}>
             <Text style={styles.label}>Password:</Text>
             <TextInput
               placeholder="Enter Password"
-              value={password}
-              onChangeText={setPassword}
+              value={values.password}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
               placeholderTextColor="grey"
               style={styles.input}
-              secureTextEntry={true}
+              secureTextEntry={!showPassword} // Add this line
               autoCorrect={false}
             />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Icon
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={COLORS.BLACK}
+              />
+            </TouchableOpacity>
           </View>
+          {touched.password && errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
+          )}
 
           <TouchableOpacity
             style={[styles.btn, styles.btnPrimary]}
@@ -343,5 +399,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     height: 55,
     width: 338,
+  },
+  errorText: {
+    color: 'red',
+    paddingBottom: 5,
   },
 });
