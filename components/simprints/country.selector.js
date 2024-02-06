@@ -323,5 +323,6 @@ export const countryData = [
     name: 'Other',
     languages: ['Swahili', 'English'],
     districts: ['Other'],
+    ethnicities: ['Other', 'English'],
   },
 ];
