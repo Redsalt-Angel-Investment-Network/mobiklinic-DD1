@@ -31,8 +31,12 @@ import {DiagnosisContext} from '../providers/Diagnosis';
 import CustomHeader from '../ui/custom-header';
 import Loader from '../ui/loader';
 import CopyRight from '../copyright';
+import { useRoute } from '@react-navigation/native';
 
-const SelectActivity = ({navigation, route}) => {
+
+const SelectActivity = ({navigation,route}) => {
+  const { patientId, firstName, lastName } = route.params;
+
   const _header = () => (
     <CustomHeader
       left={
@@ -65,9 +69,7 @@ const SelectActivity = ({navigation, route}) => {
         <Text style={STYLES.text}>
           Name: {'\t'}
           <Text style={{textDecorationLine: 'underline'}}>
-            {route.params.paramKey.firstName}
-            {'\t'}
-            {route.params.paramKey.lastName}
+            {firstName} {'\t'} {lastName}
           </Text>
         </Text>
 
@@ -128,8 +130,11 @@ const SelectActivity = ({navigation, route}) => {
                 style={STYLES.card}
                 onPress={() => navigation.navigate('SelectRenalActivity')}>
                 <View style={STYLES.cardIcon}>
-                <FontAwesomeIcon name="medkit" size={40} color={COLORS.BLACK} />
-
+                  <FontAwesomeIcon
+                    name="medkit"
+                    size={40}
+                    color={COLORS.BLACK}
+                  />
                 </View>
                 <Text style={STYLES.cardTitle}>Renal Health</Text>
               </TouchableOpacity>

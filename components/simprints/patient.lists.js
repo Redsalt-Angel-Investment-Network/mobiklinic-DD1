@@ -26,7 +26,11 @@ const PatientCard = ({patient}) => {
   };
   const handleRedirect = () => {
     console.log('Patient ID:', patient.id);
-    navigation.navigate('SelectActivity', {patientId: patient.id});
+    navigation.navigate('SelectActivity', {
+      patientId: patient.id,
+      firstName: patient.firstName,
+      lastName: patient.lastName,
+    });
   };
 
   return (
