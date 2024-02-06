@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
@@ -93,7 +94,6 @@ const PatientData = ({navigation}) => {
     district: '',
     country: '',
     primaryLanguage: '',
-    createdAt: '',
     maritalStatus: '',
     nextOfKin: '',
     nextOfKinContact: '',
@@ -105,13 +105,12 @@ const PatientData = ({navigation}) => {
   const handleSubmit = async () => {
     try {
       console.log('User Id:', userLog);
-
+  
       if (state.isLoading) {
-        // Prevent multiple submissions
         return;
       }
-      setState({...state, isLoading: true}); // Set isLoading state to true
-
+      setState({...state, isLoading: true});
+  
       if (
         state.firstName === '' ||
         state.lastName === '' ||
@@ -121,10 +120,9 @@ const PatientData = ({navigation}) => {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
-
-      const response = await fetch(`${API_URL}/${userLog}/patients`, {
-        method: 'POST',
-        body: JSON.stringify({
+  
+      const response = await axios.post(`${API_URL}/api/patients`, {
+        data: {
           firstName: state.firstName,
           lastName: state.lastName,
           sex: state.sex,
@@ -135,24 +133,24 @@ const PatientData = ({navigation}) => {
           district: selectedDistrict,
           country: selectedCountry,
           primaryLanguage: selectedLanguage,
-          createdAt: new Date(),
           maritalStatus: state.maritalStatus,
           nextOfKin: state.nextOfKin,
           nextOfKinContact: state.nextOfKinContact,
           ethinicity: selectedEthnicity,
-          occuptation: occupation,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-          Accept: 'application/json',
+          occuptation: state.occupation, 
+          users_permissions_user: {
+            id: userLog,
+          },
         },
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        // setId(data.id);
+  
+      if (response.status === 200) {
+        const data = response.data.data;
         const patientId = data.id;
         setPatientId(patientId);
+        console.log('====================================');
+        console.log(patientId);
+        console.log('====================================');
         console.log('Patient ID:', patientId);
         Alert.alert('Beneficiary Registered Successfully');
         navigation.navigate('SelectActivity', {
@@ -166,6 +164,7 @@ const PatientData = ({navigation}) => {
           'Failed to register Beneficiary. Please try again later.',
         );
       }
+      console.log(response);
     } catch (error) {
       console.error('Error posting data:', error);
       Alert.alert(
@@ -173,9 +172,10 @@ const PatientData = ({navigation}) => {
         'Failed to register Beneficiary. Please try again later.',
       );
     } finally {
-      setState({...state, isLoading: false}); // Reset isLoading state to false
+      setState({...state, isLoading: false});
     }
   };
+  
 
   const _header = () => (
     <CustomHeader
@@ -270,6 +270,20 @@ const PatientData = ({navigation}) => {
           </Picker>
         </View>
 
+        {/* occupation */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Occupation:</Text>
+          <TextInput
+            style={[
+              STYLES.field,
+              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+            ]}
+            placeholderTextColor={COLORS.GREY} //
+            value={state.occupation}
+            onChangeText={text => setState({...state, occupation: text})}
+            placeholder="What does the beneficary do "
+          />
+        </View>
         {/* Date for birth */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date of Birth:</Text>
@@ -321,7 +335,6 @@ const PatientData = ({navigation}) => {
 
           {/* Height */}
           <View style={STYLES.detail}>
-            {/* <Text style={STYLES.label}>Height:</Text> */}
             <TextInput
               keyboardType="numeric"
               placeholderTextColor={COLORS.GREY}
@@ -409,8 +422,8 @@ const PatientData = ({navigation}) => {
               <Text style={STYLES.label}>Primary Language:</Text>
               <Picker
                 selectedValue={selectedLanguage}
-                style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
-                onValueChange={handleEthinicityChange}>
+                style={[STYLES.field, {color: COLORS.BLACK}]}
+                onValueChange={handleLanguageChange}>
                 <Picker.Item label="Select a language" value="" />
                 {countryData
                   .find(country => country.name === selectedCountry)
@@ -429,8 +442,8 @@ const PatientData = ({navigation}) => {
               <Text style={STYLES.label}>Ethinicity:</Text>
               <Picker
                 selectedValue={selectedEthnicity}
-                style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
-                onValueChange={handleLanguageChange}>
+                style={[STYLES.field, {color: COLORS.BLACK}]}
+                onValueChange={handleEthinicityChange}>
                 <Picker.Item label="Select a Ethnicity" value="" />
                 {countryData
                   .find(country => country.name === selectedCountry)
@@ -644,7 +657,6 @@ const STYLES = StyleSheet.create({
   detail: {
     flex: 1,
     paddingHorizontal: 15,
-    // paddingVertical: 10,
     color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 10,
@@ -658,7 +670,6 @@ const STYLES = StyleSheet.create({
   pickerStyle: {
     flex: 1,
     paddingHorizontal: 15,
-    // paddingVertical: 10,
     color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 10,
