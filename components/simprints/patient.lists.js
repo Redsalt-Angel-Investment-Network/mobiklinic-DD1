@@ -78,6 +78,27 @@ const PatientCard = ({patient}) => {
             Weight: {patient.weight} kgs
           </Text>
 
+          <View style={styles.vaccinationContainer}>
+            <Text style={styles.vaccinationHeader}>Vaccinations:</Text>
+            {patient.vaccinations &&
+              patient.vaccinations.data &&
+              patient.vaccinations.data.map(vaccination => (
+                <View key={vaccination.id} style={styles.vaccinationItem}>
+                  <Text style={styles.accordionLabel}>
+                    Date of Vaccination:{' '}
+                    {vaccination.dateOfVaccination}
+                  </Text>
+                  <Text>
+                    Date for Next Dose: {vaccination.dateForNextDose}
+                  </Text>
+                  <Text>
+                    Vaccine Name: {vaccination.vaccineName}
+                  </Text>
+                  {/* Other vaccination details */}
+                </View>
+              ))}
+          </View>
+
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
           </TouchableOpacity>
@@ -151,7 +172,7 @@ const PatientLists = () => {
           onChangeText={text => setSearchQuery(text)}
         />
         {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <Loader size="large" />
         ) : (
           <FlatList
             data={filteredPatients}
@@ -243,6 +264,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  vaccinationContainer: {
+    marginTop: 10,
+  },
+  vaccinationHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  vaccinationItem: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   },
 });
 
