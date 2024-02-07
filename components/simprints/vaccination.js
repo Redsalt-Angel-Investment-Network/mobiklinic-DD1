@@ -95,6 +95,7 @@ const Vaccinations = ({navigation, route}) => {
             facility: state.facility,
             vaccinatedBy: state.vaccinatedBy,
             cardNumber: state.cardNumber,
+            patient: state.patientId,
           },
         }),
       });
