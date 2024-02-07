@@ -31,11 +31,10 @@ import {DiagnosisContext} from '../providers/Diagnosis';
 import CustomHeader from '../ui/custom-header';
 import Loader from '../ui/loader';
 import CopyRight from '../copyright';
-import { useRoute } from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 
-
-const SelectActivity = ({navigation,route}) => {
-  const { patientId, firstName, lastName } = route.params;
+const SelectActivity = ({navigation, route}) => {
+  const {patientId, firstName, lastName} = route.params;
 
   const _header = () => (
     <CustomHeader
@@ -94,7 +93,13 @@ const SelectActivity = ({navigation,route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('Vaccination')}>
+                onPress={() =>
+                  navigation.navigate('Vaccination', {
+                    patientId: patientId,
+                    firstName: firstName,
+                    lastName: lastName,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <MIcon
                     name="needle"

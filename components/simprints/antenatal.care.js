@@ -139,8 +139,6 @@ const AntenatalCare = ({navigation}) => {
           nextOfKin: state.nextOfKin,
           drugNotes: state.drugNotes,
           reviewedBy: userNames,
-          simprintsGui: dataResults,
-          simSessionId: sessionId,
           medicines: medicines,
           biometricsVerified: isBeneficiaryConfirmed,
         }),
