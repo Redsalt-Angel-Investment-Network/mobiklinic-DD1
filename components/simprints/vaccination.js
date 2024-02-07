@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect, startTransition} from 'react';
 import {
   View,
   Alert,
@@ -27,23 +27,25 @@ const Vaccinations = ({navigation, route}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
   const {patientId, firstName, lastName} = route.params;
   const {userNames} = useContext(DataResultsContext);
-
+  const {userLog} = useContext(DataResultsContext);
   const [dateOfVaccination, setDateOfVaccination] = useState('');
   const [dateForNextDose, setDateForNextDose] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || dateOfVaccination;
-    setShowDatePicker(false);
+    setShowDatePicker(false); // Hide the date picker
+
     // Update the respective state based on the selected date
-    if (showDatePicker === 'vaccination') {
-      setDateOfVaccination(currentDate);
-      setState({...state, dateOfVaccination: currentDate}); // Update state
-      console.log('Date for Vaccination:', currentDate);
-    } else if (showDatePicker === 'nextDose') {
-      setDateForNextDose(currentDate);
-      setState({...state, dateForNextDose: currentDate}); // Update state
-      console.log('Date for Next Dose:', currentDate);
+    if (selectedDate !== undefined) {
+      if (showDatePicker === 'vaccination') {
+        setDateOfVaccination(selectedDate);
+        setState({...state, dateOfVaccination: selectedDate}); // Update state for date of vaccination
+        console.log('Date for Vaccination:', selectedDate);
+      } else if (showDatePicker === 'nextDose') {
+        setDateForNextDose(selectedDate);
+        setState({...state, dateForNextDose: selectedDate}); // Update state for date for next dose
+        console.log('Date for Next Dose:', selectedDate);
+      }
     }
   };
 
@@ -78,30 +80,31 @@ const Vaccinations = ({navigation, route}) => {
     try {
       setState({...state, isLoading: true});
 
-      const response = await fetch(`${API_URL}/api/patients`, {
+      const response = await fetch(`${API_URL}/api/vaccinations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           data: {
-            attributes: {
-              vaccineName: state.vaccineName,
-              dose: state.dose,
-              units: state.units,
-              dateOfVaccination: state.dateOfVaccination,
-              dateForNextDose: state.dateForNextDose,
-              facility: state.facility,
-              vaccinatedBy: state.vaccinatedBy,
-              id: state.patientId,
-            },
+            dateOfVaccination: state.dateOfVaccination,
+            dateForNextDose: state.dateForNextDose,
+            vaccineName: state.vaccineName,
+            dose: state.dose,
+            siteAdministered: state.siteAdministered,
+            facility: state.facility,
+            vaccinatedBy: state.vaccinatedBy,
+            cardNumber: state.cardNumber,
           },
         }),
       });
 
       if (response.status === 200) {
+        const data = await response.json();
         Alert.alert('Success', 'Vaccination data posted successfully.');
         navigation.navigate('Dashboard');
+        console.log('Vaccination data posted successfully.');
+        console.log(data);
       } else {
         const error = await response.text();
         console.log(response.status);
@@ -195,14 +198,12 @@ const Vaccinations = ({navigation, route}) => {
           <TextInput
             style={[STYLES.field, {color: COLORS.BLACK}]} // Add color and placeholderTextColor styles
             placeholderTextColor={COLORS.GREY}
-            value={state.units}
-            onChangeText={text => setState({...state, units: text})}
+            value={state.cardNumber}
+            onChangeText={text => setState({...state, cardNumber: text})}
             placeholder="Enter vaccine card number"
           />
         </View>
-        {/* Date for vaccination */}
-        {/* Date for vaccination */}
-        {/* Date for vaccination */}
+
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date for Vaccination:</Text>
           <TouchableOpacity
