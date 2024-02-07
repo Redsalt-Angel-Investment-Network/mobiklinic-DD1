@@ -154,8 +154,9 @@ const PatientData = ({navigation}) => {
         console.log('Patient ID:', patientId);
         Alert.alert('Beneficiary Registered Successfully');
         navigation.navigate('SelectActivity', {
+          firstName: state.firstName,
+          lastName: state.lastName,
           patientId: patientId,
-          paramKey: state,
         });
       } else {
         console.error('Error posting data:', response.status);
