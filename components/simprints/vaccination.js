@@ -25,7 +25,7 @@ import {API_URL} from '@env';
 
 const Vaccinations = ({navigation, route}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
-  const {patientId, firstName, lastName} = route.params;
+  const {patientId} = route.params;
   const {userNames} = useContext(DataResultsContext);
   const {userLog} = useContext(DataResultsContext);
   const [dateOfVaccination, setDateOfVaccination] = useState('');

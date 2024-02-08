@@ -25,11 +25,10 @@ import {format} from 'date-fns';
 import CopyRight from '../copyright';
 import {API_URL} from '@env';
 
-const AntenatalCare = ({navigation}) => {
+const AntenatalCare = ({navigation, route}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
   const {diagnoses} = diagnosisContext;
-  const {dataResults} = useContext(DataResultsContext);
-  const {patientId, setPatientId} = useContext(DataResultsContext);
+  const {patientId} = route.params;
   const {userNames} = useContext(DataResultsContext);
   const currentDate = new Date();
   const {sessionId} = useContext(DataResultsContext);
@@ -105,8 +104,7 @@ const AntenatalCare = ({navigation}) => {
     nextOfKin: '',
     nextOfKinContact: '',
     drugNotes: '',
-    biometricsVerified: isBeneficiaryConfirmed,
-    // registeredById: '',
+    patientId: patientId,
   });
 
   const handleSubmit = async () => {
@@ -114,7 +112,6 @@ const AntenatalCare = ({navigation}) => {
       console.log('Patient ID :', patientId);
       console.log('Biometrically Verified:', isBeneficiaryConfirmed);
       if (state.isLoading) {
-        // Prevent multiple submissions
         return;
       }
       if (
@@ -141,6 +138,7 @@ const AntenatalCare = ({navigation}) => {
             drugNotes: state.drugNotes,
             reviewedBy: userNames,
             medicines: medicines,
+            patient: state.patientId,
           },
         }),
         headers: {

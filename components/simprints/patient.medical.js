@@ -24,9 +24,9 @@ import {format} from 'date-fns';
 import CopyRight from '../copyright';
 import {API_URL} from '@env';
 
-const PatientMedical = ({navigation}) => {
+const PatientMedical = ({navigation, route}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
-  const {patientId, setPatientId} = useContext(DataResultsContext);
+  const {patientId} = route.params;
   const currentDate = new Date();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const {userNames} = useContext(DataResultsContext);
@@ -88,8 +88,7 @@ const PatientMedical = ({navigation}) => {
     followUpDate: '',
     isPregnant: false,
     labTests: '',
-    sessionId: '',
-    biometricsVerified: isBeneficiaryConfirmed,
+    patientId: patientId,
 
     // registeredById: '',
   });
@@ -148,9 +147,8 @@ const PatientMedical = ({navigation}) => {
             followUpDate: formattedFollowUpDate,
             isPregnant: state.isPregnant,
             medicines: medicines,
-            biometricsVerified: isBeneficiaryConfirmed,
             diagnosedBy: userNames,
-            
+            patient: state.patientId,
           },
         }),
         headers: {
