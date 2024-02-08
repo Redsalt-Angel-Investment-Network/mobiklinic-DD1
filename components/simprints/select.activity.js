@@ -145,7 +145,11 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('SelectRenalActivity')}>
+                onPress={() =>
+                  navigation.navigate('SelectRenalActivity', {
+                    patientId: patientId,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <FontAwesomeIcon
                     name="medkit"

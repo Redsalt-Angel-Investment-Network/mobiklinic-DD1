@@ -94,7 +94,6 @@ const PatientCard = ({patient}) => {
                   <Text>
                     Vaccine Name: {vaccination.vaccineName}
                   </Text>
-                  {/* Other vaccination details */}
                 </View>
               ))}
           </View>

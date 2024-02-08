@@ -13,8 +13,9 @@ import {COLORS, DIMENS} from '../constants/styles';
 import Icon from 'react-native-vector-icons/Feather';
 import CopyRight from '../copyright';
 
+const SelectRenalActivity = ({navigation, route}) => {
+  const {patientId} = route.params;
 
-const SelectRenalActivity = ({navigation}) => {
   return (
     <View style={styles.wrapper}>
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
@@ -28,7 +29,11 @@ const SelectRenalActivity = ({navigation}) => {
         <View style={styles.column}>
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('History')}>
+            onPress={() =>
+              navigation.navigate('History', {
+                patientId: patientId,
+              })
+            }>
             <View style={styles.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
@@ -38,7 +43,9 @@ const SelectRenalActivity = ({navigation}) => {
         <View style={styles.column}>
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('SelectRenalActivity')}>
+            onPress={() =>
+              navigation.navigate('SelectRenalActivity', {patientId: patientId})
+            }>
             <View style={styles.cardIcon}>
               <FontAwesomeIcon name="medkit" size={40} color={COLORS.PRIMARY} />
             </View>
@@ -56,7 +63,7 @@ const SelectRenalActivity = ({navigation}) => {
           </Text>
         </TouchableOpacity>
       </View>
-      <CopyRight/>
+      <CopyRight />
     </View>
   );
 };
