@@ -113,7 +113,7 @@ const PatientMedical = ({navigation}) => {
       }
       setState({...state, isLoading: true}); // Set isLoading state to true
       if (
-        (selectedCondition === 'Other' && customCondition === '') || // Check if custom condition is empty when "Other" is selected
+        (selectedCondition === 'Other' && customCondition === '') ||
         state.dateOfDiagnosis === '' ||
         state.impression === ''
       ) {
@@ -133,23 +133,25 @@ const PatientMedical = ({navigation}) => {
       const conditionToPost =
         selectedCondition === 'Other' ? customCondition : selectedCondition; // Use custom condition when "Other" is selected
 
-      const response = await fetch(`${API_URL}/${patientId}/diagnosis`, {
+      const response = await fetch(`${API_URL}/api/diagnoses`, {
         method: 'POST',
         body: JSON.stringify({
-          condition: conditionToPost,
-          dateOfDiagnosis: formattedDateOfDiagnosis,
-          impression: state.impression,
-          drugsPrescribed: state.drugsPrescribed,
-          dosage: state.dosage,
-          frequency: state.frequency,
-          duration: state.duration,
-          labTests: state.labTests,
-          followUpDate: formattedFollowUpDate,
-          isPregnant: state.isPregnant,
-          simSessionId: state.sessionId,
-          medicines: medicines, // Use the medicines array as is
-          biometricsVerified: isBeneficiaryConfirmed,
-          diagnosedBy: userNames,
+          data: {
+            condition: conditionToPost,
+            dateOfDiagnosis: formattedDateOfDiagnosis,
+            impression: state.impression,
+            drugsPrescribed: state.drugsPrescribed,
+            dosage: state.dosage,
+            frequency: state.frequency,
+            duration: state.duration,
+            labTests: state.labTests,
+            followUpDate: formattedFollowUpDate,
+            isPregnant: state.isPregnant,
+            medicines: medicines,
+            biometricsVerified: isBeneficiaryConfirmed,
+            diagnosedBy: userNames,
+            
+          },
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',

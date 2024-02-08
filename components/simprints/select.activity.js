@@ -77,7 +77,13 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('PatientMedical')}>
+                onPress={() =>
+                  navigation.navigate('PatientMedical', {
+                    patientId: patientId,
+                    firstName: firstName,
+                    lastName: lastName,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <FoIcon
                     name="doctor"
