@@ -123,7 +123,13 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('AntenatalCare')}>
+                onPress={() =>
+                  navigation.navigate('AntenatalCare', {
+                    patientId: patientId,
+                    firstName: firstName,
+                    lastName: lastName,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <MIcon
                     name="human-pregnant"

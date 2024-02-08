@@ -126,21 +126,22 @@ const AntenatalCare = ({navigation}) => {
         return;
       }
       setState({...state, isLoading: true}); // Set isLoading state to true
-      const response = await fetch(`${API_URL}/${patientId}/antenantals`, {
+      const response = await fetch(`${API_URL}/api/antenantals`, {
         method: 'POST',
         body: JSON.stringify({
-          pregnancyStatus: state.pregnancyStatus,
-          expectedDateOfDelivery: state.expectedDateOfDelivery,
-          nextOfKinContact: state.nextOfKinContact,
-          routineVisitDate: state.routineVisitDate,
-          weight: state.weight,
-          bloodGroup: state.bloodGroup,
-          prescriptions: state.prescriptions,
-          nextOfKin: state.nextOfKin,
-          drugNotes: state.drugNotes,
-          reviewedBy: userNames,
-          medicines: medicines,
-          biometricsVerified: isBeneficiaryConfirmed,
+          data: {
+            pregnancyStatus: state.pregnancyStatus,
+            expectedDateOfDelivery: state.expectedDateOfDelivery,
+            nextOfKinContact: state.nextOfKinContact,
+            routineVisitDate: state.routineVisitDate,
+            weight: state.weight,
+            bloodGroup: state.bloodGroup,
+            prescriptions: state.prescriptions,
+            nextOfKin: state.nextOfKin,
+            drugNotes: state.drugNotes,
+            reviewedBy: userNames,
+            medicines: medicines,
+          },
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
