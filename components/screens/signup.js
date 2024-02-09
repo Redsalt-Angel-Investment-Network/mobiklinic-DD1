@@ -165,7 +165,7 @@ const SignUp = ({navigation}) => {
               style={styles.input}
               onChangeText={handleChange('username')}
               onBlur={handleBlur('username')}
-              keyboardType="numeric"
+              keyboardType="phone-pad"
               placeholderTextColor="grey"
             />
           </View>
@@ -196,7 +196,7 @@ const SignUp = ({navigation}) => {
               onBlur={handleBlur('password')}
               placeholderTextColor="grey"
               style={styles.input}
-              secureTextEntry={!showPassword} // Add this line
+              secureTextEntry={!showPassword} 
               autoCorrect={false}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>

@@ -24,13 +24,10 @@ import {
   clearStorage,
   _removeStorageItem,
   RETRIEVE_LOCAL_USER,
-  SAVE_LOCAL_USER, 
-  DOWNLOAD, 
+  SAVE_LOCAL_USER,
+  DOWNLOAD,
   cyrb53,
-  
 } from '../helpers/functions';
-
-
 
 const Login = ({navigation}) => {
   const {
@@ -44,6 +41,7 @@ const Login = ({navigation}) => {
     identifier: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const {updateUserLog} = useContext(DataResultsContext);
   const {updateUserNames, setSenderPhoneNumber} =
@@ -202,6 +200,7 @@ const Login = ({navigation}) => {
             selectionColor={COLORS.SECONDARY}
             onChangeText={text => setUser({...user, identifier: text})}
             value={user.identifier}
+            keyboardType="phone-pad"
             placeholder="Enter Phone Number"
           />
         </View>
@@ -210,7 +209,7 @@ const Login = ({navigation}) => {
           <TextInput
             style={styles.input}
             password={true}
-            secureTextEntry={true}
+            secureTextEntry={!showPassword}
             autoCorrect={false}
             placeholderTextColor="grey"
             selectionColor={COLORS.SECONDARY}
@@ -218,6 +217,14 @@ const Login = ({navigation}) => {
             value={user.password}
             placeholder="Password"
           />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Icon
+              name={showPassword ? 'eye-off' : 'eye'}
+              size={25}
+              style={styles.icon}
+              color={COLORS.BLACK}
+            />
+          </TouchableOpacity>
         </View>
 
         {user.username != '' && user.password != '' ? (
@@ -269,6 +276,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     // padding: DIMENS.FORM.PADDING,
+  },
+  icon: {
+    paddingVertical: 10,
   },
   title: {
     color: COLORS.ACCENT_1,
