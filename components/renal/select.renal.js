@@ -15,7 +15,9 @@ import CopyRight from '../copyright';
 
 const SelectRenalActivity = ({navigation, route}) => {
   const {patientId} = route.params;
-
+  console.log('====================================');
+  console.log('patientId', patientId);
+  console.log('====================================');
   return (
     <View style={styles.wrapper}>
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
@@ -44,7 +46,9 @@ const SelectRenalActivity = ({navigation, route}) => {
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-              navigation.navigate('SelectRenalActivity', {patientId: patientId})
+              navigation.navigate('SelectRenalActivity', {
+                patientId: patientId,
+              })
             }>
             <View style={styles.cardIcon}>
               <FontAwesomeIcon name="medkit" size={40} color={COLORS.PRIMARY} />

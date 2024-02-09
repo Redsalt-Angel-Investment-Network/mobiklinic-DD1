@@ -14,7 +14,13 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 
-const Inspection = ({navigation}) => {
+const Inspection = ({navigation, route}) => {
+  const {historyData, patientId} = route.params;
+  console.log('History Data:', historyData);
+  console.log('====================================');
+  console.log('PATIENT ID: ', patientId);
+  console.log('====================================');
+
   const [state, setState] = useState({
     signsAndSymptoms: '',
     weight: '',
@@ -25,7 +31,7 @@ const Inspection = ({navigation}) => {
       diastolicPressure: '',
       heartPulse: '',
     },
-    systolicValidationMessage: '', 
+    systolicValidationMessage: '',
     diastolicValidationMessage: '',
     pluseValidationMessage: '',
   });
@@ -289,7 +295,13 @@ const Inspection = ({navigation}) => {
         )}
         <TouchableOpacity
           style={STYLES.submit}
-          onPress={() => navigation.navigate('Urinalysis')}>
+          onPress={() =>
+            navigation.navigate('Urinalysis', {
+              inspectionData: state,
+              historyData: historyData,
+              patientId: patientId,
+            })
+          }>
           <Text style={STYLES.submitText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>

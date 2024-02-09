@@ -13,7 +13,10 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 
-const History = ({navigation}) => {
+const History = ({navigation, route}) => {
+  const {patientId} = route.params;
+  console.log(patientId);
+
   const [state, setState] = useState({
     uti: '',
     utiTabs: '',
@@ -31,6 +34,7 @@ const History = ({navigation}) => {
     waterFrequency: '',
     longTimeDiseaseHistory: '',
     longTimeDisease: '',
+
   });
 
   const _header = () => (
@@ -401,7 +405,12 @@ const History = ({navigation}) => {
         </View>
         <TouchableOpacity
           style={STYLES.submit}
-          onPress={() => navigation.navigate('Inspection')}>
+          onPress={() =>
+            navigation.navigate('Inspection', {
+              historyData: state,
+              patientId: patientId,
+            })
+          }>
           <Text style={STYLES.submitText}>Submit</Text>
         </TouchableOpacity>
       </ScrollView>

@@ -6,14 +6,22 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
   StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
+import {API_URL} from '@env';
 
-const Urinalysis = ({navigation}) => {
+const Urinalysis = ({navigation, route}) => {
+  const {historyData, inspectionData, patientId} = route.params;
+  console.log('History Data', historyData);
+  console.log('====================================');
+  console.log('Inspection Data', inspectionData);
+  console.log('====================================');
+
   const [state, setState] = useState({
     appearance: {
       color: '',
@@ -40,6 +48,46 @@ const Urinalysis = ({navigation}) => {
     colorValidateMessage: '',
     clarityValidateMessage: '',
   });
+
+  const handleSubmit = async () => {
+    try {
+      setState({...state, isLoading: true});
+
+      const response = await fetch(`${API_URL}/api/renals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            historyData: historyData,
+            inspectionData: inspectionData,
+            appearance: state.appearance,
+            chemistry: state.chemistry,
+            patient: patientId,
+          },
+        }),
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        Alert.alert('Success', 'Renal data posted successfully.');
+        navigation.navigate('Dashboard');
+        console.log('Vaccination data posted successfully.');
+        console.log(data);
+      } else {
+        const error = await response.text();
+        console.log(response.status);
+        console.error('Error posting renal data:', error);
+        Alert.alert('Error', 'Failed to renal vaccination data.');
+      }
+    } catch (error) {
+      console.error('Error posting renal data:', error);
+      Alert.alert('Error', 'Failed to post renal data.');
+    } finally {
+      setState({...state, isLoading: false});
+    }
+  };
 
   // validate values to make sure they are in range else flag them
   const checkPH = ph => {
@@ -592,9 +640,7 @@ const Urinalysis = ({navigation}) => {
           <Text style={STYLES.errorMessage}>{state.phValidateMessage}</Text>
         )}
 
-        <TouchableOpacity
-          style={STYLES.submit}
-          onPress={() => navigation.navigate('SelectRenalActivity')}>
+        <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>
         </TouchableOpacity>
       </ScrollView>

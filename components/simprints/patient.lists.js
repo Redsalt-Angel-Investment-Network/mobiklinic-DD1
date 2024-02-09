@@ -18,7 +18,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import DataResultsContext from '../contexts/DataResultsContext';
 
-const PatientCard = ({patient}) => {
+const PatientCard = ({patient, vaccinationsData}) => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(false);
   const toggleAccordion = () => {
@@ -80,19 +80,18 @@ const PatientCard = ({patient}) => {
 
           <View style={styles.vaccinationContainer}>
             <Text style={styles.vaccinationHeader}>Vaccinations:</Text>
-            {patient.vaccinations &&
-              patient.vaccinations.data &&
-              patient.vaccinations.data.map(vaccination => (
+            {vaccinationsData &&
+              vaccinationsData.map(vaccination => (
                 <View key={vaccination.id} style={styles.vaccinationItem}>
-                  <Text style={styles.accordionLabel}>
+                  <Text>
                     Date of Vaccination:{' '}
-                    {vaccination.dateOfVaccination}
+                    {vaccination.attributes.dateOfVaccination}
                   </Text>
                   <Text>
-                    Date for Next Dose: {vaccination.dateForNextDose}
+                    Date for Next Dose: {vaccination.attributes.dateForNextDose}
                   </Text>
                   <Text>
-                    Vaccine Name: {vaccination.vaccineName}
+                    Vaccine Name: {vaccination.attributes.vaccineName}
                   </Text>
                 </View>
               ))}
@@ -112,6 +111,7 @@ const PatientLists = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const {userLog} = useContext(DataResultsContext);
+  const navigation = useNavigation();
 
   const _header = () => (
     <CustomHeader
@@ -150,13 +150,52 @@ const PatientLists = () => {
     fetchData();
   }, []);
 
+  const fetchVaccinationData = async patient => {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/vaccinations/${patient.id}?populate=*`,
+      );
+      const data = await response.json();
+
+      if (data && data.vaccinations) {
+        return data.vaccinations.data;
+      }
+    } catch (error) {
+      console.error('Error fetching vaccination data:', error);
+    }
+  };
+
+  const handleFetchVaccinations = async () => {
+    const patientsWithVaccinations = await Promise.all(
+      userData.patients.map(async patient => {
+        const vaccinationsData = await fetchVaccinationData(patient);
+        return {...patient, vaccinationsData};
+      }),
+    );
+
+    return patientsWithVaccinations;
+  };
+
+  const handleSearch = async text => {
+    setSearchQuery(text);
+  };
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const patients = await handleFetchVaccinations();
+      setUserData(patients);
+      setLoading(false);
+    };
+
+    fetchPatients();
+  }, []);
+
   const filteredPatients = userData
     ? userData.patients.filter(patient => {
         const fullName = `${patient.firstName} ${patient.lastName}`;
         return fullName.toLowerCase().includes(searchQuery.toLowerCase());
       })
     : [];
-
   return (
     <View style={styles.container}>
       {_header()}
@@ -168,7 +207,7 @@ const PatientLists = () => {
           placeholder="Search by first or last name..."
           placeholderTextColor={COLORS.GREY}
           value={searchQuery}
-          onChangeText={text => setSearchQuery(text)}
+          onChangeText={handleSearch}
         />
         {loading ? (
           <Loader size="large" />
@@ -176,7 +215,12 @@ const PatientLists = () => {
           <FlatList
             data={filteredPatients}
             keyExtractor={item => item.id.toString()}
-            renderItem={({item}) => <PatientCard patient={item} />}
+            renderItem={({item}) => (
+              <PatientCard
+                patient={item}
+                vaccinationsData={item.vaccinationsData}
+              />
+            )}
           />
         )}
       </View>
