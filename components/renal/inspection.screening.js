@@ -161,7 +161,7 @@ const Inspection = ({navigation, route}) => {
         </View>
 
         {/* Weight */}
-        <View style={STYLES.labeled}>
+        <View >
           <Text style={STYLES.label}>Weight:</Text>
           <TextInput
             style={STYLES.field}
@@ -535,5 +535,14 @@ const STYLES = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
+  },
+  fieldError: {
+    borderWidth: 1,
+    borderColor: 'red',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: COLORS.BLACK,
   },
 });

@@ -22,12 +22,13 @@ const RenalFunctionTest = ({navigation, route}) => {
   console.log('====================================');
 
   const [state, setState] = useState({
-    chemistry: {
+    rft: {
       sodium: '',
       potassium: '',
       urea: '',
       creatinine: '',
       eGFR: '',
+      ckdStage: '',
     },
     sodiumValidateMessage: '',
     potassiumValidateMessage: '',
@@ -46,10 +47,8 @@ const RenalFunctionTest = ({navigation, route}) => {
         },
         body: JSON.stringify({
           data: {
-            historyData: historyData,
             inspectionData: inspectionData,
-            appearance: state.appearance,
-            chemistry: state.chemistry,
+            rft: state.rft,
             patient: patientId,
           },
         }),
@@ -192,7 +191,7 @@ const RenalFunctionTest = ({navigation, route}) => {
       ckdStage = 'Stage 5: Kidney failure';
     }
 
-    return {eGFR: eGFR.toFixed(2), ckdStage}; // Return the calculated eGFR value and CKD stage
+    return {eGFR: eGFR.toFixed(2), ckdStage};
   };
 
   const _header = () => (
@@ -222,17 +221,21 @@ const RenalFunctionTest = ({navigation, route}) => {
         <Text style={STYLES.title}> Renal Functional Test</Text>
 
         {/* sodium Level */}
-        <View style={STYLES.labeled}>
+        <View
+          style={[
+            STYLES.labeled,
+            state.sodiumValidateMessage !== '' && STYLES.fieldError,
+          ]}>
           <Text style={STYLES.label}>Enter Sodium Level:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.chemistry.sodium}
+            value={state.rft.sodium}
             onChangeText={text => {
               checkSodium(text);
               setState({
                 ...state,
-                chemistry: {
-                  ...state.chemistry,
+                rft: {
+                  ...state.rft,
                   sodium: text,
                 },
               });
@@ -240,7 +243,7 @@ const RenalFunctionTest = ({navigation, route}) => {
             placeholder="Enter sodium level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
-            onBlur={() => checkSodium(state.chemistry.sodium)}
+            onBlur={() => checkSodium(state.rft.sodium)}
           />
         </View>
         {state.sodiumValidateMessage !== '' && (
@@ -248,17 +251,21 @@ const RenalFunctionTest = ({navigation, route}) => {
         )}
 
         {/* potassium level */}
-        <View style={STYLES.labeled}>
+        <View
+          style={[
+            STYLES.labeled,
+            state.potassiumValidateMessage !== '' && STYLES.fieldError,
+          ]}>
           <Text style={STYLES.label}>Enter Potassium Level:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.chemistry.potassium}
+            value={state.rft.potassium}
             onChangeText={text => {
               checkPotassium(text);
               setState({
                 ...state,
-                chemistry: {
-                  ...state.chemistry,
+                rft: {
+                  ...state.rft,
                   potassium: text,
                 },
               });
@@ -266,7 +273,7 @@ const RenalFunctionTest = ({navigation, route}) => {
             placeholder="Enter potassium level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
-            onBlur={() => checkPotassium(state.chemistry.potassium)}
+            onBlur={() => checkPotassium(state.rft.potassium)}
           />
         </View>
         {state.potassiumValidateMessage !== '' && (
@@ -276,17 +283,21 @@ const RenalFunctionTest = ({navigation, route}) => {
         )}
 
         {/* urea */}
-        <View style={STYLES.labeled}>
+        <View
+          style={[
+            STYLES.labeled,
+            state.ureaValidateMessage !== '' && STYLES.fieldError,
+          ]}>
           <Text style={STYLES.label}>Enter Urea Level:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.chemistry.urea}
+            value={state.rft.urea}
             onChangeText={text => {
               checkUrea(text);
               setState({
                 ...state,
-                chemistry: {
-                  ...state.chemistry,
+                rft: {
+                  ...state.rft,
                   urea: text,
                 },
               });
@@ -294,7 +305,7 @@ const RenalFunctionTest = ({navigation, route}) => {
             placeholder="Enter urea level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
-            onBlur={() => checkUrea(state.chemistry.urea)}
+            onBlur={() => checkUrea(state.rft.urea)}
           />
         </View>
         {state.ureaValidateMessage !== '' && (
@@ -302,20 +313,24 @@ const RenalFunctionTest = ({navigation, route}) => {
         )}
 
         {/* Creatinine Level */}
-        <View style={STYLES.labeled}>
+        <View
+          style={[
+            STYLES.labeled,
+            state.ureaValidateMessage !== '' && STYLES.fieldError,
+          ]}>
           <Text style={STYLES.label}>Enter Creatinine Level:</Text>
           <TextInput
             style={STYLES.field}
-            value={state.chemistry.creatinine}
+            value={state.rft.creatinine}
             onChangeText={text => {
-              const {eGFR, ckdStage} = calculateGFR(text); // Calculate eGFR and CKD stage
+              const {eGFR, ckdStage} = calculateGFR(text);
               setState({
                 ...state,
-                chemistry: {
-                  ...state.chemistry,
+                rft: {
+                  ...state.rft,
                   creatinine: text,
-                  eGFR: eGFR, // Update eGFR in the state
-                  ckdStage: ckdStage, // Update CKD stage in the state
+                  eGFR: eGFR,
+                  ckdStage: ckdStage,
                 },
               });
             }}
@@ -325,24 +340,24 @@ const RenalFunctionTest = ({navigation, route}) => {
           />
         </View>
 
-        {state.chemistry.creatinine && (
+        {state.rft.creatinine && (
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Estimated GFR (e-GFR):</Text>
             <TextInput
               style={STYLES.field}
-              value={state.chemistry.eGFR}
+              value={state.rft.eGFR}
               placeholderTextColor={COLORS.GREY}
               placeholder="Enter creatinine level"
             />
           </View>
         )}
 
-        {state.chemistry.creatinine && (
+        {state.rft.creatinine && (
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>CKD Stage:</Text>
             <TextInput
               style={STYLES.field}
-              value={state.chemistry.ckdStage}
+              value={state.rft.ckdStage}
               placeholderTextColor={COLORS.GREY}
               placeholder="CKD stage"
               multiline={true}
@@ -479,6 +494,15 @@ const STYLES = StyleSheet.create({
     justifyContent: 'center',
     color: COLORS.BLACK,
     fontWeight: 'medium',
+  },
+  fieldError: {
+    borderWidth: 1,
+    borderColor: 'red',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: COLORS.BLACK,
   },
   guid: {
     textAlign: 'left',

@@ -27,14 +27,16 @@ const History = ({navigation, route}) => {
     heartProblem: '',
     heartProblemDisese: '',
     alchoholConsumption: '',
-    alchoholConsumptionFrequecy: '',
+    alcoholType: '',
     kidneyDiseaseHistory: '',
     kidneyDisease: '',
     urineFrequence: '',
     waterFrequency: '',
     longTimeDiseaseHistory: '',
     longTimeDisease: '',
-
+    alcoholLocalBrew: '',
+    alcoholBeer: '',
+    alcoholSpirits: '',
   });
 
   const _header = () => (
@@ -140,49 +142,35 @@ const History = ({navigation, route}) => {
         </View>
         {/* Urine Frequency */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Urine Frequency?</Text>
-          <Picker
-            placeholder="Select Urine Frequency"
+          <Text style={STYLES.label}>Urination Frequecy </Text>
+          <TextInput
+            style={STYLES.field}
+            value={state.urineFrequence}
+            onChangeText={text => {
+              setState({...state, urineFrequence: text});
+            }}
+            placeholder="How many times do you urine in a day?"
             placeholderTextColor={COLORS.GREY}
-            selectedValue={state.urineFrequence}
-            onValueChange={value => setState({...state, urineFrequency: value})}
-            style={[STYLES.field, {color: COLORS.BLACK}]}
-            dropdownIconColor={COLORS.GREY_LIGHTER}>
-            <Picker.Item label="" value="" />
-            {[
-              'Once a day',
-              'Twice a day',
-              'Thrice a day',
-              'Four a day',
-              'I dunno',
-            ].map(option => (
-              <Picker.Item label={option} value={option} key={option} />
-            ))}
-            <Picker.Item label="PREFER NOT TO SAY" value="PREFER NOT TO SAY" />
-          </Picker>
+            keyboardType="numeric"
+            multiline={true}
+            numberOfLines={2}
+          />
         </View>
         {/* Water Frequency */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Water Frequency?</Text>
-          <Picker
-            placeholder="Select Urine Frequency"
+          <Text style={STYLES.label}>Litres of water per day?</Text>
+          <TextInput
+            style={STYLES.field}
+            value={state.waterFrequency}
+            onChangeText={text => {
+              setState({...state, waterFrequency: text});
+            }}
+            placeholder="Enter liters of water"
             placeholderTextColor={COLORS.GREY}
-            selectedValue={state.waterFrequency}
-            onValueChange={value => setState({...state, waterFrequency: value})}
-            style={[STYLES.field, {color: COLORS.BLACK}]}
-            dropdownIconColor={COLORS.GREY_LIGHTER}>
-            <Picker.Item label="" value="" />
-            {[
-              'Once a day',
-              'Twice a day',
-              'Thrice a day',
-              'Four a day',
-              'I dunno',
-            ].map(option => (
-              <Picker.Item label={option} value={option} key={option} />
-            ))}
-            <Picker.Item label="PREFER NOT TO SAY" value="PREFER NOT TO SAY" />
-          </Picker>
+            keyboardType="numeric"
+            multiline={true}
+            numberOfLines={2}
+          />
         </View>
         {/* heart problem */}
         <View>
@@ -351,13 +339,13 @@ const History = ({navigation, route}) => {
         {/* Alcholol Consumption */}
         <View>
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Do you drink alcholol?:</Text>
+            <Text style={STYLES.label}>Do you drink Alcohol?:</Text>
             <Picker
               placeholder="Do you Smoke?"
               placeholderTextColor={COLORS.GREY}
-              selectedValue={state.alchoholConsumption}
+              selectedValue={state.alcoholConsumption}
               onValueChange={value =>
-                setState({...state, alchoholConsumption: value})
+                setState({...state, alcoholConsumption: value})
               }
               style={[STYLES.field, {color: COLORS.BLACK}]}
               dropdownIconColor={COLORS.GREY_LIGHTER}>
@@ -374,24 +362,17 @@ const History = ({navigation, route}) => {
           {state.alchoholConsumption === 'YES' && (
             <>
               <View style={STYLES.labeled}>
-                <Text style={STYLES.label}>Alchol Consumption?</Text>
+                <Text style={STYLES.label}>Type of Alcohol taken?</Text>
                 <Picker
-                  placeholder="Select Urine Frequency"
                   placeholderTextColor={COLORS.GREY}
-                  selectedValue={state.alchoholConsumptionFrequecy}
+                  selectedValue={state.alcoholType}
                   onValueChange={value =>
-                    setState({...state, alchoholConsumptionFrequecy: value})
+                    setState({...state, alcoholType: value})
                   }
                   style={[STYLES.field, {color: COLORS.BLACK}]}
                   dropdownIconColor={COLORS.GREY_LIGHTER}>
                   <Picker.Item label="" value="" />
-                  {[
-                    'Once a day',
-                    'Twice a day',
-                    'Thrice a day',
-                    'Four a day',
-                    'I dunno',
-                  ].map(option => (
+                  {['Beer', 'Spirits', 'Local Brew'].map(option => (
                     <Picker.Item label={option} value={option} key={option} />
                   ))}
                   <Picker.Item
@@ -400,9 +381,57 @@ const History = ({navigation, route}) => {
                   />
                 </Picker>
               </View>
+
+              {(state.alcoholType === 'Local Brew' ||
+                state.alcoholType === 'Beer' ||
+                state.alcoholType === 'Spirits') && (
+                <View style={STYLES.labeled}>
+                  <Text style={STYLES.label}>Quantity consumed:</Text>
+                  <TextInput
+                    style={STYLES.field}
+                    value={
+                      state.alcoholType === 'Local Brew'
+                        ? state.alcoholLocalBrew
+                        : state.alcoholType === 'Beer'
+                        ? state.alcoholBeer
+                        : state.alcoholSpirits
+                    }
+                    onChangeText={text => {
+                      setState(prevState => ({
+                        ...prevState,
+                        alcoholLocalBrew:
+                          state.alcoholType === 'Local Brew'
+                            ? text
+                            : state.alcoholLocalBrew,
+                        alcoholBeer:
+                          state.alcoholType === 'Beer'
+                            ? text
+                            : state.alcoholBeer,
+                        alcoholSpirits:
+                          state.alcoholType === 'Spirits'
+                            ? text
+                            : state.alcoholSpirits,
+                      }));
+                    }}
+                    placeholder={`How many ${
+                      state.alcoholType === 'Local Brew'
+                        ? 'cups'
+                        : state.alcoholType === 'Beer'
+                        ? 'bottles'
+                        : 'sackets'
+                    } do you consume?`}
+                    placeholderTextColor={COLORS.GREY}
+                    keyboardType="numeric"
+                    multiline={true}
+                    numberOfLines={2}
+
+                  />
+                </View>
+              )}
             </>
           )}
         </View>
+
         <TouchableOpacity
           style={STYLES.submit}
           onPress={() =>
