@@ -46,7 +46,7 @@ const SelectRenalActivity = ({navigation, route}) => {
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-              navigation.navigate('SelectRenalActivity', {
+              navigation.navigate('InspectionMonitoring', {
                 patientId: patientId,
               })
             }>
@@ -57,7 +57,39 @@ const SelectRenalActivity = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
       </View>
-      <View>
+
+      <View style={styles.btnContainer}>
+        <View style={styles.column}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() =>
+              navigation.navigate('History', {
+                patientId: patientId,
+              })
+            }>
+            <View style={styles.cardIcon}>
+              <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={styles.cardTitle}>Renal Function Test</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.column}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() =>
+              navigation.navigate('Dashboard', {
+                patientId: patientId,
+              })
+            }>
+            <View style={styles.cardIcon}>
+              <FontAwesomeIcon name="home" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={styles.cardTitle}>Home</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      
+      {/* <View>
         <TouchableOpacity
           style={styles.buttonSec}
           onPress={() => navigation.navigate('Dashboard')}>
@@ -66,7 +98,7 @@ const SelectRenalActivity = ({navigation, route}) => {
             Home Page
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <CopyRight />
     </View>
   );
@@ -96,7 +128,7 @@ const styles = StyleSheet.create({
   btnContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 300,
+    // height: 300,
   },
   card: {
     backgroundColor: COLORS.WHITE,
@@ -147,8 +179,10 @@ const styles = StyleSheet.create({
   },
   column: {
     flex: 1,
-    padding: 10,
-    marginVertical: 20,
+    padding: 15,
+    fontSize: 12,
+    width: 30,
+    // marginVertical: 20,
   },
 });
 

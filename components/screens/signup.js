@@ -49,6 +49,10 @@ const SignUp = ({navigation}) => {
         .min(6, 'Password must be at least 6 characters'),
     }),
     onSubmit: async values => {
+      if (isLoading) {
+        return;
+      }
+      setIsLoading(true);
       try {
         const response = await axios.post(
           `${API_URL}/api/auth/local/register`,
@@ -78,7 +82,7 @@ const SignUp = ({navigation}) => {
         console.error(error.response.data);
         const errorMessage =
           error.response.data && error.response.data.message
-            ? error.response.data.message.join(', ') 
+            ? error.response.data.message.join(', ')
             : 'Registration failed. Please try again.';
 
         Alert.alert('Sign up failure', errorMessage, [
@@ -92,26 +96,14 @@ const SignUp = ({navigation}) => {
       }
     },
   });
-
   const {values, touched, errors, handleChange, handleBlur, handleSubmit} =
     formik;
 
   if (isLoading) return <Loader />;
-
   useEffect(() => {
     if (hasRegistered) {
       setIsLoading(false);
-      return (
-        <View>
-          <Loader />
-          <Text style={[styles.subTitle]}>Registration successful!</Text>
-          <TouchableOpacity
-            style={[styles.btn, styles.btnPrimary]}
-            onPress={() => navigation.navigate('Login')}>
-            <Text>Login now</Text>
-          </TouchableOpacity>
-        </View>
-      );
+      navigation.navigate('Login');
     }
   }, [hasRegistered]);
 
@@ -196,7 +188,7 @@ const SignUp = ({navigation}) => {
               onBlur={handleBlur('password')}
               placeholderTextColor="grey"
               style={styles.input}
-              secureTextEntry={!showPassword} 
+              secureTextEntry={!showPassword}
               autoCorrect={false}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>

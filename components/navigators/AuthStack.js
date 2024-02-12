@@ -24,11 +24,14 @@ import ReceivedChats from '../screens/Received.Chats';
 import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
-import Urinalysis from '../renal/urinalysis';
+import Urinalysis from '../renal/urinalysis..screening';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
-import Inspection from '../renal/inspection';
+import Inspection from '../renal/inspection.screening';
 import SelectRenalActivity from '../renal/select.renal';
+import UrinalysisMonitoring from '../renal/urinalysis.monitoring';
+import {introspectionTypes} from 'graphql';
+import InspectionMonitoring from '../renal/inspection.monitoring';
 
 const Stack = createStackNavigator();
 
@@ -152,7 +155,7 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Monitoring}
       />
-  
+
       <Stack.Screen
         name="History"
         options={{headerShown: false}}
@@ -167,6 +170,16 @@ function AuthStack() {
         name="SelectRenalActivity"
         options={{headerShown: false}}
         component={SelectRenalActivity}
+      />
+      <Stack.Screen
+        name="UrinalysisMonitoring"
+        options={{headerShown: false}}
+        component={UrinalysisMonitoring}
+      />
+      <Stack.Screen
+        name="InspectionMonitoring"
+        options={{headerShown: false}}
+        component={InspectionMonitoring}
       />
     </Stack.Navigator>
   );
