@@ -150,28 +150,19 @@ const RenalFunctionTest = ({navigation, route}) => {
       }));
     }
   };
-
   const calculateGFR = creatinine => {
     const ageNumber = parseFloat(age); // Parse age as a float
 
     // Check if ageNumber is a valid number
     if (isNaN(ageNumber)) {
       console.error('Invalid age:', age);
-      setState(prevState => ({
-        ...prevState,
-        chemistry: {...prevState.chemistry, eGFR: 'Invalid Age'},
-      }));
-      return;
+      return {eGFR: 'Invalid Age', ckdStage: ''}; // Return default object
     }
 
     const creatinineValue = parseFloat(creatinine);
     if (isNaN(creatinineValue)) {
       console.error('Invalid creatinine value:', creatinine);
-      setState(prevState => ({
-        ...prevState,
-        chemistry: {...prevState.chemistry, eGFR: 'Invalid Creatinine'},
-      }));
-      return;
+      return {eGFR: 'Invalid Creatinine', ckdStage: ''}; // Return default object
     }
 
     // Calculate e-GFR using MDRD equation
@@ -179,7 +170,24 @@ const RenalFunctionTest = ({navigation, route}) => {
       186 *
       Math.pow(creatinineValue / 88.4, -1.154) *
       Math.pow(ageNumber, -0.203);
-    return eGFR.toFixed(2); // Return the calculated eGFR value
+
+    // Determine CKD stage based on eGFR value
+    let ckdStage;
+    if (eGFR >= 90) {
+      ckdStage = 'Stage 1: Normal or high GFR';
+    } else if (eGFR >= 60) {
+      ckdStage = 'Stage 2: Mildly decreased GFR';
+    } else if (eGFR >= 45) {
+      ckdStage = 'Stage 3A: Mildly to moderately decreased GFR';
+    } else if (eGFR >= 30) {
+      ckdStage = 'Stage 3B: Moderately to severely decreased GFR';
+    } else if (eGFR >= 15) {
+      ckdStage = 'Stage 4: Severely decreased GFR';
+    } else {
+      ckdStage = 'Stage 5: Kidney failure';
+    }
+
+    return {eGFR: eGFR.toFixed(2), ckdStage}; // Return the calculated eGFR value and CKD stage
   };
 
   const _header = () => (
@@ -295,13 +303,14 @@ const RenalFunctionTest = ({navigation, route}) => {
             style={STYLES.field}
             value={state.chemistry.creatinine}
             onChangeText={text => {
-              const eGFR = calculateGFR(text); // Calculate eGFR
+              const {eGFR, ckdStage} = calculateGFR(text); // Calculate eGFR and CKD stage
               setState({
                 ...state,
                 chemistry: {
                   ...state.chemistry,
                   creatinine: text,
                   eGFR: eGFR, // Update eGFR in the state
+                  ckdStage: ckdStage, // Update CKD stage in the state
                 },
               });
             }}
@@ -311,8 +320,7 @@ const RenalFunctionTest = ({navigation, route}) => {
           />
         </View>
 
-        {/* Display e-GFR */}
-        {state.chemistry.creatinine && ( // Only render if creatinine level is inputted
+        {state.chemistry.creatinine && (
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Estimated GFR (e-GFR):</Text>
             <TextInput
@@ -324,6 +332,19 @@ const RenalFunctionTest = ({navigation, route}) => {
           </View>
         )}
 
+        {state.chemistry.creatinine && (
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>CKD Stage:</Text>
+            <TextInput
+              style={STYLES.field}
+              value={state.chemistry.ckdStage}
+              placeholderTextColor={COLORS.GREY}
+              placeholder="CKD stage"
+              multiline={true}
+              numberOfLines={4}
+            />
+          </View>
+        )}
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>
         </TouchableOpacity>
