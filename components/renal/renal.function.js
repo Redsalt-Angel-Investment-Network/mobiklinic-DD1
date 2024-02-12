@@ -16,7 +16,7 @@ import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
 
 const RenalFunctionTest = ({navigation, route}) => {
-  const {inspectionData, patientId, age} = route.params;
+  const {inspectionData, patientId, age, sex} = route.params;
   console.log('====================================');
   console.log('Inspection Data', inspectionData);
   console.log('====================================');
@@ -35,11 +35,6 @@ const RenalFunctionTest = ({navigation, route}) => {
     creatinineValidateMessage: '',
   });
 
-  console.log('====================================');
-  console.log(inspectionData.weight);
-  console.log(age);
-
-  console.log('====================================');
   const handleSubmit = async () => {
     try {
       setState({...state, isLoading: true});
@@ -150,6 +145,7 @@ const RenalFunctionTest = ({navigation, route}) => {
       }));
     }
   };
+
   const calculateGFR = creatinine => {
     const ageNumber = parseFloat(age); // Parse age as a float
 
@@ -165,11 +161,20 @@ const RenalFunctionTest = ({navigation, route}) => {
       return {eGFR: 'Invalid Creatinine', ckdStage: ''}; // Return default object
     }
 
+    let genderFactor = 1; // Default factor for males
+    if (sex === 'Female') {
+      genderFactor = 0.742;
+    }
+
+    raceFactor = 1.21;
+
     // Calculate e-GFR using MDRD equation
     const eGFR =
       186 *
       Math.pow(creatinineValue / 88.4, -1.154) *
-      Math.pow(ageNumber, -0.203);
+      Math.pow(ageNumber, -0.203) *
+      genderFactor *
+      raceFactor;
 
     // Determine CKD stage based on eGFR value
     let ckdStage;

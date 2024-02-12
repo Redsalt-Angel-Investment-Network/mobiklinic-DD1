@@ -14,7 +14,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import CopyRight from '../copyright';
 
 const SelectRenalActivity = ({navigation, route}) => {
-  const {patientId,age} = route.params;
+  const {patientId, age, sex} = route.params;
   console.log('====================================');
   console.log('patientId', patientId);
   console.log('====================================');
@@ -66,6 +66,7 @@ const SelectRenalActivity = ({navigation, route}) => {
               navigation.navigate('InsepectionRFT', {
                 patientId: patientId,
                 age: age,
+                sex: sex,
               })
             }>
             <View style={styles.cardIcon}>

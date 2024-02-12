@@ -15,10 +15,7 @@ import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 
 const InsepectionRFT = ({navigation, route}) => {
-  const {patientId, age} = route.params;
-  console.log('====================================');
-  console.log('PATIENT ID: ', age);
-  console.log('====================================');
+  const {patientId, age, sex} = route.params;
 
   const [state, setState] = useState({
     signsAndSymptoms: '',
@@ -299,6 +296,7 @@ const InsepectionRFT = ({navigation, route}) => {
               inspectionData: state,
               patientId: patientId,
               age: age,
+              sex: sex,
             })
           }>
           <Text style={STYLES.submitText}>Next</Text>

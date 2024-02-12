@@ -31,7 +31,8 @@ const PatientCard = ({patient, vaccinationsData}) => {
       patientId: patient.id,
       firstName: patient.firstName,
       lastName: patient.lastName,
-      age: age, // Pass the calculated age
+      age: age,
+      sex: patient.sex,
     });
   };
 
