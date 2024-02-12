@@ -26,11 +26,40 @@ const PatientCard = ({patient, vaccinationsData}) => {
   };
   const handleRedirect = () => {
     console.log('Patient ID:', patient.id);
+    const age = calculateAge(patient.dateOfBirth);
     navigation.navigate('SelectActivity', {
       patientId: patient.id,
       firstName: patient.firstName,
       lastName: patient.lastName,
+      age: age, // Pass the calculated age
     });
+  };
+
+  const calculateAge = dateOfBirth => {
+    if (!dateOfBirth) return 'Invalid Date';
+
+    // Split the dateOfBirth string into day, month, and year components
+    const [day, month, year] = dateOfBirth.split('/');
+
+    // Create a new Date object using the components (subtract 1 from month as it is 0-indexed)
+    const dob = new Date(year, month - 1, day);
+
+    // Check if the parsed date is a valid date
+    if (isNaN(dob.getTime())) return 'Invalid Date';
+
+    // Get today's date
+    const today = new Date();
+
+    // Calculate the age
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+
+    // Adjust the age if the birth month hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    return age;
   };
 
   return (
@@ -48,6 +77,9 @@ const PatientCard = ({patient, vaccinationsData}) => {
           <Text style={styles.accordionLabel}>Sex: {patient.sex}</Text>
           <Text style={styles.accordionLabel}>
             Date of Birth: {patient.dateOfBirth}
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Age: {calculateAge(patient.dateOfBirth)} years old
           </Text>
           <Text style={styles.accordionLabel}>
             Occupation: {patient.occuptation}

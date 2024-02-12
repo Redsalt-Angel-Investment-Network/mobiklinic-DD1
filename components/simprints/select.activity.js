@@ -34,7 +34,7 @@ import CopyRight from '../copyright';
 import {useRoute} from '@react-navigation/native';
 
 const SelectActivity = ({navigation, route}) => {
-  const {patientId, firstName, lastName} = route.params;
+  const {patientId, firstName, lastName, age} = route.params;
 
   const _header = () => (
     <CustomHeader
@@ -148,6 +148,7 @@ const SelectActivity = ({navigation, route}) => {
                 onPress={() =>
                   navigation.navigate('SelectRenalActivity', {
                     patientId: patientId,
+                    age: age,
                   })
                 }>
                 <View style={STYLES.cardIcon}>

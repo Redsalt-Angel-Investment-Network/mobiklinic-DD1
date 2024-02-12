@@ -14,7 +14,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import CopyRight from '../copyright';
 
 const SelectRenalActivity = ({navigation, route}) => {
-  const {patientId} = route.params;
+  const {patientId,age} = route.params;
   console.log('====================================');
   console.log('patientId', patientId);
   console.log('====================================');
@@ -63,8 +63,9 @@ const SelectRenalActivity = ({navigation, route}) => {
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-              navigation.navigate('History', {
+              navigation.navigate('InsepectionRFT', {
                 patientId: patientId,
+                age: age,
               })
             }>
             <View style={styles.cardIcon}>
@@ -88,7 +89,7 @@ const SelectRenalActivity = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {/* <View>
         <TouchableOpacity
           style={styles.buttonSec}

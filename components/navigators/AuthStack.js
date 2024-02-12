@@ -32,6 +32,8 @@ import SelectRenalActivity from '../renal/select.renal';
 import UrinalysisMonitoring from '../renal/urinalysis.monitoring';
 import {introspectionTypes} from 'graphql';
 import InspectionMonitoring from '../renal/inspection.monitoring';
+import RenalFunctionTest from '../renal/renal.function';
+import InsepectionRFT from '../renal/inspection.rft';
 
 const Stack = createStackNavigator();
 
@@ -180,6 +182,16 @@ function AuthStack() {
         name="InspectionMonitoring"
         options={{headerShown: false}}
         component={InspectionMonitoring}
+      />
+      <Stack.Screen
+        name="RenalFunctionTest"
+        options={{headerShown: false}}
+        component={RenalFunctionTest}
+      />
+         <Stack.Screen
+        name="InsepectionRFT"
+        options={{headerShown: false}}
+        component={InsepectionRFT}
       />
     </Stack.Navigator>
   );
