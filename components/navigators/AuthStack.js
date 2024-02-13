@@ -34,6 +34,7 @@ import {introspectionTypes} from 'graphql';
 import InspectionMonitoring from '../renal/inspection.monitoring';
 import RenalFunctionTest from '../renal/renal.function';
 import InsepectionRFT from '../renal/inspection.rft';
+import DrawerLogged from '../navigators/drawer.logged';
 
 const Stack = createStackNavigator();
 
@@ -188,10 +189,15 @@ function AuthStack() {
         options={{headerShown: false}}
         component={RenalFunctionTest}
       />
-         <Stack.Screen
+      <Stack.Screen
         name="InsepectionRFT"
         options={{headerShown: false}}
         component={InsepectionRFT}
+      />
+      <Stack.Screen
+        name="DrawerLogged"
+        options={{headerShown: false}}
+        component={DrawerLogged}
       />
     </Stack.Navigator>
   );

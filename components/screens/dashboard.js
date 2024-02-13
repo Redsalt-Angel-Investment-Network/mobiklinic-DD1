@@ -193,19 +193,22 @@ const STYLES = StyleSheet.create({
     justifyContent: 'center',
     elevation: 4,
     marginTop: 10,
+    minHeight: 120, 
+    paddingVertical: 20, 
+    paddingHorizontal: 15,
   },
   cardIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
+    aspectRatio: 1, 
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 8, 
+
   },
   cardTitle: {
     marginTop: 10,
     textAlign: 'center',
     color: COLORS.BLACK,
-    fontSize: 16,
+    fontSize: 12,
   },
 });
 

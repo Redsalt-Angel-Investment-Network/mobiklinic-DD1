@@ -18,7 +18,7 @@ import {API_URL} from '@env';
 const RenalFunctionTest = ({navigation, route}) => {
   const {inspectionData, patientId, age, sex} = route.params;
   console.log('====================================');
-  console.log('Inspection Data', inspectionData);
+  console.log('Inspection Data', patientId);
   console.log('====================================');
 
   const [state, setState] = useState({
@@ -40,7 +40,7 @@ const RenalFunctionTest = ({navigation, route}) => {
     try {
       setState({...state, isLoading: true});
 
-      const response = await fetch(`${API_URL}/api/renals`, {
+      const response = await fetch(`${API_URL}/api/rfts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ const RenalFunctionTest = ({navigation, route}) => {
         body: JSON.stringify({
           data: {
             inspectionData: inspectionData,
-            rft: state.rft,
+            rftData: state.rft,
             patient: patientId,
           },
         }),
@@ -58,13 +58,14 @@ const RenalFunctionTest = ({navigation, route}) => {
         const data = await response.json();
         Alert.alert('Success', 'Renal data posted successfully.');
         navigation.navigate('Dashboard');
-        console.log('Vaccination data posted successfully.');
+        console.log('Renal Function Test data posted successfully.');
         console.log(data);
+       
       } else {
         const error = await response.text();
         console.log(response.status);
         console.error('Error posting renal data:', error);
-        Alert.alert('Error', 'Failed to renal vaccination data.');
+        Alert.alert('Error', 'Failed to renal  data.');
       }
     } catch (error) {
       console.error('Error posting renal data:', error);
@@ -88,7 +89,7 @@ const RenalFunctionTest = ({navigation, route}) => {
       setState(prevState => ({
         ...prevState,
         sodiumValidateMessage:
-          'Sodium values are abnormal. The Doctor will be notified',
+          'Sodium values are abnormal. The Doctor will be notified. Normal sodium levels are in range 135 to 145',
       }));
     } else {
       setState(prevState => ({

@@ -47,11 +47,11 @@ function AppStack() {
         options={{headerShown: false}}
         component={ResetPassword}
       />
-          <Stack.Screen
+          {/* <Stack.Screen
         name="DrawerLogged"
         options={{headerShown: false}}
         component={DrawerLogged}
-      />
+      /> */}
     </Stack.Navigator>
   );
 }
