@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,25 @@ const InsepectionRFT = ({navigation, route}) => {
     diastolicValidationMessage: '',
     pluseValidationMessage: '',
   });
+
+  useEffect(() => {
+    Alert.alert(
+      'Instructions',
+      'Has the doctor recommended the Renal Functional Test?\n\nClick "YES" it was. ',
+      [
+        {
+          text: 'YES',
+          onPress: () => console.log('YES Pressed'),
+        },
+        {
+          text: 'No',
+          onPress: () => navigation.navigate('Dashboard'),
+          style: 'cancel',
+        },
+      ],
+      {cancelable: false},
+    );
+  }, []);
 
   const calculateBMI = (weight, height) => {
     const weightInKg = parseFloat(weight);
