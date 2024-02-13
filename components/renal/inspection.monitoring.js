@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,7 @@ import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 
 const InspectionMonitoring = ({navigation, route}) => {
-  const {historyData, patientId} = route.params;
-  console.log('History Data:', historyData);
-  console.log('====================================');
-  console.log('PATIENT ID: ', patientId);
-  console.log('====================================');
+  const {patientId} = route.params;
 
   const [state, setState] = useState({
     signsAndSymptoms: '',
@@ -35,6 +31,28 @@ const InspectionMonitoring = ({navigation, route}) => {
     diastolicValidationMessage: '',
     pluseValidationMessage: '',
   });
+
+  useEffect(() => {
+    Alert.alert(
+      'Instructions',
+      'Have you ever done screening for this patient before?\n\nClick "YES" it was. ',
+      [
+        {
+          text: 'YES',
+          onPress: () => console.log('YES Pressed'),
+        },
+        {
+          text: 'No',
+          onPress: () =>
+            navigation.navigate('History', {
+              patientId: patientId,
+            }),
+          style: 'cancel',
+        },
+      ],
+      {cancelable: false},
+    );
+  }, []);
 
   const calculateBMI = (weight, height) => {
     const weightInKg = parseFloat(weight);
@@ -298,7 +316,6 @@ const InspectionMonitoring = ({navigation, route}) => {
           onPress={() =>
             navigation.navigate('UrinalysisMonitoring', {
               inspectionData: state,
-              historyData: historyData,
               patientId: patientId,
             })
           }>
