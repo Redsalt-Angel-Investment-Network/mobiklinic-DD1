@@ -66,9 +66,9 @@ const SelectAction = ({navigation, route}) => {
         <View style={STYLES.btnContainer}>
           <View style={[STYLES.column, STYLES.rightPad]}>
             <TouchableOpacity
-              style={STYLES.card}
+              style={STYLES.primaryButton}
               onPress={() => navigation.navigate('PatientLists')}>
-              <Text style={STYLES.cardTitle}>Search Existing Patient</Text>
+              <Text style={STYLES.primaryText}>Search Existing Patient</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -174,29 +174,7 @@ const STYLES = StyleSheet.create({
     flex: 1,
   },
 
-  btn: {
-    backgroundColor: COLORS.BLACK,
-    padding: DIMENS.PADDING,
-    // padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    backgroundColor: COLORS.BLACK,
-    paddingVertical: 18,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  btnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+
   title: {
     color: COLORS.ACCENT_1,
     fontSize: 20,
@@ -236,6 +214,33 @@ const STYLES = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.WHITE,
+    padding: 8,
+  },
+  primaryButton: {
+    backgroundColor: COLORS.WHITE,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    marginTop: 10,
+    borderWidth:2,
+
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  primaryText: {
+    alignItems: 'center',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
     padding: 8,
   },
 });
