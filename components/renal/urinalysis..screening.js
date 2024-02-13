@@ -296,7 +296,7 @@ const Urinalysis = ({navigation, route}) => {
       {_header()}
 
       <ScrollView style={STYLES.body}>
-        <Text style={STYLES.title}>Urinalysis Tests - Macroscopy</Text>
+        <Text style={STYLES.title}>Urinalysis Tests - Screening</Text>
 
         {/* Urine Appearance */}
         <Text style={STYLES.label}>Urine Appearance:</Text>
@@ -639,10 +639,17 @@ const Urinalysis = ({navigation, route}) => {
         {state.phValidateMessage !== '' && (
           <Text style={STYLES.errorMessage}>{state.phValidateMessage}</Text>
         )}
+        <View style={STYLES.buttonContainer}>
+          <TouchableOpacity
+            style={STYLES.backButton}
+            onPress={() => navigation.goBack()}>
+            <Text style={STYLES.backButtonText}>Back</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
-          <Text style={STYLES.submitText}>Submit</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
+            <Text style={STYLES.submitText}>Submit</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -780,14 +787,33 @@ const STYLES = StyleSheet.create({
   submit: {
     alignItems: 'center',
     backgroundColor: COLORS.BLACK,
+    paddingHorizontal: 50,
     paddingVertical: 10,
-    paddingHorizontal: 10,
     borderRadius: 10,
     marginBottom: 20,
     marginTop: 10,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
   },
   submitText: {
-    color: '#fff',
+    color: COLORS.WHITE,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  backButton: {
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: 50,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 10,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
+  },
+  backButtonText: {
+    color: COLORS.BLACK,
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -874,5 +900,14 @@ const STYLES = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 70,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });

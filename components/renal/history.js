@@ -182,15 +182,14 @@ const History = ({navigation, route}) => {
             style={STYLES.field}
             value={state.waterFrequency}
             onChangeText={text => {
-              checkWater(text);
               setState({...state, waterFrequency: text});
+              checkWater(text);
             }}
             placeholder="Enter liters of water"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
             multiline={true}
             numberOfLines={2}
-            onBlur={() => checkWater(state.waterFrequency)}
           />
         </View>
         {console.log('Water Message:', state.waterMessage)}
@@ -355,8 +354,8 @@ const History = ({navigation, route}) => {
                   }
                   placeholder="Daily average cigarrettes?"
                   placeholderTextColor={COLORS.GREY}
-                  multiline={true}
-                  numberOfLines={4}
+                  keyboardType="numeric"
+                 
                 />
               </View>
             </>

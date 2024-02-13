@@ -61,7 +61,7 @@ const Inspection = ({navigation, route}) => {
       setState({
         ...state,
         systolicValidationMessage:
-          'Systolic blood pressure is outside the normal range. Doctor will be notified',
+          'Systolic blood pressure is outside the normal range.\nNormal ranges are between 100 to 139.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -85,7 +85,7 @@ const Inspection = ({navigation, route}) => {
       setState({
         ...state,
         diastolicValidationMessage:
-          'Diastolic blood pressure is outside the normal range. Doctor will be notified',
+          'Diastolic blood pressure is outside the normal range.\nNormal ranges are between 60 to 89.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -109,7 +109,7 @@ const Inspection = ({navigation, route}) => {
       setState({
         ...state,
         pluseValidationMessage:
-          'Heart pulse is outside the normal range. Doctor will be notified',
+          'Heart pulse is outside the normal range.\nNormal ranges are between 60 to 100.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -161,16 +161,16 @@ const Inspection = ({navigation, route}) => {
         </View>
 
         {/* Weight */}
-        <View >
+        <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Weight:</Text>
           <TextInput
             style={STYLES.field}
             value={state.weight}
             onChangeText={text => {
-              const bmi = calculateBMI(text, state.height);
+              const bmi = calculateBMI(state.height, text);
               setState({...state, weight: text, bmi});
             }}
-            placeholder="Enter Weight"
+            placeholder="Enter Weight in Kgs"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />
@@ -293,17 +293,25 @@ const Inspection = ({navigation, route}) => {
             {state.pluseValidationMessage}
           </Text>
         )}
-        <TouchableOpacity
-          style={STYLES.submit}
-          onPress={() =>
-            navigation.navigate('Urinalysis', {
-              inspectionData: state,
-              historyData: historyData,
-              patientId: patientId,
-            })
-          }>
-          <Text style={STYLES.submitText}>Next</Text>
-        </TouchableOpacity>
+        <View style={STYLES.buttonContainer}>
+          <TouchableOpacity
+            style={STYLES.backButton}
+            onPress={() => navigation.goBack()}>
+            <Text style={STYLES.backButtonText}>Back</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={STYLES.submit}
+            onPress={() =>
+              navigation.navigate('Urinalysis', {
+                inspectionData: state,
+                historyData: historyData,
+                patientId: patientId,
+              })
+            }>
+            <Text style={STYLES.submitText}>Next</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -441,14 +449,33 @@ const STYLES = StyleSheet.create({
   submit: {
     alignItems: 'center',
     backgroundColor: COLORS.BLACK,
+    paddingHorizontal: 50,
     paddingVertical: 10,
-    paddingHorizontal: 10,
     borderRadius: 10,
     marginBottom: 20,
     marginTop: 10,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
   },
   submitText: {
-    color: '#fff',
+    color: COLORS.WHITE,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  backButton: {
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: 50,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 10,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
+  },
+  backButtonText: {
+    color: COLORS.BLACK,
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -544,5 +571,14 @@ const STYLES = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     color: COLORS.BLACK,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 70,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });
