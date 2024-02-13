@@ -38,7 +38,6 @@ const History = ({navigation, route}) => {
     alcoholSpirits: '',
     waterMessage: '',
     waterFrequency: '',
-
   });
 
   const checkWater = waterFrequency => {
@@ -58,7 +57,7 @@ const History = ({navigation, route}) => {
       }
     });
   };
-  
+
   const _header = () => (
     <CustomHeader
       left={
@@ -191,9 +190,7 @@ const History = ({navigation, route}) => {
             keyboardType="numeric"
             multiline={true}
             numberOfLines={2}
-            onBlur={() =>
-              checkWater(state.waterFrequency)
-            }
+            onBlur={() => checkWater(state.waterFrequency)}
           />
         </View>
         {console.log('Water Message:', state.waterMessage)}
@@ -349,14 +346,14 @@ const History = ({navigation, route}) => {
           {state.smoke === 'YES' && (
             <>
               <View style={STYLES.labeled}>
-                <Text style={STYLES.label}>How Often do you smoke?</Text>
+                <Text style={STYLES.label}>Cigarretes per day?</Text>
                 <TextInput
                   style={STYLES.field}
                   value={state.smokeFrequency}
                   onChangeText={text =>
                     setState({...state, smokeFrequency: text})
                   }
-                  placeholder="How Often do you smoke?"
+                  placeholder="Daily average cigarrettes?"
                   placeholderTextColor={COLORS.GREY}
                   multiline={true}
                   numberOfLines={4}
@@ -372,9 +369,9 @@ const History = ({navigation, route}) => {
             <Picker
               placeholder="Do you Smoke?"
               placeholderTextColor={COLORS.GREY}
-              selectedValue={state.alcoholConsumption}
+              selectedValue={state.alchoholConsumption}
               onValueChange={value =>
-                setState({...state, alcoholConsumption: value})
+                setState({...state, alchoholConsumption: value})
               }
               style={[STYLES.field, {color: COLORS.BLACK}]}
               dropdownIconColor={COLORS.GREY_LIGHTER}>
@@ -611,8 +608,8 @@ const STYLES = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
     marginTop: 10,
-    borderWidth:2, 
-    borderColor:COLORS.BLACK,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
   },
   submitText: {
     color: COLORS.BLACK,
