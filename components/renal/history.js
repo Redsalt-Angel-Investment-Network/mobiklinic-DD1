@@ -88,7 +88,7 @@ const History = ({navigation, route}) => {
         {/* UTI History */}
         <View>
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Past cases of UTIs?:</Text>
+            <Text style={STYLES.label}>Past cases of UTIs?</Text>
             <Picker
               placeholder="Any Past Cases of UTIS?"
               placeholderTextColor={COLORS.GREY}
@@ -468,7 +468,7 @@ const History = ({navigation, route}) => {
               patientId: patientId,
             })
           }>
-          <Text style={STYLES.submitText}>Submit</Text>
+          <Text style={STYLES.submitText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -606,15 +606,16 @@ const STYLES = StyleSheet.create({
   },
   submit: {
     alignItems: 'center',
-    backgroundColor: COLORS.BLACK,
+    backgroundColor: COLORS.WHITE,
     paddingVertical: 10,
-    paddingHorizontal: 10,
     borderRadius: 10,
     marginBottom: 20,
     marginTop: 10,
+    borderWidth:2, 
+    borderColor:COLORS.BLACK,
   },
   submitText: {
-    color: '#fff',
+    color: COLORS.BLACK,
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -697,7 +698,7 @@ const STYLES = StyleSheet.create({
     color: COLORS.BLACK,
   },
   errorMessage: {
-    color: 'blue',
+    color: COLORS.PRIMARY,
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
