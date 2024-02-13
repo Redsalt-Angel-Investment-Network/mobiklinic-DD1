@@ -79,7 +79,7 @@ const InspectionMonitoring = ({navigation, route}) => {
       setState({
         ...state,
         systolicValidationMessage:
-          'Systolic blood pressure is outside the normal range. Doctor will be notified',
+          'Systolic blood pressure is outside the normal range.\nNormal ranges are between 100 to 139.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -103,7 +103,7 @@ const InspectionMonitoring = ({navigation, route}) => {
       setState({
         ...state,
         diastolicValidationMessage:
-          'Diastolic blood pressure is outside the normal range. Doctor will be notified',
+          'Diastolic blood pressure is outside the normal range.\nNormal ranges are between 60 to 89.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -127,7 +127,7 @@ const InspectionMonitoring = ({navigation, route}) => {
       setState({
         ...state,
         pluseValidationMessage:
-          'Heart pulse is outside the normal range. Doctor will be notified',
+          'Heart pulse is outside the normal range.\nNormal ranges are between 60 to 100.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -188,7 +188,7 @@ const InspectionMonitoring = ({navigation, route}) => {
               const bmi = calculateBMI(text, state.height);
               setState({...state, weight: text, bmi});
             }}
-            placeholder="Enter Weight"
+            placeholder="Enter Weight in kgs"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />
@@ -204,7 +204,7 @@ const InspectionMonitoring = ({navigation, route}) => {
               const bmi = calculateBMI(state.weight, text);
               setState({...state, height: text, bmi});
             }}
-            placeholder="Enter Height"
+            placeholder="Enter Height in cms"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />

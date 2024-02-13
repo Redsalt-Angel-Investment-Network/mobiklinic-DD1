@@ -16,9 +16,8 @@ import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
 
 const UrinalysisMonitoring = ({navigation, route}) => {
-  const {historyData, inspectionData, patientId} = route.params;
-  console.log('History Data', historyData);
-  console.log('====================================');
+  const {inspectionData, patientId} = route.params;
+
   console.log('Inspection Data', inspectionData);
   console.log('====================================');
 
@@ -53,17 +52,19 @@ const UrinalysisMonitoring = ({navigation, route}) => {
     try {
       setState({...state, isLoading: true});
 
-      const response = await fetch(`${API_URL}/api/renals`, {
+      const response = await fetch(`${API_URL}/api/monitorings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           data: {
-            historyData: historyData,
-            inspectionData: inspectionData,
-            appearance: state.appearance,
-            chemistry: state.chemistry,
+            monitoringData: [{
+              inspectionData,
+              appearance: state.appearance,
+              chemistry: state.chemistry,
+
+            }],
             patient: patientId,
           },
         }),

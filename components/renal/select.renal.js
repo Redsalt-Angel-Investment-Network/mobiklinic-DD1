@@ -12,7 +12,6 @@ import FoIcon from 'react-native-vector-icons/Fontisto';
 import {COLORS, DIMENS} from '../constants/styles';
 import Icon from 'react-native-vector-icons/Feather';
 import CopyRight from '../copyright';
-
 const SelectRenalActivity = ({navigation, route}) => {
   const {patientId, age, sex} = route.params;
   console.log('====================================');
@@ -37,7 +36,7 @@ const SelectRenalActivity = ({navigation, route}) => {
               })
             }>
             <View style={styles.cardIcon}>
-              <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
+              <FoIcon name="stethoscope" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={styles.cardTitle}>Screening</Text>
           </TouchableOpacity>
