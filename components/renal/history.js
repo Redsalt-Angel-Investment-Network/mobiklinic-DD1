@@ -31,14 +31,34 @@ const History = ({navigation, route}) => {
     kidneyDiseaseHistory: '',
     kidneyDisease: '',
     urineFrequence: '',
-    waterFrequency: '',
     longTimeDiseaseHistory: '',
     longTimeDisease: '',
     alcoholLocalBrew: '',
     alcoholBeer: '',
     alcoholSpirits: '',
+    waterMessage: '',
+    waterFrequency: '',
+
   });
 
+  const checkWater = waterFrequency => {
+    const water = parseFloat(waterFrequency);
+    setState(prevState => {
+      if (water <= 1) {
+        return {
+          ...prevState,
+          waterMessage:
+            'It is recommended to drink more than 1 liter of water per day. Please consider increasing your water intake.',
+        };
+      } else {
+        return {
+          ...prevState,
+          waterMessage: '',
+        };
+      }
+    });
+  };
+  
   const _header = () => (
     <CustomHeader
       left={
@@ -163,6 +183,7 @@ const History = ({navigation, route}) => {
             style={STYLES.field}
             value={state.waterFrequency}
             onChangeText={text => {
+              checkWater(text);
               setState({...state, waterFrequency: text});
             }}
             placeholder="Enter liters of water"
@@ -170,8 +191,16 @@ const History = ({navigation, route}) => {
             keyboardType="numeric"
             multiline={true}
             numberOfLines={2}
+            onBlur={() =>
+              checkWater(state.waterFrequency)
+            }
           />
         </View>
+        {console.log('Water Message:', state.waterMessage)}
+        {state.waterMessage !== '' && (
+          <Text style={STYLES.errorMessage}>{state.waterMessage}</Text>
+        )}
+
         {/* heart problem */}
         <View>
           <View style={STYLES.labeled}>
@@ -424,7 +453,6 @@ const History = ({navigation, route}) => {
                     keyboardType="numeric"
                     multiline={true}
                     numberOfLines={2}
-
                   />
                 </View>
               )}
@@ -667,5 +695,11 @@ const STYLES = StyleSheet.create({
     paddingLeft: 12,
     fontSize: 15,
     color: COLORS.BLACK,
+  },
+  errorMessage: {
+    color: 'blue',
+    fontSize: 12,
+    marginTop: 5,
+    marginBottom: 5,
   },
 });
