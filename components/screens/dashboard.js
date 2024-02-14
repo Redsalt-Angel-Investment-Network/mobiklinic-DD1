@@ -90,7 +90,7 @@ const Dashboard = ({navigation}) => {
         <View style={STYLES.column}>
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Ambulance')}>
+            onPress={() => navigation.navigate('Ambulances')}>
             <View style={STYLES.cardIcon}>
               <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
             </View>
