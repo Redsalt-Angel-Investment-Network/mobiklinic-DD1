@@ -17,6 +17,7 @@ import CustomHeader from '../ui/custom-header';
 import {useNavigation} from '@react-navigation/native';
 
 import DataResultsContext from '../contexts/DataResultsContext';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const PatientCard = ({patient}) => {
   const navigation = useNavigation();
@@ -40,10 +41,8 @@ const PatientCard = ({patient}) => {
   const calculateAge = dateOfBirth => {
     if (!dateOfBirth) return 'Invalid Date';
 
-    // Split the dateOfBirth string into day, month, and year components
     const [day, month, year] = dateOfBirth.split('/');
 
-    // Create a new Date object using the components (subtract 1 from month as it is 0-indexed)
     const dob = new Date(year, month - 1, day);
 
     // Check if the parsed date is a valid date
@@ -119,6 +118,10 @@ const PatientCard = ({patient}) => {
                 <Text>Vaccine Name: {vaccine.facility}</Text>
                 <Text>Vaccine Name: {vaccine.dose}</Text>
                 <Text>Vaccine Name: {vaccine.siteAdministered}</Text>
+                <Text>Vaccine Name: {vaccine.vaccinatedBy}</Text>
+                <Text>Vaccine Name: {vaccine.dateOfVaccination}</Text>
+                <Text>Vaccine Name: {vaccine.dateForNextDose}</Text>
+                <Text>Vaccine Name: {vaccine.cardNumber}</Text>
               </View>
             ))}
           </View>
@@ -180,7 +183,7 @@ const PatientLists = () => {
         }
         title={<Text style={styles.centerHeader}>Back</Text>}
       />
-      <View style={styles.body}>
+      <ScrollView style={styles.body}>
         <Text style={styles.header}>Beneficiary List</Text>
         <TextInput
           style={styles.searchInput}
@@ -197,14 +200,14 @@ const PatientLists = () => {
             <PatientCard key={patient.id} patient={patient} />
           ))
         )}
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     backgroundColor: COLORS.WHITE_LOW,
   },
   body: {padding: 12, marginBottom: 40},
