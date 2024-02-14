@@ -17,7 +17,7 @@ import CustomHeader from '../ui/custom-header';
 import {useNavigation} from '@react-navigation/native';
 
 import DataResultsContext from '../contexts/DataResultsContext';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const PatientCard = ({patient}) => {
   const navigation = useNavigation();
@@ -125,6 +125,54 @@ const PatientCard = ({patient}) => {
               </View>
             ))}
           </View>
+          <View style={styles.vaccinationContainer}>
+            <Text style={styles.vaccinationHeader}>Antenantal:</Text>
+            {patient.antenantals.map(antenantal => (
+              <View key={antenantal.id} style={styles.vaccinationItem}>
+                <Text>Vaccine Name: {antenantal.bloodGroup}</Text>
+                <Text>Vaccine Name: {antenantal.drugNotes}</Text>
+                <Text>Vaccine Name: {antenantal.expectedDateOfDelivery}</Text>
+                <Text>Vaccine Name: {antenantal.nextOfKin}</Text>
+                <Text>Vaccine Name: {antenantal.nextOfKinContact}</Text>
+                <Text>Vaccine Name: {antenantal.pregnancyStatus}</Text>
+                <Text>Vaccine Name: {antenantal.routineVisitDate}</Text>
+                <Text>Vaccine Name: {antenantal.weight}</Text>
+                {antenantal.medicines.map((medicine, index) => (
+                  <View key={index} style={styles.medicineItem}>
+                    <Text>Name: {medicine.name}</Text>
+                    <Text>Dosage: {medicine.dosage}</Text>
+                    <Text>Duration: {medicine.duration}</Text>
+                    <Text>Frequency: {medicine.frequency}</Text>
+                    <Text>Description: {medicine.description}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+          <View style={styles.vaccinationContainer}>
+            <Text style={styles.vaccinationHeader}>Diagnoses:</Text>
+            {patient.diagnoses.map(diagnosis => (
+              <View key={diagnosis.id} style={styles.vaccinationItem}>
+                <Text>Condition: {diagnosis.condition}</Text>
+                <Text>Date of Diagnosis: {diagnosis.dateOfDiagnosis}</Text>
+                <Text>Follow-Up Date: {diagnosis.followUpDate}</Text>
+                <Text>Impression: {diagnosis.impression}</Text>
+                <Text>Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}</Text>
+                <Text>Lab Tests: {diagnosis.labTests}</Text>
+                {/* Mapping through medicines */}
+                {diagnosis.medicines.map((medicine, index) => (
+                  <View key={index} style={styles.medicineItem}>
+                    <Text>Name: {medicine.name}</Text>
+                    <Text>Dosage: {medicine.dosage}</Text>
+                    <Text>Duration: {medicine.duration}</Text>
+                    <Text>Frequency: {medicine.frequency}</Text>
+                    <Text>Description: {medicine.description}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
           </TouchableOpacity>
