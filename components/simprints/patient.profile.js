@@ -105,12 +105,12 @@ const PatientData = ({navigation}) => {
   const handleSubmit = async () => {
     try {
       console.log('User Id:', userLog);
-  
+
       if (state.isLoading) {
         return;
       }
       setState({...state, isLoading: true});
-  
+
       if (
         state.firstName === '' ||
         state.lastName === '' ||
@@ -120,7 +120,7 @@ const PatientData = ({navigation}) => {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
-  
+
       const response = await axios.post(`${API_URL}/api/patients`, {
         data: {
           firstName: state.firstName,
@@ -137,13 +137,15 @@ const PatientData = ({navigation}) => {
           nextOfKin: state.nextOfKin,
           nextOfKinContact: state.nextOfKinContact,
           ethinicity: selectedEthnicity,
-          occuptation: state.occupation, 
+          occuptation: state.occupation,
           users_permissions_user: {
-            id: userLog,
+            data: {
+              id: userLog,
+            },
           },
         },
       });
-  
+
       if (response.status === 200) {
         const data = response.data.data;
         const patientId = data.id;
@@ -176,7 +178,6 @@ const PatientData = ({navigation}) => {
       setState({...state, isLoading: false});
     }
   };
-  
 
   const _header = () => (
     <CustomHeader
