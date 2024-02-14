@@ -58,7 +58,22 @@ const Profile = ({navigation}) => {
       title={<Text style={[styles.centerHeader, styles.title]}>Profile</Text>}
     />
   );
+  useEffect(() => {
+    fetchPatientData();
+  }, []);
 
+  const fetchPatientData = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/users/${userLog}?populate=*`,
+      );
+      const userData = response.data;
+      const patientsEnrolledCount = userData.patients.length;
+      setPatientsEnrolledCountt(patientsEnrolledCount);
+    } catch (error) {
+      console.error('Error fetching patient data:', error);
+    }
+  };
   // Function to get the week number of a date for the last seven days
   const getWeekNumber = () => {
     const currentDate = new Date();
@@ -78,7 +93,9 @@ const Profile = ({navigation}) => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/${userLog}/patients`);
+      const response = await axios.get(
+        `${API_URL}/api/users/${userLog}?populate=*`,
+      );
 
       if (response.status === 200) {
         const sortedData = response.data.sort(
@@ -139,9 +156,7 @@ const Profile = ({navigation}) => {
   const fetchVaccinationData = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        `${API_URL}/vaccinations/${userNames}`,
-      );
+      const response = await axios.get(`${API_URL}/vaccinations/${userNames}`);
 
       if (response.status === 200) {
         const sortedData = response.data.sort(

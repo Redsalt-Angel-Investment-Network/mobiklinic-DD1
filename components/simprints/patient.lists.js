@@ -18,9 +18,10 @@ import {useNavigation} from '@react-navigation/native';
 
 import DataResultsContext from '../contexts/DataResultsContext';
 
-const PatientCard = ({patient, vaccinationsData}) => {
+const PatientCard = ({patient}) => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(false);
+
   const toggleAccordion = () => {
     setExpanded(!expanded);
   };
@@ -110,26 +111,17 @@ const PatientCard = ({patient, vaccinationsData}) => {
           <Text style={styles.accordionLabel}>
             Weight: {patient.weight} kgs
           </Text>
-
           <View style={styles.vaccinationContainer}>
             <Text style={styles.vaccinationHeader}>Vaccinations:</Text>
-            {vaccinationsData &&
-              vaccinationsData.map(vaccination => (
-                <View key={vaccination.id} style={styles.vaccinationItem}>
-                  <Text>
-                    Date of Vaccination:{' '}
-                    {vaccination.attributes.dateOfVaccination}
-                  </Text>
-                  <Text>
-                    Date for Next Dose: {vaccination.attributes.dateForNextDose}
-                  </Text>
-                  <Text>
-                    Vaccine Name: {vaccination.attributes.vaccineName}
-                  </Text>
-                </View>
-              ))}
+            {patient.vaccinations.map(vaccine => (
+              <View key={vaccine.id} style={styles.vaccinationItem}>
+                <Text>Vaccine Name: {vaccine.vaccineName}</Text>
+                <Text>Vaccine Name: {vaccine.facility}</Text>
+                <Text>Vaccine Name: {vaccine.dose}</Text>
+                <Text>Vaccine Name: {vaccine.siteAdministered}</Text>
+              </View>
+            ))}
           </View>
-
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
           </TouchableOpacity>
@@ -146,95 +138,50 @@ const PatientLists = () => {
   const {userLog} = useContext(DataResultsContext);
   const navigation = useNavigation();
 
-  const _header = () => (
-    <CustomHeader
-      left={
-        <TouchableOpacity
-          style={{
-            marginHorizontal: 4,
-            width: 35,
-            height: 35,
-            justifyContent: 'center',
-            // alignItems: 'center',
-          }}
-          onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
-        </TouchableOpacity>
-      }
-      title={<Text style={[styles.centerHeader]}>Back</Text>}
-    />
-  );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/users/${userLog}?populate=*`,
-        );
-        const data = await response.json();
-        setUserData(data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const fetchVaccinationData = async patient => {
+  // Function to fetch data from the backend
+  const fetchData = async () => {
     try {
-      const response = await fetch(
-        `${API_URL}/api/vaccinations/${patient.id}?populate=*`,
-      );
+      const response = await fetch(`${API_URL}/api/all-patients/${userLog}`);
       const data = await response.json();
-
-      if (data && data.vaccinations) {
-        return data.vaccinations.data;
-      }
+      setUserData(data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching vaccination data:', error);
+      console.error('Error fetching data:', error);
+      setLoading(false);
     }
   };
 
-  const handleFetchVaccinations = async () => {
-    const patientsWithVaccinations = await Promise.all(
-      userData.patients.map(async patient => {
-        const vaccinationsData = await fetchVaccinationData(patient);
-        return {...patient, vaccinationsData};
-      }),
-    );
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-    return patientsWithVaccinations;
-  };
-
-  const handleSearch = async text => {
+  // Function to handle search query
+  const handleSearch = text => {
     setSearchQuery(text);
   };
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      const patients = await handleFetchVaccinations();
-      setUserData(patients);
-      setLoading(false);
-    };
+  const filteredPatients =
+    userData && userData.patients
+      ? userData.patients.filter(patient => {
+          const fullName = `${patient.firstName} ${patient.lastName}`;
+          return fullName.toLowerCase().includes(searchQuery.toLowerCase());
+        })
+      : [];
 
-    fetchPatients();
-  }, []);
-
-  const filteredPatients = userData
-    ? userData.patients.filter(patient => {
-        const fullName = `${patient.firstName} ${patient.lastName}`;
-        return fullName.toLowerCase().includes(searchQuery.toLowerCase());
-      })
-    : [];
   return (
     <View style={styles.container}>
-      {_header()}
+      <CustomHeader
+        left={
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => navigation.goBack()}>
+            <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
+          </TouchableOpacity>
+        }
+        title={<Text style={styles.centerHeader}>Back</Text>}
+      />
       <View style={styles.body}>
         <Text style={styles.header}>Beneficiary List</Text>
-
         <TextInput
           style={styles.searchInput}
           placeholder="Search by first or last name..."
@@ -242,19 +189,13 @@ const PatientLists = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
+
         {loading ? (
-          <Loader size="large" />
+          <Loader /> // Replace this with your loader component
         ) : (
-          <FlatList
-            data={filteredPatients}
-            keyExtractor={item => item.id.toString()}
-            renderItem={({item}) => (
-              <PatientCard
-                patient={item}
-                vaccinationsData={item.vaccinationsData}
-              />
-            )}
-          />
+          filteredPatients.map(patient => (
+            <PatientCard key={patient.id} patient={patient} />
+          ))
         )}
       </View>
     </View>
