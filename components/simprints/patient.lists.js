@@ -22,9 +22,13 @@ import {ScrollView} from 'react-native-gesture-handler';
 const PatientCard = ({patient}) => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(false);
+  const [screeningExpanded, setScreeningExpanded] = useState(false);
 
   const toggleAccordion = () => {
     setExpanded(!expanded);
+  };
+  const toggleScreening = () => {
+    setScreeningExpanded(!screeningExpanded);
   };
   const handleRedirect = () => {
     console.log('Patient ID:', patient.id);
@@ -110,73 +114,85 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Weight: {patient.weight} kgs
           </Text>
-
-          {/* Screening renal */}
-          {patient.renal_histories.length > 0 && (
-            <View style={styles.vaccinationContainer}>
+          <View>
+            <TouchableOpacity onPress={toggleScreening}>
               <Text style={styles.vaccinationHeader}>
-                Renal Health Screening:
+                Renal Health Screening
               </Text>
-              {patient.renal_histories.map(screening => (
-                <View key={screening.id} style={styles.vaccinationItem}>
-                  <Text style={styles.sectionHeader}>Urine Macrosopy:</Text>
-                  <Text>Urine Appearance: {screening.appearance.color}</Text>
-                  <Text>Urine Clarity: {screening.appearance.clarity}</Text>
-                  <Text>Urine pH: {screening.chemistry.ph || 'N/A'}</Text>
-                  <Text>Urine Ketone: {screening.chemistry.ketone}</Text>
-                  <Text>Urine Glucose: {screening.chemistry.glucose}</Text>
-                  <Text>Urine Nitrite: {screening.chemistry.nitrite}</Text>
-                  <Text>Urine Protein: {screening.chemistry.protein}</Text>
-                  <Text>Urine Bilirubin: {screening.chemistry.bilirubin}</Text>
-                  <Text>Urine Leokcytes: {screening.chemistry.leokcytes}</Text>
-                  <Text>
-                    Urine Specific Gravity:{' '}
-                    {screening.chemistry.specificGravity}
-                  </Text>
+            </TouchableOpacity>
+            {!screeningExpanded && patient.renal_histories.length > 0 ? (
+              <View style={styles.vaccinationContainer}>
+                {patient.renal_histories.map(screening => (
+                  <View key={screening.id} style={styles.vaccinationItem}>
+                    <Text style={styles.sectionHeader}>Urine Macrosopy:</Text>
+                    <Text>Urine Appearance: {screening.appearance.color}</Text>
+                    <Text>Urine Clarity: {screening.appearance.clarity}</Text>
+                    <Text>Urine pH: {screening.chemistry.ph || 'N/A'}</Text>
+                    <Text>Urine Ketone: {screening.chemistry.ketone}</Text>
+                    <Text>Urine Glucose: {screening.chemistry.glucose}</Text>
+                    <Text>Urine Nitrite: {screening.chemistry.nitrite}</Text>
+                    <Text>Urine Protein: {screening.chemistry.protein}</Text>
+                    <Text>
+                      Urine Bilirubin: {screening.chemistry.bilirubin}
+                    </Text>
+                    <Text>
+                      Urine Leokcytes: {screening.chemistry.leokcytes}
+                    </Text>
+                    <Text>
+                      Urine Specific Gravity:{' '}
+                      {screening.chemistry.specificGravity}
+                    </Text>
 
-                  <Text style={styles.vaccinationHeader}>Patient History:</Text>
-                  {screening.historyData && (
-                    <View style={styles.vaccinationItem}>
-                      {Object.entries(screening.historyData).map(
-                        ([key, value]) => (
-                          <Text key={key}>
-                            {key}: {value}
-                          </Text>
-                        ),
-                      )}
-                    </View>
-                  )}
+                    <Text style={styles.vaccinationHeader}>
+                      Patient History:
+                    </Text>
+                    {screening.historyData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.historyData).map(
+                          ([key, value]) => (
+                            <Text key={key}>
+                              {key}: {value}
+                            </Text>
+                          ),
+                        )}
+                      </View>
+                    )}
 
-                  <Text style={styles.vaccinationHeader}>Inspection Data:</Text>
-                  {screening.inspectionData && (
-                    <View style={styles.vaccinationItem}>
-                      {Object.entries(screening.inspectionData).map(
-                        ([key, value]) => (
-                          <View key={key} style={styles.inspectionItem}>
-                            {key === 'bloodPressure' ? (
-                              <>
-                                <Text>Heart Pulse: {value.heartPulse}</Text>
+                    <Text style={styles.vaccinationHeader}>
+                      Inspection Data:
+                    </Text>
+                    {screening.inspectionData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.inspectionData).map(
+                          ([key, value]) => (
+                            <View key={key} style={styles.inspectionItem}>
+                              {key === 'bloodPressure' ? (
+                                <>
+                                  <Text>Heart Pulse: {value.heartPulse}</Text>
+                                  <Text>
+                                    Systolic Pressure: {value.systolicPressure}
+                                  </Text>
+                                  <Text>
+                                    Diastolic Pressure:{' '}
+                                    {value.diastolicPressure}
+                                  </Text>
+                                </>
+                              ) : (
                                 <Text>
-                                  Systolic Pressure: {value.systolicPressure}
+                                  {key}: {value}
                                 </Text>
-                                <Text>
-                                  Diastolic Pressure: {value.diastolicPressure}
-                                </Text>
-                              </>
-                            ) : (
-                              <Text>
-                                {key}: {value}
-                              </Text>
-                            )}
-                          </View>
-                        ),
-                      )}
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
+                              )}
+                            </View>
+                          ),
+                        )}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </View>
+
           <View style={styles.vaccinationContainer}>
             {patient.rfts.length > 0 && (
               <View style={styles.vaccinationContainer}>
@@ -549,7 +565,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     textTransform: 'uppercase',
-    textDecorationLine: 'underline',
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
+    paddingVertical: 8,
+    borderRadius:10,
+    textAlign: 'center',
+    marginVertical:10,
+
   },
   vaccinationItem: {
     borderColor: '#ccc',
