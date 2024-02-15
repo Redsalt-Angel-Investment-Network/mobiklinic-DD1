@@ -31,6 +31,9 @@ const Profile = ({navigation}) => {
   const [vaccinationCount, setVaccinationCount] = useState(null);
   const [diagnosisCount, setDiagnosisCount] = useState(0);
   const [antenatalCount, setAntenatalCount] = useState(0);
+  const [screeningCount, setScreeningCount] = useState(0);
+  const [monitoringCount, setMonitoringCount] = useState(0);
+  const [rftCount, setRftCount] = useState(0);
 
   const {user} = React.useContext(AuthContext);
   React.useEffect(() => {
@@ -88,6 +91,27 @@ const Profile = ({navigation}) => {
         });
         setAntenatalCount(totalAntenatalCount);
 
+        // getting total screenings
+        let totalScreeningCount = 0;
+        patients.forEach(patient => {
+          totalScreeningCount += patient.renal_histories.length;
+        });
+        setScreeningCount(totalScreeningCount);
+
+        // getting total monitoring
+        let totalMonitoringCount = 0;
+        patients.forEach(patient => {
+          totalMonitoringCount += patient.monitorings.length;
+        });
+        setMonitoringCount(totalMonitoringCount);
+
+        // getting renal function test
+        let totalRenalFunctionTestCount = 0;
+        patients.forEach(patient => {
+          totalRenalFunctionTestCount += patient.rfts.length;
+        })
+        setRftCount(totalRenalFunctionTestCount);
+
         setIsLoading(false);
       })
       .catch(error => console.error('Error fetching data:', error));
@@ -114,12 +138,12 @@ const Profile = ({navigation}) => {
           <View style={styles.column}>
             <View style={styles.row}>
               <View style={styles.card}>
-                <Text style={styles.cardIcon}>{dailyEnrollmentsCount}</Text>
-                <Text style={styles.cardTitle}>Daily Enrollments </Text>
+                <Text style={styles.cardIcon}>{screeningCount}</Text>
+                <Text style={styles.cardTitle}>Renal Health Screening </Text>
               </View>
               <View style={styles.card}>
-                <Text style={styles.cardIcon}>{weeklyEnrollmentsCount}</Text>
-                <Text style={styles.cardTitle}>Weekly Enrollments </Text>
+                <Text style={styles.cardIcon}>{monitoringCount}</Text>
+                <Text style={styles.cardTitle}>Renal Health Monitoring </Text>
               </View>
             </View>
           </View>
@@ -127,8 +151,8 @@ const Profile = ({navigation}) => {
           <View style={styles.column}>
             <View style={styles.row}>
               <View style={styles.card}>
-                <Text style={styles.cardIcon}>{monthlyEnrollmentsCount}</Text>
-                <Text style={styles.cardTitle}>Month Enrollments </Text>
+                <Text style={styles.cardIcon}>{rftCount}</Text>
+                <Text style={styles.cardTitle}>Renal Functional Test </Text>
               </View>
 
               <View style={styles.card}>
