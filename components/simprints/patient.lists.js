@@ -238,6 +238,53 @@ const PatientCard = ({patient}) => {
             ))}
           </View>
 
+          <View style={styles.vaccinationContainer}>
+            <Text style={styles.vaccinationHeader}>
+              Renal Functional Tests:
+            </Text>
+            {patient.rfts.map(screening => (
+              <View key={screening.id} style={styles.vaccinationItem}>
+                {screening.inspectionData && (
+                  <View style={styles.vaccinationItem}>
+                    {Object.entries(screening.inspectionData).map(
+                      ([key, value]) => (
+                        <View key={key} style={styles.inspectionItem}>
+                          {key === 'bloodPressure' ? (
+                            <>
+                              <Text>Heart Pulse: {value.heartPulse}</Text>
+                              <Text>
+                                Systolic Pressure: {value.systolicPressure}
+                              </Text>
+                              <Text>
+                                Diastolic Pressure: {value.diastolicPressure}
+                              </Text>
+                            </>
+                          ) : (
+                            <Text>
+                              {key}: {value}
+                            </Text>
+                          )}
+                        </View>
+                      ),
+                    )}
+                  </View>
+                )}
+
+                {screening.rftData && (
+                  <View style={styles.vaccinationItem}>
+                    {Object.entries(screening.rftData).map(([key, value]) => (
+                      <View key={key} style={styles.inspectionItem}>
+                        <Text>
+                          {key}: {value}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
           </TouchableOpacity>
