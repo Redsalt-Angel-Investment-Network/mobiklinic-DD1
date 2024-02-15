@@ -28,9 +28,9 @@ const Profile = ({navigation}) => {
   const [monthlyEnrollmentsCount, setMonthlyEnrollmentsCount] = useState(0);
   const [weeklyEnrollmentsCount, setWeeklyEnrollmentsCount] = useState(0);
   const {patientId} = useContext(DataResultsContext);
-  const [totalVaccinations, setTotalVaccinations] = useState(0);
-  const [totalDiagnosis, setTotalDiagnosis] = useState(0);
-  const [totalAntenatal, setTotalAntenatal] = useState(0);
+  const [vaccinationCount, setVaccinationCount] = useState(null);
+  const [diagnosisCount, setDiagnosisCount] = useState(0);
+  const [antenatalCount, setAntenatalCount] = useState(0);
 
   const {user} = React.useContext(AuthContext);
   React.useEffect(() => {
@@ -58,211 +58,39 @@ const Profile = ({navigation}) => {
       title={<Text style={[styles.centerHeader, styles.title]}>Profile</Text>}
     />
   );
-  useEffect(() => {
-    fetchPatientData();
-  }, []);
-
-  const fetchPatientData = async () => {
-    try {
-      const response = await axios.get(
-        `${API_URL}/api/users/${userLog}?populate=*`,
-      );
-      const userData = response.data;
-      const patientsEnrolledCount = userData.patients.length;
-      setPatientsEnrolledCountt(patientsEnrolledCount);
-    } catch (error) {
-      console.error('Error fetching patient data:', error);
-    }
-  };
-  // Function to get the week number of a date for the last seven days
-  const getWeekNumber = () => {
-    const currentDate = new Date();
-    const target = new Date(currentDate.valueOf());
-    target.setDate(target.getDate() - 7); // Subtract seven days from the current date
-    const dayNr = (target.getDay() + 6) % 7;
-    target.setDate(target.getDate() - dayNr + 3);
-    const firstThursday = target.valueOf();
-    target.setMonth(0, 1);
-    if (target.getDay() !== 4) {
-      target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
-    }
-    return 1 + Math.ceil((firstThursday - target) / 604800000); // 604800000 = 7 * 24 * 3600 * 1000
-  };
-
-  // fetch enrollements
-  const fetchUsers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(
-        `${API_URL}/api/users/${userLog}?populate=*`,
-      );
-
-      if (response.status === 200) {
-        const sortedData = response.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-
-        setPatientsEnrolledCount(sortedData.length);
-
-        // Calculate the daily enrollments count
-        const currentDate = new Date();
-        const startDate = new Date('2023-07-19'); // Start counting from 19/07/2023
-        const dailyEnrollments = sortedData.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return (
-            itemDate >= startDate &&
-            itemDate <= currentDate &&
-            itemDate.getDate() === currentDate.getDate() &&
-            itemDate.getMonth() === currentDate.getMonth() &&
-            itemDate.getFullYear() === currentDate.getFullYear()
-          );
-        });
-        setDailyEnrollmentsCount(dailyEnrollments.length);
-
-        // Calculate the monthly enrollments count
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-        const monthlyEnrollments = sortedData.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return (
-            itemDate >= startDate &&
-            itemDate <= currentDate &&
-            itemDate.getMonth() === currentMonth &&
-            itemDate.getFullYear() === currentYear
-          );
-        });
-        setMonthlyEnrollmentsCount(monthlyEnrollments.length);
-
-        // Calculate the weekly enrollments count
-        const currentWeek = getWeekNumber();
-        const weeklyEnrollments = sortedData.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return (
-            itemDate >= startDate &&
-            itemDate <= currentDate &&
-            getWeekNumber(itemDate) === currentWeek
-          );
-        });
-        setWeeklyEnrollmentsCount(weeklyEnrollments.length);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // fetch vaccinations done in a month
-  const fetchVaccinationData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/vaccinations/${userNames}`);
-
-      if (response.status === 200) {
-        const sortedData = response.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        const startDate = new Date(currentYear, currentMonth, 1);
-        const endDate = new Date(currentYear, currentMonth + 1, 0);
-
-        const monthlyVaccinations = sortedData.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return itemDate >= startDate && itemDate <= endDate;
-        });
-
-        setTotalVaccinations(monthlyVaccinations.length);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // fetch diagnosis done in a month
-  const fetchDiagnosis = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/diagnosis/${userNames}`);
-
-      if (response.status === 200) {
-        const sortedData = response.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        const startDate = new Date(currentYear, currentMonth, 1);
-        const endDate = new Date(currentYear, currentMonth + 1, 0);
-
-        const monthlyDiagnosis = sortedData.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return itemDate >= startDate && itemDate <= endDate;
-        });
-
-        setTotalDiagnosis(monthlyDiagnosis.length);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchAntenatal = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/antenantals/${userNames}`);
-
-      if (response.status === 200) {
-        const sortedData = response.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        const startDate = new Date(currentYear, currentMonth, 1);
-        const endDate = new Date(currentYear, currentMonth + 1, 0);
-
-        const monthlyAntenatal = sortedData.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return itemDate >= startDate && itemDate <= endDate;
-        });
-
-        setTotalAntenatal(monthlyAntenatal.length);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
-    // Fetch data when the component mounts
-    async function fetchData() {
-      try {
-        await fetchUsers();
-        await fetchVaccinationData();
-        await fetchDiagnosis();
-        await fetchAntenatal();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
+    // Fetch data from the API endpoint
+    fetch(`${API_URL}/api/all-patients/${userLog}`)
+      .then(response => response.json())
+      .then(data => {
+        const patients = data.patients;
+
+        setPatientsEnrolledCount(patients.length);
+        // getting vaccinations
+        let totalVaccinations = 0;
+        patients.forEach(patient => {
+          totalVaccinations += patient.vaccinations.length;
+        });
+        setVaccinationCount(totalVaccinations);
+
+        // getting diagnosis
+        let totalDiagnosisCount = 0;
+        patients.forEach(patient => {
+          totalDiagnosisCount += patient.diagnoses.length;
+        });
+        setDiagnosisCount(totalDiagnosisCount);
+
+        //getting total antenatals
+        let totalAntenatalCount = 0;
+        patients.forEach(patient => {
+          totalAntenatalCount += patient.antenantals.length;
+        });
+        setAntenatalCount(totalAntenatalCount);
+
         setIsLoading(false);
-      }
-    }
-
-    fetchData();
+      })
+      .catch(error => console.error('Error fetching data:', error));
   }, []);
 
   return (
@@ -304,7 +132,7 @@ const Profile = ({navigation}) => {
               </View>
 
               <View style={styles.card}>
-                <Text style={styles.cardIcon}>{totalVaccinations}</Text>
+                <Text style={styles.cardIcon}>{vaccinationCount}</Text>
                 <Text style={styles.cardTitle}>Monthly Vaccinations </Text>
               </View>
             </View>
@@ -313,12 +141,12 @@ const Profile = ({navigation}) => {
           <View style={styles.column}>
             <View style={styles.row}>
               <View style={styles.card}>
-                <Text style={styles.cardIcon}>{totalDiagnosis}</Text>
+                <Text style={styles.cardIcon}>{diagnosisCount}</Text>
                 <Text style={styles.cardTitle}>Monthly Diagnosis </Text>
               </View>
 
               <View style={styles.card}>
-                <Text style={styles.cardIcon}>{totalAntenatal}</Text>
+                <Text style={styles.cardIcon}>{antenatalCount}</Text>
                 <Text style={styles.cardTitle}>Monthly Antenatal </Text>
               </View>
             </View>
