@@ -137,15 +137,17 @@ const PatientCard = ({patient}) => {
                 <Text>Vaccine Name: {antenantal.pregnancyStatus}</Text>
                 <Text>Vaccine Name: {antenantal.routineVisitDate}</Text>
                 <Text>Vaccine Name: {antenantal.weight}</Text>
-                {antenantal.medicines.map((medicine, index) => (
-                  <View key={index} style={styles.medicineItem}>
-                    <Text>Name: {medicine.name}</Text>
-                    <Text>Dosage: {medicine.dosage}</Text>
-                    <Text>Duration: {medicine.duration}</Text>
-                    <Text>Frequency: {medicine.frequency}</Text>
-                    <Text>Description: {medicine.description}</Text>
-                  </View>
-                ))}
+
+                {antenantal.medicines &&
+                  antenantal.medicines.map((medicine, index) => (
+                    <View key={index} style={styles.medicineItem}>
+                      <Text>Name: {medicine.name}</Text>
+                      <Text>Dosage: {medicine.dosage}</Text>
+                      <Text>Duration: {medicine.duration}</Text>
+                      <Text>Frequency: {medicine.frequency}</Text>
+                      <Text>Description: {medicine.description}</Text>
+                    </View>
+                  ))}
               </View>
             ))}
           </View>
@@ -159,16 +161,79 @@ const PatientCard = ({patient}) => {
                 <Text>Impression: {diagnosis.impression}</Text>
                 <Text>Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}</Text>
                 <Text>Lab Tests: {diagnosis.labTests}</Text>
-                {/* Mapping through medicines */}
-                {diagnosis.medicines.map((medicine, index) => (
-                  <View key={index} style={styles.medicineItem}>
-                    <Text>Name: {medicine.name}</Text>
-                    <Text>Dosage: {medicine.dosage}</Text>
-                    <Text>Duration: {medicine.duration}</Text>
-                    <Text>Frequency: {medicine.frequency}</Text>
-                    <Text>Description: {medicine.description}</Text>
+                {diagnosis.medicines &&
+                  diagnosis.medicines.map((medicine, index) => (
+                    <View key={index} style={styles.medicineItem}>
+                      <Text>Name: {medicine.name}</Text>
+                      <Text>Dosage: {medicine.dosage}</Text>
+                      <Text>Duration: {medicine.duration}</Text>
+                      <Text>Frequency: {medicine.frequency}</Text>
+                      <Text>Description: {medicine.description}</Text>
+                    </View>
+                  ))}
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.vaccinationContainer}>
+            <Text style={styles.vaccinationHeader}>
+              Renal Health Screening:
+            </Text>
+            {patient.renal_histories.map(screening => (
+              <View key={screening.id} style={styles.vaccinationItem}>
+                <Text style={styles.vaccinationHeader}>Urine Macrosopy:</Text>
+                <Text>Urine Appearance: {screening.appearance.color}</Text>
+                <Text>Urine Clarity: {screening.appearance.clarity}</Text>
+                <Text>Urine pH: {screening.chemistry.ph || 'N/A'}</Text>
+                <Text>Urine Ketone: {screening.chemistry.ketone}</Text>
+                <Text>Urine Glucose: {screening.chemistry.glucose}</Text>
+                <Text>Urine Nitrite: {screening.chemistry.nitrite}</Text>
+                <Text>Urine Protein: {screening.chemistry.protein}</Text>
+                <Text>Urine Bilirubin: {screening.chemistry.bilirubin}</Text>
+                <Text>Urine Leokcytes: {screening.chemistry.leokcytes}</Text>
+                <Text>
+                  Urine Specific Gravity: {screening.chemistry.specificGravity}
+                </Text>
+
+                <Text style={styles.vaccinationHeader}>Patient History:</Text>
+                {screening.historyData && (
+                  <View style={styles.vaccinationItem}>
+                    {Object.entries(screening.historyData).map(
+                      ([key, value]) => (
+                        <Text key={key}>
+                          {key}: {value}
+                        </Text>
+                      ),
+                    )}
                   </View>
-                ))}
+                )}
+
+                <Text style={styles.vaccinationHeader}>Inspection Data:</Text>
+                {screening.inspectionData && (
+                  <View style={styles.vaccinationItem}>
+                    {Object.entries(screening.inspectionData).map(
+                      ([key, value]) => (
+                        <View key={key} style={styles.inspectionItem}>
+                          {key === 'bloodPressure' ? (
+                            <>
+                              <Text>Heart Pulse: {value.heartPulse}</Text>
+                              <Text>
+                                Systolic Pressure: {value.systolicPressure}
+                              </Text>
+                              <Text>
+                                Diastolic Pressure: {value.diastolicPressure}
+                              </Text>
+                            </>
+                          ) : (
+                            <Text>
+                              {key}: {value}
+                            </Text>
+                          )}
+                        </View>
+                      ),
+                    )}
+                  </View>
+                )}
               </View>
             ))}
           </View>
