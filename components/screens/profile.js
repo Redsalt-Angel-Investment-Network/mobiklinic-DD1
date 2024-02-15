@@ -70,47 +70,28 @@ const Profile = ({navigation}) => {
         const patients = data.patients;
 
         setPatientsEnrolledCount(patients.length);
-        // getting vaccinations
         let totalVaccinations = 0;
+        let totalDiagnosis = 0;
+        let totalAntenatal = 0;
+        let totalScreening = 0;
+        let totalMonitoring = 0;
+        let totalRft = 0;
+
         patients.forEach(patient => {
           totalVaccinations += patient.vaccinations.length;
+          totalDiagnosis += patient.diagnoses.length;
+          totalAntenatal += patient.antenantals.length;
+          totalScreening += patient.renal_histories.length;
+          totalMonitoring += patient.monitorings.length;
+          totalRft += patient.rfts.length;
         });
+
         setVaccinationCount(totalVaccinations);
-
-        // getting diagnosis
-        let totalDiagnosisCount = 0;
-        patients.forEach(patient => {
-          totalDiagnosisCount += patient.diagnoses.length;
-        });
-        setDiagnosisCount(totalDiagnosisCount);
-
-        //getting total antenatals
-        let totalAntenatalCount = 0;
-        patients.forEach(patient => {
-          totalAntenatalCount += patient.antenantals.length;
-        });
-        setAntenatalCount(totalAntenatalCount);
-
-        // getting total screenings
-        let totalScreeningCount = 0;
-        patients.forEach(patient => {
-          totalScreeningCount += patient.renal_histories.length;
-        });
-        setScreeningCount(totalScreeningCount);
-
-        // getting total monitoring
-        let totalMonitoringCount = 0;
-        patients.forEach(patient => {
-          totalMonitoringCount += patient.monitorings.length;
-        });
-        setMonitoringCount(totalMonitoringCount);
-
-        // getting renal function test
-        let totalRenalFunctionTestCount = 0;
-        patients.forEach(patient => {
-          totalRenalFunctionTestCount += patient.rfts.length;
-        })
-        setRftCount(totalRenalFunctionTestCount);
+        setDiagnosisCount(totalDiagnosis);
+        setAntenatalCount(totalAntenatal);
+        setScreeningCount(totalScreening);
+        setMonitoringCount(totalMonitoring);
+        setRftCount(totalRft);
 
         setIsLoading(false);
       })
@@ -123,56 +104,42 @@ const Profile = ({navigation}) => {
       {isLoading ? (
         <Loader />
       ) : (
-        <View style={styles.container}>
+        <View style={styles.content}>
           <Text style={styles.header}>General Report</Text>
-          <View style={styles.column}>
-            <View style={styles.row}>
-              <View style={styles.full}>
-                <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
-                <Text style={[styles.cardTitle, {fontSize: 18}]}>
-                  Total Patients
-                </Text>
-              </View>
+          <View style={styles.row}>
+            <View style={styles.full}>
+              <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
+              <Text style={styles.cardTitle}>Total Patients</Text>
             </View>
           </View>
-          <View style={styles.column}>
-            <View style={styles.row}>
-              <View style={styles.card}>
-                <Text style={styles.cardIcon}>{screeningCount}</Text>
-                <Text style={styles.cardTitle}>Renal Health Screening </Text>
-              </View>
-              <View style={styles.card}>
-                <Text style={styles.cardIcon}>{monitoringCount}</Text>
-                <Text style={styles.cardTitle}>Renal Health Monitoring </Text>
-              </View>
+          <View style={styles.row}>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{screeningCount}</Text>
+              <Text style={styles.cardTitle}>Renal Health Screening</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{monitoringCount}</Text>
+              <Text style={styles.cardTitle}>Renal Health Monitoring</Text>
             </View>
           </View>
-
-          <View style={styles.column}>
-            <View style={styles.row}>
-              <View style={styles.card}>
-                <Text style={styles.cardIcon}>{rftCount}</Text>
-                <Text style={styles.cardTitle}>Renal Functional Test </Text>
-              </View>
-
-              <View style={styles.card}>
-                <Text style={styles.cardIcon}>{vaccinationCount}</Text>
-                <Text style={styles.cardTitle}>Monthly Vaccinations </Text>
-              </View>
+          <View style={styles.row}>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{rftCount}</Text>
+              <Text style={styles.cardTitle}>Renal Functional Test</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{vaccinationCount}</Text>
+              <Text style={styles.cardTitle}>Total Vaccinations</Text>
             </View>
           </View>
-
-          <View style={styles.column}>
-            <View style={styles.row}>
-              <View style={styles.card}>
-                <Text style={styles.cardIcon}>{diagnosisCount}</Text>
-                <Text style={styles.cardTitle}>Monthly Diagnosis </Text>
-              </View>
-
-              <View style={styles.card}>
-                <Text style={styles.cardIcon}>{antenatalCount}</Text>
-                <Text style={styles.cardTitle}>Monthly Antenatal </Text>
-              </View>
+          <View style={styles.row}>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{diagnosisCount}</Text>
+              <Text style={styles.cardTitle}>Total Diagnosis</Text>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardIcon}>{antenatalCount}</Text>
+              <Text style={styles.cardTitle}>Total Antenatal</Text>
             </View>
           </View>
         </View>
@@ -185,8 +152,7 @@ const Profile = ({navigation}) => {
 
 const styles = StyleSheet.create({
   container: {
-    // flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: COLORS.LIGHT,
   },
   row: {
     flexDirection: 'row',
@@ -227,11 +193,11 @@ const styles = StyleSheet.create({
   },
   // column: {marginVertical: 8},
   cardTitle: {
-    padding: 10,
+    fontSize: 15,
     fontWeight: 'bold',
-    textAlign: 'center',
     color: COLORS.BLACK,
-    fontSize: 14,
+    marginTop: 10,
+    textAlign: 'center',
   },
   title: {
     fontSize: 14,
