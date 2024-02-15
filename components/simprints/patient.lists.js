@@ -74,7 +74,7 @@ const PatientCard = ({patient}) => {
         </Text>
       </TouchableOpacity>
       {expanded && (
-        <View style={styles.accordionContent}>
+        <View style={styles.details}>
           <Text style={styles.accordionLabel}>Sex: {patient.sex}</Text>
           <Text style={styles.accordionLabel}>
             Date of Birth: {patient.dateOfBirth}
@@ -110,179 +110,125 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Weight: {patient.weight} kgs
           </Text>
-          <View style={styles.vaccinationContainer}>
-            <Text style={styles.vaccinationHeader}>Vaccinations:</Text>
-            {patient.vaccinations.map(vaccine => (
-              <View key={vaccine.id} style={styles.vaccinationItem}>
-                <Text>Vaccine Name: {vaccine.vaccineName}</Text>
-                <Text>Vaccine Name: {vaccine.facility}</Text>
-                <Text>Vaccine Name: {vaccine.dose}</Text>
-                <Text>Vaccine Name: {vaccine.siteAdministered}</Text>
-                <Text>Vaccine Name: {vaccine.vaccinatedBy}</Text>
-                <Text>Vaccine Name: {vaccine.dateOfVaccination}</Text>
-                <Text>Vaccine Name: {vaccine.dateForNextDose}</Text>
-                <Text>Vaccine Name: {vaccine.cardNumber}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.vaccinationContainer}>
-            <Text style={styles.vaccinationHeader}>Antenantal:</Text>
-            {patient.antenantals.map(antenantal => (
-              <View key={antenantal.id} style={styles.vaccinationItem}>
-                <Text>Vaccine Name: {antenantal.bloodGroup}</Text>
-                <Text>Vaccine Name: {antenantal.drugNotes}</Text>
-                <Text>Vaccine Name: {antenantal.expectedDateOfDelivery}</Text>
-                <Text>Vaccine Name: {antenantal.nextOfKin}</Text>
-                <Text>Vaccine Name: {antenantal.nextOfKinContact}</Text>
-                <Text>Vaccine Name: {antenantal.pregnancyStatus}</Text>
-                <Text>Vaccine Name: {antenantal.routineVisitDate}</Text>
-                <Text>Vaccine Name: {antenantal.weight}</Text>
 
-                {antenantal.medicines &&
-                  antenantal.medicines.map((medicine, index) => (
-                    <View key={index} style={styles.medicineItem}>
-                      <Text>Name: {medicine.name}</Text>
-                      <Text>Dosage: {medicine.dosage}</Text>
-                      <Text>Duration: {medicine.duration}</Text>
-                      <Text>Frequency: {medicine.frequency}</Text>
-                      <Text>Description: {medicine.description}</Text>
-                    </View>
-                  ))}
-              </View>
-            ))}
-          </View>
-          <View style={styles.vaccinationContainer}>
-            <Text style={styles.vaccinationHeader}>Diagnoses:</Text>
-            {patient.diagnoses.map(diagnosis => (
-              <View key={diagnosis.id} style={styles.vaccinationItem}>
-                <Text>Condition: {diagnosis.condition}</Text>
-                <Text>Date of Diagnosis: {diagnosis.dateOfDiagnosis}</Text>
-                <Text>Follow-Up Date: {diagnosis.followUpDate}</Text>
-                <Text>Impression: {diagnosis.impression}</Text>
-                <Text>Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}</Text>
-                <Text>Lab Tests: {diagnosis.labTests}</Text>
-                {diagnosis.medicines &&
-                  diagnosis.medicines.map((medicine, index) => (
-                    <View key={index} style={styles.medicineItem}>
-                      <Text>Name: {medicine.name}</Text>
-                      <Text>Dosage: {medicine.dosage}</Text>
-                      <Text>Duration: {medicine.duration}</Text>
-                      <Text>Frequency: {medicine.frequency}</Text>
-                      <Text>Description: {medicine.description}</Text>
-                    </View>
-                  ))}
-              </View>
-            ))}
-          </View>
+          {/* Screening renal */}
+          {patient.renal_histories.length > 0 && (
+            <View style={styles.vaccinationContainer}>
+              <Text style={styles.vaccinationHeader}>
+                Renal Health Screening:
+              </Text>
+              {patient.renal_histories.map(screening => (
+                <View key={screening.id} style={styles.vaccinationItem}>
+                  <Text style={styles.sectionHeader}>Urine Macrosopy:</Text>
+                  <Text>Urine Appearance: {screening.appearance.color}</Text>
+                  <Text>Urine Clarity: {screening.appearance.clarity}</Text>
+                  <Text>Urine pH: {screening.chemistry.ph || 'N/A'}</Text>
+                  <Text>Urine Ketone: {screening.chemistry.ketone}</Text>
+                  <Text>Urine Glucose: {screening.chemistry.glucose}</Text>
+                  <Text>Urine Nitrite: {screening.chemistry.nitrite}</Text>
+                  <Text>Urine Protein: {screening.chemistry.protein}</Text>
+                  <Text>Urine Bilirubin: {screening.chemistry.bilirubin}</Text>
+                  <Text>Urine Leokcytes: {screening.chemistry.leokcytes}</Text>
+                  <Text>
+                    Urine Specific Gravity:{' '}
+                    {screening.chemistry.specificGravity}
+                  </Text>
 
+                  <Text style={styles.vaccinationHeader}>Patient History:</Text>
+                  {screening.historyData && (
+                    <View style={styles.vaccinationItem}>
+                      {Object.entries(screening.historyData).map(
+                        ([key, value]) => (
+                          <Text key={key}>
+                            {key}: {value}
+                          </Text>
+                        ),
+                      )}
+                    </View>
+                  )}
+
+                  <Text style={styles.vaccinationHeader}>Inspection Data:</Text>
+                  {screening.inspectionData && (
+                    <View style={styles.vaccinationItem}>
+                      {Object.entries(screening.inspectionData).map(
+                        ([key, value]) => (
+                          <View key={key} style={styles.inspectionItem}>
+                            {key === 'bloodPressure' ? (
+                              <>
+                                <Text>Heart Pulse: {value.heartPulse}</Text>
+                                <Text>
+                                  Systolic Pressure: {value.systolicPressure}
+                                </Text>
+                                <Text>
+                                  Diastolic Pressure: {value.diastolicPressure}
+                                </Text>
+                              </>
+                            ) : (
+                              <Text>
+                                {key}: {value}
+                              </Text>
+                            )}
+                          </View>
+                        ),
+                      )}
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
           <View style={styles.vaccinationContainer}>
-            <Text style={styles.vaccinationHeader}>
-              Renal Health Screening:
-            </Text>
-            {patient.renal_histories.map(screening => (
-              <View key={screening.id} style={styles.vaccinationItem}>
-                <Text style={styles.vaccinationHeader}>Urine Macrosopy:</Text>
-                <Text>Urine Appearance: {screening.appearance.color}</Text>
-                <Text>Urine Clarity: {screening.appearance.clarity}</Text>
-                <Text>Urine pH: {screening.chemistry.ph || 'N/A'}</Text>
-                <Text>Urine Ketone: {screening.chemistry.ketone}</Text>
-                <Text>Urine Glucose: {screening.chemistry.glucose}</Text>
-                <Text>Urine Nitrite: {screening.chemistry.nitrite}</Text>
-                <Text>Urine Protein: {screening.chemistry.protein}</Text>
-                <Text>Urine Bilirubin: {screening.chemistry.bilirubin}</Text>
-                <Text>Urine Leokcytes: {screening.chemistry.leokcytes}</Text>
-                <Text>
-                  Urine Specific Gravity: {screening.chemistry.specificGravity}
+            {patient.rfts.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                <Text style={styles.vaccinationHeader}>
+                  Renal Functional Tests:
                 </Text>
-
-                <Text style={styles.vaccinationHeader}>Patient History:</Text>
-                {screening.historyData && (
-                  <View style={styles.vaccinationItem}>
-                    {Object.entries(screening.historyData).map(
-                      ([key, value]) => (
-                        <Text key={key}>
-                          {key}: {value}
-                        </Text>
-                      ),
-                    )}
-                  </View>
-                )}
-
-                <Text style={styles.vaccinationHeader}>Inspection Data:</Text>
-                {screening.inspectionData && (
-                  <View style={styles.vaccinationItem}>
-                    {Object.entries(screening.inspectionData).map(
-                      ([key, value]) => (
-                        <View key={key} style={styles.inspectionItem}>
-                          {key === 'bloodPressure' ? (
-                            <>
-                              <Text>Heart Pulse: {value.heartPulse}</Text>
-                              <Text>
-                                Systolic Pressure: {value.systolicPressure}
-                              </Text>
-                              <Text>
-                                Diastolic Pressure: {value.diastolicPressure}
-                              </Text>
-                            </>
-                          ) : (
-                            <Text>
-                              {key}: {value}
-                            </Text>
-                          )}
-                        </View>
-                      ),
-                    )}
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.vaccinationContainer}>
-            <Text style={styles.vaccinationHeader}>
-              Renal Functional Tests:
-            </Text>
-            {patient.rfts.map(screening => (
-              <View key={screening.id} style={styles.vaccinationItem}>
-                {screening.inspectionData && (
-                  <View style={styles.vaccinationItem}>
-                    {Object.entries(screening.inspectionData).map(
-                      ([key, value]) => (
-                        <View key={key} style={styles.inspectionItem}>
-                          {key === 'bloodPressure' ? (
-                            <>
-                              <Text>Heart Pulse: {value.heartPulse}</Text>
-                              <Text>
-                                Systolic Pressure: {value.systolicPressure}
-                              </Text>
-                              <Text>
-                                Diastolic Pressure: {value.diastolicPressure}
-                              </Text>
-                            </>
-                          ) : (
-                            <Text>
-                              {key}: {value}
-                            </Text>
-                          )}
-                        </View>
-                      ),
-                    )}
-                  </View>
-                )}
-
-                {screening.rftData && (
-                  <View style={styles.vaccinationItem}>
-                    {Object.entries(screening.rftData).map(([key, value]) => (
-                      <View key={key} style={styles.inspectionItem}>
-                        <Text>
-                          {key}: {value}
-                        </Text>
+                {patient.rfts.map(screening => (
+                  <View key={screening.id} style={styles.vaccinationItem}>
+                    {screening.inspectionData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.inspectionData).map(
+                          ([key, value]) => (
+                            <View key={key} style={styles.inspectionItem}>
+                              {key === 'bloodPressure' ? (
+                                <>
+                                  <Text>Heart Pulse: {value.heartPulse}</Text>
+                                  <Text>
+                                    Systolic Pressure: {value.systolicPressure}
+                                  </Text>
+                                  <Text>
+                                    Diastolic Pressure:{' '}
+                                    {value.diastolicPressure}
+                                  </Text>
+                                </>
+                              ) : (
+                                <Text>
+                                  {key}: {value}
+                                </Text>
+                              )}
+                            </View>
+                          ),
+                        )}
                       </View>
-                    ))}
+                    )}
+
+                    {screening.rftData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.rftData).map(
+                          ([key, value]) => (
+                            <View key={key} style={styles.inspectionItem}>
+                              <Text>
+                                {key}: {value}
+                              </Text>
+                            </View>
+                          ),
+                        )}
+                      </View>
+                    )}
                   </View>
-                )}
+                ))}
               </View>
-            ))}
+            )}
           </View>
 
           <View>
@@ -328,7 +274,6 @@ const PatientCard = ({patient}) => {
                           ).map(([key, value]) => (
                             <View key={key}>
                               {typeof value === 'object' ? (
-                                // If the value is an object (like blood pressure), render its nested values
                                 Object.entries(value).map(
                                   ([subKey, subValue]) => (
                                     <Text key={subKey}>
@@ -337,7 +282,6 @@ const PatientCard = ({patient}) => {
                                   ),
                                 )
                               ) : (
-                                // Otherwise, render the key-value pair
                                 <Text>
                                   {key}: {value}
                                 </Text>
@@ -350,6 +294,92 @@ const PatientCard = ({patient}) => {
                 </View>
               ))}
           </View>
+
+          {/* vaccinations */}
+          <View style={styles.vaccinationContainer}>
+            {patient.vaccinations.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                <Text style={styles.vaccinationHeader}>Vaccinations:</Text>
+                {patient.vaccinations.map(vaccine => (
+                  <View key={vaccine.id} style={styles.vaccinationItem}>
+                    <Text>Vaccine Name: {vaccine.vaccineName}</Text>
+                    <Text>Vaccine Facility: {vaccine.facility}</Text>
+                    <Text>Dose: {vaccine.dose}</Text>
+                    <Text>Site Administered: {vaccine.siteAdministered}</Text>
+                    <Text>Vaccinated By: {vaccine.vaccinatedBy}</Text>
+                    <Text>
+                      Date of Vaccination: {vaccine.dateOfVaccination}
+                    </Text>
+                    <Text>Date For Next Dose: {vaccine.dateForNextDose}</Text>
+                    <Text>Card Number: {vaccine.cardNumber}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Antenatals */}
+          {patient.antenantals.length > 0 && (
+            <View style={styles.vaccinationContainer}>
+              <Text style={styles.vaccinationHeader}>Antenantal:</Text>
+              {patient.antenantals.map(antenantal => (
+                <View key={antenantal.id} style={styles.vaccinationItem}>
+                  <Text>Blood Group: {antenantal.bloodGroup}</Text>
+                  <Text>Drug Notes: {antenantal.drugNotes}</Text>
+                  <Text>
+                    Expected Date of Delivery:{' '}
+                    {antenantal.expectedDateOfDelivery}
+                  </Text>
+                  <Text>Next of Kin: {antenantal.nextOfKin}</Text>
+                  <Text>
+                    Next of Kin Contact: {antenantal.nextOfKinContact}
+                  </Text>
+                  <Text>Pregnancy Status: {antenantal.pregnancyStatus}</Text>
+                  <Text>Routine Visit Date: {antenantal.routineVisitDate}</Text>
+                  <Text>Weight: {antenantal.weight}</Text>
+
+                  {antenantal.medicines &&
+                    antenantal.medicines.map((medicine, index) => (
+                      <View key={index} style={styles.medicineItem}>
+                        <Text>Name: {medicine.name}</Text>
+                        <Text>Dosage: {medicine.dosage}</Text>
+                        <Text>Duration: {medicine.duration}</Text>
+                        <Text>Frequency: {medicine.frequency}</Text>
+                        <Text>Description: {medicine.description}</Text>
+                      </View>
+                    ))}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {patient.diagnoses.length > 0 && (
+            <View style={styles.vaccinationContainer}>
+              <Text style={styles.vaccinationHeader}>Diagnoses:</Text>
+              {patient.diagnoses.map(diagnosis => (
+                <View key={diagnosis.id} style={styles.vaccinationItem}>
+                  <Text>Condition: {diagnosis.condition}</Text>
+                  <Text>Date of Diagnosis: {diagnosis.dateOfDiagnosis}</Text>
+                  <Text>Follow-Up Date: {diagnosis.followUpDate}</Text>
+                  <Text>Impression: {diagnosis.impression}</Text>
+                  <Text>
+                    Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}
+                  </Text>
+                  <Text>Lab Tests: {diagnosis.labTests}</Text>
+                  {diagnosis.medicines &&
+                    diagnosis.medicines.map((medicine, index) => (
+                      <View key={index} style={styles.medicineItem}>
+                        <Text>Name: {medicine.name}</Text>
+                        <Text>Dosage: {medicine.dosage}</Text>
+                        <Text>Duration: {medicine.duration}</Text>
+                        <Text>Frequency: {medicine.frequency}</Text>
+                        <Text>Description: {medicine.description}</Text>
+                      </View>
+                    ))}
+                </View>
+              ))}
+            </View>
+          )}
 
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
@@ -492,7 +522,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   accordionLabel: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#555',
     marginBottom: 5,
   },
@@ -518,13 +548,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    textTransform: 'uppercase',
+    textDecorationLine: 'underline',
   },
   vaccinationItem: {
-    borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+    borderLeftWidth: 1,
+    fontSize: 16,
+  },
+  details: {
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+  },
+  section: {
+    marginBottom: 15,
+  },
+  sectionHeader: {
+    fontSize: 16,
+    marginBottom: 5,
+    textDecorationLine: 'underline',
   },
 });
 
