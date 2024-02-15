@@ -285,6 +285,72 @@ const PatientCard = ({patient}) => {
             ))}
           </View>
 
+          <View>
+            {patient &&
+              patient.monitorings &&
+              patient.monitorings.map(monitoring => (
+                <View key={monitoring.id} style={styles.vaccinationItem}>
+                  <Text style={styles.vaccinationHeader}>Monitoring Data:</Text>
+                  {monitoring.monitoringData && (
+                    <View style={styles.monitoringItem}>
+                      {/* Chemistry */}
+                      <Text style={styles.inspectionItem}>Chemistry:</Text>
+                      <View style={styles.dataContainer}>
+                        {monitoring.monitoringData.chemistry &&
+                          Object.entries(
+                            monitoring.monitoringData.chemistry,
+                          ).map(([key, value]) => (
+                            <Text key={key}>
+                              {key}: {value}
+                            </Text>
+                          ))}
+                      </View>
+
+                      {/* Appearance */}
+                      <Text style={styles.subheader}>Appearance:</Text>
+                      <View style={styles.dataContainer}>
+                        {monitoring.monitoringData.appearance &&
+                          Object.entries(
+                            monitoring.monitoringData.appearance,
+                          ).map(([key, value]) => (
+                            <Text key={key}>
+                              {key}: {value}
+                            </Text>
+                          ))}
+                      </View>
+
+                      {/* Inspection Data */}
+                      <Text style={styles.subheader}>Inspection Data:</Text>
+                      <View style={styles.dataContainer}>
+                        {monitoring.monitoringData.inspectionData &&
+                          Object.entries(
+                            monitoring.monitoringData.inspectionData,
+                          ).map(([key, value]) => (
+                            <View key={key}>
+                              {typeof value === 'object' ? (
+                                // If the value is an object (like blood pressure), render its nested values
+                                Object.entries(value).map(
+                                  ([subKey, subValue]) => (
+                                    <Text key={subKey}>
+                                      {subKey}: {subValue}
+                                    </Text>
+                                  ),
+                                )
+                              ) : (
+                                // Otherwise, render the key-value pair
+                                <Text>
+                                  {key}: {value}
+                                </Text>
+                              )}
+                            </View>
+                          ))}
+                      </View>
+                    </View>
+                  )}
+                </View>
+              ))}
+          </View>
+
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
           </TouchableOpacity>
