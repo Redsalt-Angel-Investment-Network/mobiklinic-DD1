@@ -39,10 +39,6 @@ const RenalFunctionTest = ({navigation, route}) => {
   const handleSubmit = async () => {
     try {
       setState({...state, isLoading: true});
-      if (state.isLoading) {
-        return;
-      }
-      setState({...state, isLoading: true});
 
       const response = await fetch(`${API_URL}/api/rfts`, {
         method: 'POST',
@@ -64,6 +60,7 @@ const RenalFunctionTest = ({navigation, route}) => {
         navigation.navigate('Dashboard');
         console.log('Renal Function Test data posted successfully.');
         console.log(data);
+       
       } else {
         const error = await response.text();
         console.log(response.status);
@@ -81,7 +78,7 @@ const RenalFunctionTest = ({navigation, route}) => {
   // validate values to make sure they are in range else flag them
   const checkSodium = sodium => {
     const sodiumValue = parseFloat(sodium);
-    if (isNaN(sodiumValue)) {
+    if (isNaN(sodiumValue)) {``
       setState(prevState => ({
         ...prevState,
         sodiumValidateMessage: 'Please enter a valid number',
