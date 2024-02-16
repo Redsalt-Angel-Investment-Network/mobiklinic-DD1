@@ -31,12 +31,30 @@ const PatientData = ({navigation}) => {
   const {dataResults} = useContext(DataResultsContext);
   const {userLog} = useContext(DataResultsContext);
   const {patientId, setPatientId} = useContext(DataResultsContext);
-
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedEthnicity, setSelectedEthnicity] = useState('');
 
+  useEffect(() => {
+    Alert.alert(
+      'Instructions',
+      'Have searched for this patient?\n\nClick "YES" it was. ',
+      [
+        {
+          text: 'YES',
+          onPress: () => console.log('YES Pressed'),
+        },
+        {
+          text: 'No',
+          onPress: () =>
+            navigation.navigate('PatientLists'),
+          style: 'cancel',
+        },
+      ],
+      {cancelable: false},
+    );
+  }, []);
   const handleCountryChange = country => {
     setSelectedCountry(country);
     setSelectedLanguage('');
