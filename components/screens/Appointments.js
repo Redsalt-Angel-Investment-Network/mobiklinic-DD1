@@ -13,60 +13,67 @@ import CopyRight from '../copyright';
 import Loader from '../ui/loader';
 
 const Appointments = () => {
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const {userLog} = useContext(DataResultsContext);
+  const [patients, setPatients] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/vaccinations?${userLog}populate`,
-        );
-        const json = await response.json();
-        setData(json.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
+    setIsLoading(true);
+    fetch(`${API_URL}/api/all-patients/${userLog}`)
+      .then(response => response.json())
+      .then(data => {
+        setPatients(data.patients);
         setIsLoading(false);
-      }
-    };
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+      });
+  }, [userLog]);
 
-    fetchData();
-  }, []);
+  const renderVaccinationDetails = ({item}) => {
+    // Filter out patients with no vaccinations
+    const patientsWithVaccinations =
+      item.vaccinations && item.vaccinations.length > 0;
 
-  const renderItem = ({item}) => (
-    <View style={styles.dateItem}>
-      <Text style={styles.dateText}>
-        Date of Vaccination: {item.attributes.dateOfVaccination}
-      </Text>
-      <Text style={styles.dateText}>
-        Date for Next Dose: {item.attributes.dateForNextDose}
-      </Text>
-      <Text style={styles.dateText}>
-        Vaccine Name: {item.attributes.vaccineName}
-      </Text>
-      <Text style={styles.dateText}>Dose: {item.attributes.dose}</Text>
-      <Text style={styles.dateText}>
-        Site Administered: {item.attributes.siteAdministered}
-      </Text>
-      <Text style={styles.dateText}>Facility: {item.attributes.facility}</Text>
-      <Text style={styles.dateText}>
-        Vaccinated By: {item.attributes.vaccinatedBy}
-      </Text>
-    </View>
-  );
+    // Render vaccination details only if the patient has vaccinations
+    if (patientsWithVaccinations) {
+      return (
+        <View style={styles.dateItem}>
+          <Text style={styles.dateText}>
+            {item.firstName} {item.lastName}
+          </Text>
+          <FlatList
+            data={item.vaccinations}
+            renderItem={({item: vaccine}) => (
+              <View style={styles.vaccinationItem}>
+                <Text style={styles.dateText}>Dose: {vaccine.dose}</Text>
+                <Text>Vaccine Name: {vaccine.vaccineName}</Text>
+                <Text>Date of Vaccination: {vaccine.dateOfVaccination}</Text>
+                <Text>Site Administered: {vaccine.siteAdministered}</Text>
+                <Text>Vaccination Facility: {vaccine.facility}</Text>
+                <Text>Date For Next Dose: {vaccine.dateForNextDose}</Text>
+              </View>
+            )}
+            keyExtractor={(vaccine, index) => index.toString()}
+          />
+        </View>
+      );
+    } else {
+      return null; // Render nothing if the patient has no vaccinations
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Appointments</Text>
       {isLoading ? (
-          <Loader size="large" />
-          ) : (
+        <Loader size="large" />
+      ) : (
         <FlatList
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={item => item.id.toString()}
+          data={patients}
+          renderItem={renderVaccinationDetails}
+          keyExtractor={(patient, index) => index.toString()}
         />
       )}
       <CopyRight />
