@@ -5,6 +5,8 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
+  Linking,
+  TouchableOpacity,
 } from 'react-native';
 import {API_URL} from '@env';
 import DataResultsContext from '../contexts/DataResultsContext';
@@ -16,6 +18,7 @@ const Appointments = () => {
   const [isLoading, setIsLoading] = useState(false);
   const {userLog} = useContext(DataResultsContext);
   const [patients, setPatients] = useState([]);
+  const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -40,23 +43,26 @@ const Appointments = () => {
     if (patientsWithVaccinations) {
       return (
         <View style={styles.dateItem}>
-          <Text style={styles.dateText}>
-            {item.firstName} {item.lastName}
-          </Text>
-          <FlatList
-            data={item.vaccinations}
-            renderItem={({item: vaccine}) => (
-              <View style={styles.vaccinationItem}>
-                <Text style={styles.dateText}>Dose: {vaccine.dose}</Text>
-                <Text>Vaccine Name: {vaccine.vaccineName}</Text>
-                <Text>Date of Vaccination: {vaccine.dateOfVaccination}</Text>
-                <Text>Site Administered: {vaccine.siteAdministered}</Text>
-                <Text>Vaccination Facility: {vaccine.facility}</Text>
-                <Text>Date For Next Dose: {vaccine.dateForNextDose}</Text>
-              </View>
-            )}
-            keyExtractor={(vaccine, index) => index.toString()}
-          />
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`tel:${item.phoneNumber}`)}>
+            <Text style={styles.dateText}>
+              {item.firstName} {item.lastName}
+            </Text>
+            <FlatList
+              data={item.vaccinations}
+              renderItem={({item: vaccine}) => (
+                <View style={styles.vaccinationItem}>
+                  <Text style={styles.dateText}>Dose: {vaccine.dose}</Text>
+                  <Text>Vaccine Name: {vaccine.vaccineName}</Text>
+                  <Text>Date of Vaccination: {vaccine.dateOfVaccination}</Text>
+                  <Text>Site Administered: {vaccine.siteAdministered}</Text>
+                  <Text>Vaccination Facility: {vaccine.facility}</Text>
+                  <Text>Date For Next Dose: {vaccine.dateForNextDose}</Text>
+                </View>
+              )}
+              keyExtractor={(vaccine, index) => index.toString()}
+            />
+          </TouchableOpacity>
         </View>
       );
     } else {
