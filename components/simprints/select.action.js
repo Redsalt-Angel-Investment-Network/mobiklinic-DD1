@@ -66,15 +66,15 @@ const SelectAction = ({navigation, route}) => {
         <View style={STYLES.btnContainer}>
           <View style={[STYLES.column, STYLES.rightPad]}>
             <TouchableOpacity
-              style={STYLES.primaryButton}
+              style={STYLES.card}
               onPress={() => navigation.navigate('PatientLists')}>
-              <Text style={STYLES.primaryText}>Search Existing Patient</Text>
+              <Text style={STYLES.cardTitle}>Search Existing Patient</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={STYLES.card}
+              style={STYLES.primaryButton}
               onPress={() => navigation.navigate('PatientData')}>
-              <Text style={STYLES.cardTitle}>Register New Patient</Text>
+              <Text style={STYLES.primaryText}>Register New Patient</Text>
             </TouchableOpacity>
           </View>
         </View>
