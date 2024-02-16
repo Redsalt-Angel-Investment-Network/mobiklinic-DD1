@@ -25,6 +25,10 @@ const PatientCard = ({patient}) => {
   const [expanded, setExpanded] = useState(false);
   const [screeningExpanded, setScreeningExpanded] = useState(false);
   const [monitoringExpanded, setMonitoringExpanded] = useState(false);
+  const [vaccinationExpanded, setVaccinationExpanded] = useState(false);
+  const [rftExpanded, setRFTExpanded] = useState(false);
+  const [antenantalExpanded, setAntenantalExpanded] = useState(false);
+  const [diagnosisExpanded, setDiagnosisExpanded] = useState(false);
 
   const toggleAccordion = () => {
     setExpanded(!expanded);
@@ -34,6 +38,18 @@ const PatientCard = ({patient}) => {
   };
   const toggleMonitoing = () => {
     setMonitoringExpanded(!monitoringExpanded);
+  };
+  const toggleRFT = () => {
+    setRFTExpanded(!rftExpanded);
+  };
+  const toggleVaccination = () => {
+    setVaccinationExpanded(!vaccinationExpanded);
+  };
+  const toggleAntennal = () => {
+    setAntenantalExpanded(!antenantalExpanded);
+  };
+  const toggleDiagnosis = () => {
+    setDiagnosisExpanded(!diagnosisExpanded);
   };
 
   const handleRedirect = () => {
@@ -120,6 +136,7 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Weight: {patient.weight} kgs
           </Text>
+          {/* Screening */}
           <View>
             <TouchableOpacity
               onPress={toggleScreening}
@@ -206,12 +223,22 @@ const PatientCard = ({patient}) => {
             ) : null}
           </View>
 
-          <View style={styles.vaccinationContainer}>
-            {patient.rfts.length > 0 && (
+          {/* rfts */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleRFT}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>
+                Renal Functional Tests
+              </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!rftExpanded && patient.rfts.length > 0 && (
               <View style={styles.vaccinationContainer}>
-                <Text style={styles.vaccinationHeader}>
-                  Renal Functional Tests:
-                </Text>
                 {patient.rfts.map(screening => (
                   <View key={screening.id} style={styles.vaccinationItem}>
                     {screening.inspectionData && (
@@ -259,13 +286,25 @@ const PatientCard = ({patient}) => {
               </View>
             )}
           </View>
-
+          {/* Monitorings */}
           <View>
+            <TouchableOpacity
+              onPress={toggleMonitoing}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>
+                Renal Health Monitoring
+              </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
             {patient &&
+              !monitoringExpanded &&
               patient.monitorings &&
               patient.monitorings.map(monitoring => (
                 <View key={monitoring.id} style={styles.vaccinationItem}>
-                  <Text style={styles.vaccinationHeader}>Monitoring Data:</Text>
                   {monitoring.monitoringData && (
                     <View style={styles.monitoringItem}>
                       {/* Chemistry */}
@@ -325,10 +364,19 @@ const PatientCard = ({patient}) => {
           </View>
 
           {/* vaccinations */}
-          <View style={styles.vaccinationContainer}>
-            {patient.vaccinations.length > 0 && (
+          <View>
+            <TouchableOpacity
+              onPress={toggleVaccination}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Vaccinations </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!vaccinationExpanded && patient.vaccinations.length > 0 && (
               <View style={styles.vaccinationContainer}>
-                <Text style={styles.vaccinationHeader}>Vaccinations:</Text>
                 {patient.vaccinations.map(vaccine => (
                   <View key={vaccine.id} style={styles.vaccinationItem}>
                     <Text>Vaccine Name: {vaccine.vaccineName}</Text>
@@ -348,67 +396,91 @@ const PatientCard = ({patient}) => {
           </View>
 
           {/* Antenatals */}
-          {patient.antenantals.length > 0 && (
-            <View style={styles.vaccinationContainer}>
-              <Text style={styles.vaccinationHeader}>Antenantal:</Text>
-              {patient.antenantals.map(antenantal => (
-                <View key={antenantal.id} style={styles.vaccinationItem}>
-                  <Text>Blood Group: {antenantal.bloodGroup}</Text>
-                  <Text>Drug Notes: {antenantal.drugNotes}</Text>
-                  <Text>
-                    Expected Date of Delivery:{' '}
-                    {antenantal.expectedDateOfDelivery}
-                  </Text>
-                  <Text>Next of Kin: {antenantal.nextOfKin}</Text>
-                  <Text>
-                    Next of Kin Contact: {antenantal.nextOfKinContact}
-                  </Text>
-                  <Text>Pregnancy Status: {antenantal.pregnancyStatus}</Text>
-                  <Text>Routine Visit Date: {antenantal.routineVisitDate}</Text>
-                  <Text>Weight: {antenantal.weight}</Text>
+          <View>
+            <TouchableOpacity
+              onPress={toggleAntennal}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Antenatals </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!antenantalExpanded && patient.antenantals.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                {patient.antenantals.map(antenantal => (
+                  <View key={antenantal.id} style={styles.vaccinationItem}>
+                    <Text>Blood Group: {antenantal.bloodGroup}</Text>
+                    <Text>Drug Notes: {antenantal.drugNotes}</Text>
+                    <Text>
+                      Expected Date of Delivery:{' '}
+                      {antenantal.expectedDateOfDelivery}
+                    </Text>
+                    <Text>Next of Kin: {antenantal.nextOfKin}</Text>
+                    <Text>
+                      Next of Kin Contact: {antenantal.nextOfKinContact}
+                    </Text>
+                    <Text>Pregnancy Status: {antenantal.pregnancyStatus}</Text>
+                    <Text>
+                      Routine Visit Date: {antenantal.routineVisitDate}
+                    </Text>
+                    <Text>Weight: {antenantal.weight}</Text>
 
-                  {antenantal.medicines &&
-                    antenantal.medicines.map((medicine, index) => (
-                      <View key={index} style={styles.medicineItem}>
-                        <Text>Name: {medicine.name}</Text>
-                        <Text>Dosage: {medicine.dosage}</Text>
-                        <Text>Duration: {medicine.duration}</Text>
-                        <Text>Frequency: {medicine.frequency}</Text>
-                        <Text>Description: {medicine.description}</Text>
-                      </View>
-                    ))}
-                </View>
-              ))}
-            </View>
-          )}
+                    {antenantal.medicines &&
+                      antenantal.medicines.map((medicine, index) => (
+                        <View key={index} style={styles.medicineItem}>
+                          <Text>Name: {medicine.name}</Text>
+                          <Text>Dosage: {medicine.dosage}</Text>
+                          <Text>Duration: {medicine.duration}</Text>
+                          <Text>Frequency: {medicine.frequency}</Text>
+                          <Text>Description: {medicine.description}</Text>
+                        </View>
+                      ))}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
 
-          {patient.diagnoses.length > 0 && (
-            <View style={styles.vaccinationContainer}>
-              <Text style={styles.vaccinationHeader}>Diagnoses:</Text>
-              {patient.diagnoses.map(diagnosis => (
-                <View key={diagnosis.id} style={styles.vaccinationItem}>
-                  <Text>Condition: {diagnosis.condition}</Text>
-                  <Text>Date of Diagnosis: {diagnosis.dateOfDiagnosis}</Text>
-                  <Text>Follow-Up Date: {diagnosis.followUpDate}</Text>
-                  <Text>Impression: {diagnosis.impression}</Text>
-                  <Text>
-                    Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}
-                  </Text>
-                  <Text>Lab Tests: {diagnosis.labTests}</Text>
-                  {diagnosis.medicines &&
-                    diagnosis.medicines.map((medicine, index) => (
-                      <View key={index} style={styles.medicineItem}>
-                        <Text>Name: {medicine.name}</Text>
-                        <Text>Dosage: {medicine.dosage}</Text>
-                        <Text>Duration: {medicine.duration}</Text>
-                        <Text>Frequency: {medicine.frequency}</Text>
-                        <Text>Description: {medicine.description}</Text>
-                      </View>
-                    ))}
-                </View>
-              ))}
-            </View>
-          )}
+          <View>
+            <TouchableOpacity
+              onPress={toggleDiagnosis}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Diagnoses </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!diagnosisExpanded && patient.diagnoses.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                {patient.diagnoses.map(diagnosis => (
+                  <View key={diagnosis.id} style={styles.vaccinationItem}>
+                    <Text>Condition: {diagnosis.condition}</Text>
+                    <Text>Date of Diagnosis: {diagnosis.dateOfDiagnosis}</Text>
+                    <Text>Follow-Up Date: {diagnosis.followUpDate}</Text>
+                    <Text>Impression: {diagnosis.impression}</Text>
+                    <Text>
+                      Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}
+                    </Text>
+                    <Text>Lab Tests: {diagnosis.labTests}</Text>
+                    {diagnosis.medicines &&
+                      diagnosis.medicines.map((medicine, index) => (
+                        <View key={index} style={styles.medicineItem}>
+                          <Text>Name: {medicine.name}</Text>
+                          <Text>Dosage: {medicine.dosage}</Text>
+                          <Text>Duration: {medicine.duration}</Text>
+                          <Text>Frequency: {medicine.frequency}</Text>
+                          <Text>Description: {medicine.description}</Text>
+                        </View>
+                      ))}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
 
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
@@ -524,7 +596,6 @@ const styles = StyleSheet.create({
   },
   patientContainer: {
     backgroundColor: COLORS.WHITE,
-    borderRadius: 10,
     padding: 20,
     marginBottom: 20,
     elevation: 4,
@@ -582,7 +653,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // paddingVertical: 8,
     borderRadius: 10,
-    // marginVertical: 10,
+    marginVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -596,8 +667,6 @@ const styles = StyleSheet.create({
   },
   details: {
     padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
   },
   section: {
     marginBottom: 15,
@@ -613,8 +682,7 @@ const styles = StyleSheet.create({
     marginRight: 10, // Adjust spacing between text and icon
   },
   icon: {
-    marginLeft: 'auto', 
-    
+    marginLeft: 'auto',
   },
 });
 
