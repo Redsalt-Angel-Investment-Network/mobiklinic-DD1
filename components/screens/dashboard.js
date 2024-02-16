@@ -70,31 +70,11 @@ const Dashboard = ({navigation}) => {
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('PatientLists')}>
-            <View style={STYLES.cardIcon}>
-              <Icon name="users" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Search Patient</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={STYLES.card}
-            onPress={() => navigation.navigate('Profile')}>
-            <View style={STYLES.cardIcon}>
-              <Icon name="user" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Profile</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={STYLES.column}>
-          <TouchableOpacity
-            style={STYLES.card}
             onPress={() => navigation.navigate('Ambulances')}>
             <View style={STYLES.cardIcon}>
-              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
+            <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Ambulances</Text>
+            <Text style={STYLES.cardTitle}>Ambulance </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -103,7 +83,27 @@ const Dashboard = ({navigation}) => {
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Doctors</Text>
+            <Text style={STYLES.cardTitle}>Doctor</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={STYLES.column}>
+          <TouchableOpacity
+            style={STYLES.card}
+            onPress={() => navigation.navigate('PatientLists')}>
+            <View style={STYLES.cardIcon}>
+            <Icon name="users" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Search Patient</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={STYLES.card}
+            onPress={() => navigation.navigate('Profile')}>
+            <View style={STYLES.cardIcon}>
+            <Icon name="user" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Profile</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

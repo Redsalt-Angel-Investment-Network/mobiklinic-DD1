@@ -109,7 +109,7 @@ const Profile = ({navigation}) => {
           <View style={styles.row}>
             <View style={styles.full}>
               <Text style={styles.cardIcon}>{patientsEnrolledCount}</Text>
-              <Text style={styles.cardTitle}>Total Patients</Text>
+              <Text style={styles.cardTitle}>Total Beneficiaries</Text>
             </View>
           </View>
           <View style={styles.row}>
