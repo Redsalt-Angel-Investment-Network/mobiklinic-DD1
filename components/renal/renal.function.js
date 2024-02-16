@@ -39,6 +39,10 @@ const RenalFunctionTest = ({navigation, route}) => {
   const handleSubmit = async () => {
     try {
       setState({...state, isLoading: true});
+      if (state.isLoading) {
+        return;
+      }
+      setState({...state, isLoading: true});
 
       const response = await fetch(`${API_URL}/api/rfts`, {
         method: 'POST',
@@ -60,7 +64,6 @@ const RenalFunctionTest = ({navigation, route}) => {
         navigation.navigate('Dashboard');
         console.log('Renal Function Test data posted successfully.');
         console.log(data);
-       
       } else {
         const error = await response.text();
         console.log(response.status);
