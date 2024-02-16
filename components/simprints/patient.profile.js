@@ -35,6 +35,7 @@ const PatientData = ({navigation}) => {
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedEthnicity, setSelectedEthnicity] = useState('');
+  const [age, setAge] = useState(0);
 
   useEffect(() => {
     Alert.alert(
@@ -43,7 +44,6 @@ const PatientData = ({navigation}) => {
       [
         {
           text: 'YES',
-          onPress: () => console.log('YES Pressed'),
         },
         {
           text: 'No',
@@ -75,16 +75,29 @@ const PatientData = ({navigation}) => {
   const currentDate = new Date();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(currentDate);
-  const [ageGroup, setAgeGroup] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || ageGroup;
+    const currentDate = selectedDate || dateOfBirth;
     setShowDatePicker(false);
     if (showDatePicker === 'patient') {
-      setAgeGroup(currentDate);
-      setState({...state, ageGroup: currentDate});
-      console.log('Date of birth:', currentDate);
+      setDateOfBirth(currentDate);
+      setState({...state, dateOfBirth: currentDate});
     }
+  };
+  useEffect(() => {
+    calculateAge();
+  }, [dateOfBirth]);
+  
+  const calculateAge = () => {
+    const today = new Date();
+    const dob = new Date(dateOfBirth);
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    setAge(age);
   };
 
   const formatDate = date => {
@@ -92,7 +105,6 @@ const PatientData = ({navigation}) => {
       const day = date.getDate();
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
-
       return `${day.toString().padStart(2, '0')}/${month
         .toString()
         .padStart(2, '0')}/${year}`;
@@ -103,7 +115,7 @@ const PatientData = ({navigation}) => {
   const [state, setState] = React.useState({
     firstName: '',
     sex: '',
-    ageGroup: '',
+    dateOfBirth: '',
     phoneNumber: '',
     lastName: '',
     weight: '',
@@ -121,8 +133,6 @@ const PatientData = ({navigation}) => {
 
   const handleSubmit = async () => {
     try {
-      console.log('User Id:', userLog);
-
       if (state.isLoading) {
         return;
       }
@@ -132,12 +142,12 @@ const PatientData = ({navigation}) => {
         state.firstName === '' ||
         state.lastName === '' ||
         state.sex === '' ||
-        ageGroup === ''
+        dateOfBirth === ''
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
-      const formattedDateOfBirth = formatDate(ageGroup);
+      const formattedDateOfBirth = formatDate(dateOfBirth);
 
       const response = await axios.post(`${API_URL}/api/patients`, {
         data: {
@@ -166,16 +176,13 @@ const PatientData = ({navigation}) => {
         const data = response.data.data;
         const patientId = data.id;
         setPatientId(patientId);
-        console.log('====================================');
-        console.log(patientId);
-        console.log('====================================');
-        console.log('Patient ID:', patientId);
+
         Alert.alert('Beneficiary Registered Successfully');
         navigation.navigate('SelectActivity', {
           firstName: state.firstName,
           lastName: state.lastName,
           patientId: patientId,
-          age: formattedDateOfBirth,
+          age: age,
         });
       } else {
         console.error('Error posting data:', response.status);
@@ -184,7 +191,6 @@ const PatientData = ({navigation}) => {
           'Failed to register Beneficiary. Please try again later.',
         );
       }
-      console.log(response);
     } catch (error) {
       console.error('Error posting data:', error);
       Alert.alert(
@@ -309,11 +315,11 @@ const PatientData = ({navigation}) => {
           <TouchableOpacity
             style={STYLES.datePickerInput}
             onPress={() => setShowDatePicker('patient')}>
-            <Text style={STYLES.datePickerText}>{formatDate(ageGroup)}</Text>
+            <Text style={STYLES.datePickerText}>{formatDate(dateOfBirth)}</Text>
           </TouchableOpacity>
           {showDatePicker === 'patient' && (
             <DateTimePicker
-              value={ageGroup || new Date()} // Use null or fallback to current date
+              value={dateOfBirth || new Date()} // Use null or fallback to current date
               mode="date"
               display="spinner"
               onChange={handleDateChange}
