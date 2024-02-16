@@ -16,7 +16,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import CustomHeader from '../ui/custom-header';
 import {useNavigation} from '@react-navigation/native';
-
+import Emoji from 'react-native-emoji';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {ScrollView} from 'react-native-gesture-handler';
 import CopyRight from '../copyright';
@@ -529,6 +529,11 @@ const PatientLists = () => {
         })
       : [];
 
+  // Function to handle redirection when no patients are found
+  const handleRedirect = () => {
+    navigation.navigate('PatientData');
+  };
+
   return (
     <View style={styles.container}>
       <CustomHeader
@@ -552,7 +557,16 @@ const PatientLists = () => {
         />
 
         {loading ? (
-          <Loader /> // Replace this with your loader component
+          <Loader />
+        ) : filteredPatients.length === 0 ? (
+          <View>
+            <Text style={styles.buttonText}>
+              Patient Not Yet Registered <Emoji name="disappointed" />
+            </Text>
+            <TouchableOpacity style={styles.buttonSec} onPress={handleRedirect}>
+              <Text style={styles.buttonText}>Register Patient </Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           filteredPatients.map(patient => (
             <PatientCard key={patient.id} patient={patient} />
