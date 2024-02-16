@@ -35,6 +35,9 @@ import {useRoute} from '@react-navigation/native';
 
 const SelectActivity = ({navigation, route}) => {
   const {patientId, firstName, lastName, age, sex} = route.params;
+  console.log('====================================');
+  console.log('Age', age);
+  console.log('====================================');
 
   const _header = () => (
     <CustomHeader

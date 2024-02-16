@@ -47,8 +47,7 @@ const PatientData = ({navigation}) => {
         },
         {
           text: 'No',
-          onPress: () =>
-            navigation.navigate('PatientLists'),
+          onPress: () => navigation.navigate('PatientLists'),
           style: 'cancel',
         },
       ],
@@ -138,13 +137,14 @@ const PatientData = ({navigation}) => {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
+      const formattedDateOfBirth = formatDate(ageGroup);
 
       const response = await axios.post(`${API_URL}/api/patients`, {
         data: {
           firstName: state.firstName,
           lastName: state.lastName,
           sex: state.sex,
-          ageGroup: ageGroup,
+          dateOfBirth: formattedDateOfBirth,
           phoneNumber: state.phoneNumber,
           weight: state.weight,
           height: state.height,
@@ -157,9 +157,7 @@ const PatientData = ({navigation}) => {
           ethinicity: selectedEthnicity,
           occuptation: state.occupation,
           users_permissions_user: {
-            data: {
-              id: userLog,
-            },
+            id: userLog,
           },
         },
       });
@@ -177,6 +175,7 @@ const PatientData = ({navigation}) => {
           firstName: state.firstName,
           lastName: state.lastName,
           patientId: patientId,
+          age: formattedDateOfBirth,
         });
       } else {
         console.error('Error posting data:', response.status);
