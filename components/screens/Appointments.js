@@ -25,7 +25,21 @@ const Appointments = () => {
     fetch(`${API_URL}/api/all-patients/${userLog}`)
       .then(response => response.json())
       .then(data => {
-        setPatients(data.patients);
+        // Sort patient data by appointment date (ascending)
+        if (Array.isArray(data) && data.length > 0) {
+          data.sort((a, b) => {
+            const dateA = a.vaccinations && a.vaccinations.length > 0
+              ? new Date(a.vaccinations[0].dateForNextDose)
+              : null;
+            const dateB = b.vaccinations && b.vaccinations.length > 0
+              ? new Date(b.vaccinations[0].dateForNextDose)
+              : null;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateA - dateB;
+          });
+        }
+        setPatients(data && data.patients ? data.patients : []); // Ensure data.patients is an array
         setIsLoading(false);
       })
       .catch(error => {
@@ -33,6 +47,7 @@ const Appointments = () => {
         setIsLoading(false);
       });
   }, [userLog]);
+  
 
   const renderVaccinationDetails = ({item}) => {
     // Filter out patients with no vaccinations
@@ -46,13 +61,13 @@ const Appointments = () => {
           <TouchableOpacity
             onPress={() => Linking.openURL(`tel:${item.phoneNumber}`)}>
             <Text style={styles.dateText}>
-              {item.firstName} {item.lastName}
+              Beneficary Name: {item.firstName} {item.lastName}
             </Text>
             <FlatList
               data={item.vaccinations}
               renderItem={({item: vaccine}) => (
                 <View style={styles.vaccinationItem}>
-                  <Text style={styles.dateText}>Dose: {vaccine.dose}</Text>
+                  <Text>Dose: {vaccine.dose}</Text>
                   <Text>Vaccine Name: {vaccine.vaccineName}</Text>
                   <Text>Date of Vaccination: {vaccine.dateOfVaccination}</Text>
                   <Text>Site Administered: {vaccine.siteAdministered}</Text>
@@ -113,6 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     marginBottom: 5,
+    textDecorationLine: 'underline',
   },
 });
 
