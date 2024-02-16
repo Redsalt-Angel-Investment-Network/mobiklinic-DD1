@@ -12,6 +12,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import {API_URL} from '@env';
 import Loader from '../ui/loader';
 import Icon from 'react-native-vector-icons/Feather';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import CustomHeader from '../ui/custom-header';
 import {useNavigation} from '@react-navigation/native';
@@ -23,6 +24,7 @@ const PatientCard = ({patient}) => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(false);
   const [screeningExpanded, setScreeningExpanded] = useState(false);
+  const [monitoringExpanded, setMonitoringExpanded] = useState(false);
 
   const toggleAccordion = () => {
     setExpanded(!expanded);
@@ -30,6 +32,10 @@ const PatientCard = ({patient}) => {
   const toggleScreening = () => {
     setScreeningExpanded(!screeningExpanded);
   };
+  const toggleMonitoing = () => {
+    setMonitoringExpanded(!monitoringExpanded);
+  };
+
   const handleRedirect = () => {
     console.log('Patient ID:', patient.id);
     const age = calculateAge(patient.dateOfBirth);
@@ -115,10 +121,17 @@ const PatientCard = ({patient}) => {
             Weight: {patient.weight} kgs
           </Text>
           <View>
-            <TouchableOpacity onPress={toggleScreening}>
-              <Text style={styles.vaccinationHeader}>
+            <TouchableOpacity
+              onPress={toggleScreening}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>
                 Renal Health Screening
               </Text>
+              <FontAwesomeIcon
+                name={screeningExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
             </TouchableOpacity>
             {!screeningExpanded && patient.renal_histories.length > 0 ? (
               <View style={styles.vaccinationContainer}>
@@ -561,17 +574,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   vaccinationHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    textTransform: 'uppercase',
-    borderColor: COLORS.GREY,
-    borderWidth: 1,
-    paddingVertical: 8,
-    borderRadius:10,
-    textAlign: 'center',
-    marginVertical:10,
-
+    // fontSize: 16,
+    // fontWeight: 'bold',
+    // marginBottom: 5,
+    // textTransform: 'uppercase',
+    // borderColor: COLORS.GREY,
+    // borderWidth: 1,
+    // paddingVertical: 8,
+    borderRadius: 10,
+    // marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   vaccinationItem: {
     borderColor: '#ccc',
@@ -593,6 +606,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     textDecorationLine: 'underline',
+  },
+  accordionHeaderText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 10, // Adjust spacing between text and icon
+  },
+  icon: {
+    marginLeft: 'auto', 
+    
   },
 });
 
