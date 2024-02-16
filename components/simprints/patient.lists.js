@@ -19,6 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import DataResultsContext from '../contexts/DataResultsContext';
 import {ScrollView} from 'react-native-gesture-handler';
+import CopyRight from '../copyright';
 
 const PatientCard = ({patient}) => {
   const navigation = useNavigation();
@@ -558,6 +559,7 @@ const PatientLists = () => {
           ))
         )}
       </ScrollView>
+      <CopyRight />
     </View>
   );
 };
