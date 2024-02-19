@@ -28,6 +28,20 @@ const SignUp = ({navigation}) => {
   const [process, setProcess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  const SignUpSchema = Yup.object().shape({
+    firstName: Yup.string().required('First name is required'),
+    lastName: Yup.string().required('Last name is required'),
+    username: Yup.string().required('Phone number is required'),
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters'),
+    confirmPassword: Yup.string()
+      .required('Confirm password is required')
+      .oneOf([Yup.ref('password'), null], 'Passwords must match'), // Compare with password field
+  });
   const formik = useFormik({
     initialValues: {
       firstName: '',
@@ -36,23 +50,14 @@ const SignUp = ({navigation}) => {
       email: '',
       password: '',
       confirmPassword: '',
+      confirmPassword: '',
     },
-    validationSchema: Yup.object({
-      firstName: Yup.string().required('First name is required'),
-      lastName: Yup.string().required('Last name is required'),
-      username: Yup.string().required('Phone number is required'),
-      email: Yup.string()
-        .email('Invalid email address')
-        .required('Email is required'),
-      password: Yup.string()
-        .required('Password is required')
-        .min(6, 'Password must be at least 6 characters'),
-    }),
+    validationSchema: SignUpSchema,
+
     onSubmit: async values => {
       if (isLoading) {
         return;
       }
-      setIsLoading(true);
       try {
         const response = await axios.post(
           `${API_URL}/api/auth/local/register`,
@@ -65,11 +70,12 @@ const SignUp = ({navigation}) => {
           },
         );
 
-        if (response && response.data && response.data.status === 200) {
+        if (response.status === 200) {
           const username = `${values.firstName} ${values.lastName}`;
           setUserNames(username);
           console.log(setUserNames);
           setRegistered(true);
+          navigation.navigate('Login');
         } else {
           Alert.alert('Sign up failure', [
             {
@@ -201,6 +207,30 @@ const SignUp = ({navigation}) => {
           </View>
           {touched.password && errors.password && (
             <Text style={styles.errorText}>{errors.password}</Text>
+          )}
+
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Confirm Password:</Text>
+            <TextInput
+              placeholder="Confirm Password"
+              value={values.confirmPassword}
+              onChangeText={handleChange('confirmPassword')}
+              onBlur={handleBlur('confirmPassword')}
+              placeholderTextColor="grey"
+              style={styles.input}
+              secureTextEntry={!showPassword}
+              autoCorrect={false}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Icon
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={COLORS.BLACK}
+              />
+            </TouchableOpacity>
+          </View>
+          {touched.confirmPassword && errors.confirmPassword && (
+            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
           )}
 
           <TouchableOpacity
