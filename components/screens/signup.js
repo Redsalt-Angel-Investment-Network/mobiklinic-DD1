@@ -71,9 +71,6 @@ const SignUp = ({navigation}) => {
         );
 
         if (response.status === 200) {
-          const username = `${values.firstName} ${values.lastName}`;
-          setUserNames(username);
-          console.log(setUserNames);
           setRegistered(true);
           navigation.navigate('Login');
         } else {
@@ -106,12 +103,25 @@ const SignUp = ({navigation}) => {
     formik;
 
   if (isLoading) return <Loader />;
-  useEffect(() => {
-    if (hasRegistered) {
-      setIsLoading(false);
-      navigation.navigate('Login');
-    }
-  }, [hasRegistered]);
+  // useEffect(() => {
+  //   if (hasRegistered) {
+  //     setIsLoading(false);
+  //     navigation.navigate('Login');
+  //   }
+  // }, [hasRegistered]);
+
+  if (hasRegistered) {
+    return (
+      <Loader loader={false}>
+        <Text style={[styles.subTitle]}>Registration successful!</Text>
+        <TouchableOpacity
+          style={[styles.btn, styles.btnPrimary]}
+          onPress={() => navigation.navigate('Login')}>
+          <Text>Login now</Text>
+        </TouchableOpacity>
+      </Loader>
+    );
+  }
 
   return (
     <View style={styles.container}>
