@@ -28,12 +28,14 @@ const Appointments = () => {
         // Sort patient data by appointment date (ascending)
         if (Array.isArray(data) && data.length > 0) {
           data.sort((a, b) => {
-            const dateA = a.vaccinations && a.vaccinations.length > 0
-              ? new Date(a.vaccinations[0].dateForNextDose)
-              : null;
-            const dateB = b.vaccinations && b.vaccinations.length > 0
-              ? new Date(b.vaccinations[0].dateForNextDose)
-              : null;
+            const dateA =
+              a.vaccinations && a.vaccinations.length > 0
+                ? new Date(a.vaccinations[0].dateForNextDose)
+                : null;
+            const dateB =
+              b.vaccinations && b.vaccinations.length > 0
+                ? new Date(b.vaccinations[0].dateForNextDose)
+                : null;
             if (!dateA) return 1;
             if (!dateB) return -1;
             return dateA - dateB;
@@ -47,7 +49,6 @@ const Appointments = () => {
         setIsLoading(false);
       });
   }, [userLog]);
-  
 
   const renderVaccinationDetails = ({item}) => {
     // Filter out patients with no vaccinations
@@ -66,13 +67,25 @@ const Appointments = () => {
             <FlatList
               data={item.vaccinations}
               renderItem={({item: vaccine}) => (
-                <View style={styles.vaccinationItem}>
-                  <Text>Dose: {vaccine.dose}</Text>
-                  <Text>Vaccine Name: {vaccine.vaccineName}</Text>
-                  <Text>Date of Vaccination: {vaccine.dateOfVaccination}</Text>
-                  <Text>Site Administered: {vaccine.siteAdministered}</Text>
-                  <Text>Vaccination Facility: {vaccine.facility}</Text>
-                  <Text>Date For Next Dose: {vaccine.dateForNextDose}</Text>
+                <View>
+                  <Text style={styles.vaccinationItem}>
+                    Dose: {vaccine.dose}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Vaccine Name: {vaccine.vaccineName}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Date of Vaccination: {vaccine.dateOfVaccination}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Site Administered: {vaccine.siteAdministered}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Vaccination Facility: {vaccine.facility}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Date For Next Dose: {vaccine.dateForNextDose}
+                  </Text>
                 </View>
               )}
               keyExtractor={(vaccine, index) => index.toString()}
@@ -129,6 +142,10 @@ const styles = StyleSheet.create({
     color: 'black',
     marginBottom: 5,
     textDecorationLine: 'underline',
+  },
+  vaccinationItem: {
+    fontSize: 16,
+    color: 'black',
   },
 });
 
