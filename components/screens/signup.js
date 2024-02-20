@@ -31,7 +31,9 @@ const SignUp = ({navigation}) => {
   const SignUpSchema = Yup.object().shape({
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
-    username: Yup.string().required('Phone number is required'),
+    username: Yup.string()
+      .required('Start with Area Code e.g 2567XXXXXX')
+      .min(12, 'Password must be at least 13 characters'),
     email: Yup.string()
       .email('Invalid email address')
       .required('Email is required'),
@@ -168,7 +170,7 @@ const SignUp = ({navigation}) => {
           <View style={styles.labeled}>
             <Text style={styles.label}>Phone Number:</Text>
             <TextInput
-              placeholder="Enter phone number"
+              placeholder="eg 256785XXXXXX"
               value={values.username}
               style={styles.input}
               onChangeText={handleChange('username')}
