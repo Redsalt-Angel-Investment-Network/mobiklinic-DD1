@@ -156,20 +156,34 @@ const PatientCard = ({patient}) => {
                 {patient.renal_histories.map(screening => (
                   <View key={screening.id} style={styles.vaccinationItem}>
                     <Text style={styles.sectionHeader}>Urine Macrosopy:</Text>
-                    <Text>Urine Appearance: {screening.appearance.color}</Text>
-                    <Text>Urine Clarity: {screening.appearance.clarity}</Text>
-                    <Text>Urine pH: {screening.chemistry.ph || 'N/A'}</Text>
-                    <Text>Urine Ketone: {screening.chemistry.ketone}</Text>
-                    <Text>Urine Glucose: {screening.chemistry.glucose}</Text>
-                    <Text>Urine Nitrite: {screening.chemistry.nitrite}</Text>
-                    <Text>Urine Protein: {screening.chemistry.protein}</Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Appearance: {screening.appearance.color}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Clarity: {screening.appearance.clarity}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine pH: {screening.chemistry.ph || 'N/A'}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Ketone: {screening.chemistry.ketone}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Glucose: {screening.chemistry.glucose}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Nitrite: {screening.chemistry.nitrite}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Protein: {screening.chemistry.protein}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
                       Urine Bilirubin: {screening.chemistry.bilirubin}
                     </Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
                       Urine Leokcytes: {screening.chemistry.leokcytes}
                     </Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
                       Urine Specific Gravity:{' '}
                       {screening.chemistry.specificGravity}
                     </Text>
@@ -181,7 +195,7 @@ const PatientCard = ({patient}) => {
                       <View style={styles.vaccinationItem}>
                         {Object.entries(screening.historyData).map(
                           ([key, value]) => (
-                            <Text key={key}>
+                            <Text key={key} style={styles.accordionLabel}>
                               {key}: {value}
                             </Text>
                           ),
@@ -199,17 +213,19 @@ const PatientCard = ({patient}) => {
                             <View key={key} style={styles.inspectionItem}>
                               {key === 'bloodPressure' ? (
                                 <>
-                                  <Text>Heart Pulse: {value.heartPulse}</Text>
-                                  <Text>
+                                  <Text style={styles.accordionLabel}>
+                                    Heart Pulse: {value.heartPulse}
+                                  </Text>
+                                  <Text style={styles.accordionLabel}>
                                     Systolic Pressure: {value.systolicPressure}
                                   </Text>
-                                  <Text>
+                                  <Text style={styles.accordionLabel}>
                                     Diastolic Pressure:{' '}
                                     {value.diastolicPressure}
                                   </Text>
                                 </>
                               ) : (
-                                <Text>
+                                <Text style={styles.accordionLabel}>
                                   {key}: {value}
                                 </Text>
                               )}
@@ -249,17 +265,19 @@ const PatientCard = ({patient}) => {
                             <View key={key} style={styles.inspectionItem}>
                               {key === 'bloodPressure' ? (
                                 <>
-                                  <Text>Heart Pulse: {value.heartPulse}</Text>
-                                  <Text>
+                                  <Text style={styles.accordionLabel}>
+                                    Heart Pulse: {value.heartPulse}
+                                  </Text>
+                                  <Text style={styles.accordionLabel}>
                                     Systolic Pressure: {value.systolicPressure}
                                   </Text>
-                                  <Text>
+                                  <Text style={styles.accordionLabel}>
                                     Diastolic Pressure:{' '}
                                     {value.diastolicPressure}
                                   </Text>
                                 </>
                               ) : (
-                                <Text>
+                                <Text style={styles.accordionLabel}>
                                   {key}: {value}
                                 </Text>
                               )}
@@ -274,7 +292,7 @@ const PatientCard = ({patient}) => {
                         {Object.entries(screening.rftData).map(
                           ([key, value]) => (
                             <View key={key} style={styles.inspectionItem}>
-                              <Text>
+                              <Text style={styles.accordionLabel}>
                                 {key}: {value}
                               </Text>
                             </View>
@@ -310,33 +328,35 @@ const PatientCard = ({patient}) => {
                     <View style={styles.monitoringItem}>
                       {/* Chemistry */}
                       <Text style={styles.inspectionItem}>Chemistry:</Text>
-                      <View style={styles.dataContainer}>
+                      <View>
                         {monitoring.monitoringData.chemistry &&
                           Object.entries(
                             monitoring.monitoringData.chemistry,
                           ).map(([key, value]) => (
-                            <Text key={key}>
+                            <Text key={key} style={styles.accordionLabel}>
                               {key}: {value}
                             </Text>
                           ))}
                       </View>
 
                       {/* Appearance */}
-                      <Text style={styles.subheader}>Appearance:</Text>
-                      <View style={styles.dataContainer}>
+                      <Text style={styles.inspectionItem}>Appearance:</Text>
+                      <View>
                         {monitoring.monitoringData.appearance &&
                           Object.entries(
                             monitoring.monitoringData.appearance,
                           ).map(([key, value]) => (
-                            <Text key={key}>
+                            <Text key={key} style={styles.accordionLabel}>
                               {key}: {value}
                             </Text>
                           ))}
                       </View>
 
                       {/* Inspection Data */}
-                      <Text style={styles.subheader}>Inspection Data:</Text>
-                      <View style={styles.dataContainer}>
+                      <Text style={styles.inspectionItem}>
+                        Inspection Data:
+                      </Text>
+                      <View>
                         {monitoring.monitoringData.inspectionData &&
                           Object.entries(
                             monitoring.monitoringData.inspectionData,
@@ -345,13 +365,15 @@ const PatientCard = ({patient}) => {
                               {typeof value === 'object' ? (
                                 Object.entries(value).map(
                                   ([subKey, subValue]) => (
-                                    <Text key={subKey}>
+                                    <Text
+                                      key={subKey}
+                                      style={styles.accordionLabel}>
                                       {subKey}: {subValue}
                                     </Text>
                                   ),
                                 )
                               ) : (
-                                <Text>
+                                <Text style={styles.accordionLabel}>
                                   {key}: {value}
                                 </Text>
                               )}
@@ -380,16 +402,30 @@ const PatientCard = ({patient}) => {
               <View style={styles.vaccinationContainer}>
                 {patient.vaccinations.map(vaccine => (
                   <View key={vaccine.id} style={styles.vaccinationItem}>
-                    <Text>Vaccine Name: {vaccine.vaccineName}</Text>
-                    <Text>Vaccine Facility: {vaccine.facility}</Text>
-                    <Text>Dose: {vaccine.dose}</Text>
-                    <Text>Site Administered: {vaccine.siteAdministered}</Text>
-                    <Text>Vaccinated By: {vaccine.vaccinatedBy}</Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
+                      Vaccine Name: {vaccine.vaccineName}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Vaccine Facility: {vaccine.facility}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Dose: {vaccine.dose}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Site Administered: {vaccine.siteAdministered}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Vaccinated By: {vaccine.vaccinatedBy}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
                       Date of Vaccination: {vaccine.dateOfVaccination}
                     </Text>
-                    <Text>Date For Next Dose: {vaccine.dateForNextDose}</Text>
-                    <Text>Card Number: {vaccine.cardNumber}</Text>
+                    <Text style={styles.accordionLabel}>
+                      Date For Next Dose: {vaccine.dateForNextDose}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Card Number: {vaccine.cardNumber}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -412,30 +448,50 @@ const PatientCard = ({patient}) => {
               <View style={styles.vaccinationContainer}>
                 {patient.antenantals.map(antenantal => (
                   <View key={antenantal.id} style={styles.vaccinationItem}>
-                    <Text>Blood Group: {antenantal.bloodGroup}</Text>
-                    <Text>Drug Notes: {antenantal.drugNotes}</Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
+                      Blood Group: {antenantal.bloodGroup}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Drug Notes: {antenantal.drugNotes}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
                       Expected Date of Delivery:{' '}
                       {antenantal.expectedDateOfDelivery}
                     </Text>
-                    <Text>Next of Kin: {antenantal.nextOfKin}</Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
+                      Next of Kin: {antenantal.nextOfKin}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
                       Next of Kin Contact: {antenantal.nextOfKinContact}
                     </Text>
-                    <Text>Pregnancy Status: {antenantal.pregnancyStatus}</Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
+                      Pregnancy Status: {antenantal.pregnancyStatus}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
                       Routine Visit Date: {antenantal.routineVisitDate}
                     </Text>
-                    <Text>Weight: {antenantal.weight}</Text>
+                    <Text style={styles.accordionLabel}>
+                      Weight: {antenantal.weight}
+                    </Text>
 
                     {antenantal.medicines &&
                       antenantal.medicines.map((medicine, index) => (
                         <View key={index} style={styles.medicineItem}>
-                          <Text>Name: {medicine.name}</Text>
-                          <Text>Dosage: {medicine.dosage}</Text>
-                          <Text>Duration: {medicine.duration}</Text>
-                          <Text>Frequency: {medicine.frequency}</Text>
-                          <Text>Description: {medicine.description}</Text>
+                          <Text style={styles.accordionLabel}>
+                            Name: {medicine.name}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Dosage: {medicine.dosage}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Duration: {medicine.duration}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Frequency: {medicine.frequency}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Description: {medicine.description}
+                          </Text>
                         </View>
                       ))}
                   </View>
@@ -459,22 +515,42 @@ const PatientCard = ({patient}) => {
               <View style={styles.vaccinationContainer}>
                 {patient.diagnoses.map(diagnosis => (
                   <View key={diagnosis.id} style={styles.vaccinationItem}>
-                    <Text>Condition: {diagnosis.condition}</Text>
-                    <Text>Date of Diagnosis: {diagnosis.dateOfDiagnosis}</Text>
-                    <Text>Follow-Up Date: {diagnosis.followUpDate}</Text>
-                    <Text>Impression: {diagnosis.impression}</Text>
-                    <Text>
+                    <Text style={styles.accordionLabel}>
+                      Condition: {diagnosis.condition}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Date of Diagnosis: {diagnosis.dateOfDiagnosis}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Follow-Up Date: {diagnosis.followUpDate}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Impression: {diagnosis.impression}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
                       Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}
                     </Text>
-                    <Text>Lab Tests: {diagnosis.labTests}</Text>
+                    <Text style={styles.accordionLabel}>
+                      Lab Tests: {diagnosis.labTests}
+                    </Text>
                     {diagnosis.medicines &&
                       diagnosis.medicines.map((medicine, index) => (
                         <View key={index} style={styles.medicineItem}>
-                          <Text>Name: {medicine.name}</Text>
-                          <Text>Dosage: {medicine.dosage}</Text>
-                          <Text>Duration: {medicine.duration}</Text>
-                          <Text>Frequency: {medicine.frequency}</Text>
-                          <Text>Description: {medicine.description}</Text>
+                          <Text style={styles.accordionLabel}>
+                            Name: {medicine.name}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Dosage: {medicine.dosage}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Duration: {medicine.duration}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Frequency: {medicine.frequency}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Description: {medicine.description}
+                          </Text>
                         </View>
                       ))}
                   </View>
@@ -675,7 +751,6 @@ const styles = StyleSheet.create({
   },
   vaccinationItem: {
     borderColor: '#ccc',
-    borderRadius: 5,
     padding: 10,
     marginBottom: 10,
     borderLeftWidth: 1,
@@ -691,14 +766,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     textDecorationLine: 'underline',
+    color: COLORS.BLACK,
   },
   accordionHeaderText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginRight: 10, // Adjust spacing between text and icon
+    marginRight: 10,
+    color: COLORS.BLACK,
   },
   icon: {
     marginLeft: 'auto',
+    color: COLORS.BLACK,
+  },
+  inspectionItem: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginRight: 10,
+    color: COLORS.BLACK,
   },
 });
 
