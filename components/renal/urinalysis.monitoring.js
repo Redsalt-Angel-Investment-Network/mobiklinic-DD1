@@ -100,7 +100,7 @@ const UrinalysisMonitoring = ({navigation, route}) => {
       });
       return false;
     }
-    if (phValue < 7.0 || phValue > 7.1) {
+    if (phValue < 4.5 || phValue > 8.0) {
       setState({
         ...state,
         phValidateMessage:
@@ -623,6 +623,7 @@ const UrinalysisMonitoring = ({navigation, route}) => {
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>PH Level:</Text>
           <TextInput
+          
             style={STYLES.field}
             value={state.chemistry.ph}
             onChangeText={text => {

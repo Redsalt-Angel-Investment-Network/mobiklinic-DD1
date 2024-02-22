@@ -186,7 +186,7 @@ const Inspection = ({navigation, route}) => {
               const bmi = calculateBMI(state.weight, text);
               setState({...state, height: text, bmi});
             }}
-            placeholder="Enter Height"
+            placeholder="Enter Height in cms"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />

@@ -30,6 +30,7 @@ const InsepectionRFT = ({navigation, route}) => {
     systolicValidationMessage: '',
     diastolicValidationMessage: '',
     pluseValidationMessage: '',
+    weightValidationMessage: '',
   });
 
   useEffect(() => {
@@ -110,6 +111,17 @@ const InsepectionRFT = ({navigation, route}) => {
     }
   };
 
+  const checkWeight = weight => {
+    const weightInKg = parseFloat(weight);
+    if (weightInKg === '') {
+      setState({
+        ...state,
+        weightValidationMessage: 'Please enter a valid number.',
+      });
+      return;
+    }
+  };
+
   const checkPluseBP = heartPulse => {
     const pluse = parseFloat(heartPulse);
     if (isNaN(pluse)) {
@@ -182,14 +194,21 @@ const InsepectionRFT = ({navigation, route}) => {
             style={STYLES.field}
             value={state.weight}
             onChangeText={text => {
+              checkWeight(text);
               const bmi = calculateBMI(text, state.height);
               setState({...state, weight: text, bmi});
             }}
-            placeholder="Enter Weight"
+            placeholder="Enter Weight in kgs"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
+            onBlur={() => checkWeight(state.weight)}
           />
         </View>
+        {state.weightValidationMessage !== '' && (
+          <Text style={STYLES.errorMessage}>
+            {state.weightValidationMessage}
+          </Text>
+        )}
 
         {/* Height */}
         <View style={STYLES.labeled}>
@@ -201,7 +220,7 @@ const InsepectionRFT = ({navigation, route}) => {
               const bmi = calculateBMI(state.weight, text);
               setState({...state, height: text, bmi});
             }}
-            placeholder="Enter Height"
+            placeholder="Enter Height in cm"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />
@@ -247,7 +266,6 @@ const InsepectionRFT = ({navigation, route}) => {
             </Text>
           )}
 
-          {/* diastolic pressure */}
           <View style={STYLES.labeled}>
             <Text style={STYLES.label}>Diastolic Blood Pressure:</Text>
             <TextInput
