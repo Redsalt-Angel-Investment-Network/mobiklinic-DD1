@@ -239,8 +239,8 @@ const Urinalysis = ({navigation, route}) => {
   };
 
   const checkClarity = clarity => {
-    const clarityValues = ['colourless'];
-    if (clarity !== 'colourless') {
+    const clarityValues = ['clear'];
+    if (clarity !== 'clear') {
       setState({
         ...state,
         clarityValidateMessage:
@@ -322,7 +322,11 @@ const Urinalysis = ({navigation, route}) => {
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Color" value="Color" />
             <Picker.Item label="clear" value="clear" />
-            <Picker.Item label="cloudy" value="cloudy" />
+            <Picker.Item label="Pale yellow" value="Pale yellow" />
+            <Picker.Item label="Light yellow" value="Light yellow" />
+            <Picker.Item label="Dark yellow" value="Dark yellow" />
+            <Picker.Item label="Brown" value="Brown" />
+            <Picker.Item label="Red" value="Red" />
           </Picker>
 
           <Picker
@@ -344,9 +348,9 @@ const Urinalysis = ({navigation, route}) => {
             onBlur={() => checkClarity(state.appearance.clarity)}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Clarity" value="Clarity" />
-            <Picker.Item label="colourless" value="colourless" />
-            <Picker.Item label="Pale yellow" value="Pale yellow" />
-            <Picker.Item label="brown" value="brown" />
+            <Picker.Item label="clear" value="clear" />
+            <Picker.Item label="Pus" value="Pus" />
+            <Picker.Item label="cloudy" value="cloudy" />
           </Picker>
         </View>
         {state.clarityValidateMessage !== '' && (
