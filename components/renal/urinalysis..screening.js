@@ -36,6 +36,7 @@ const Urinalysis = ({navigation, route}) => {
       ketone: '',
       bilirubin: '',
       ph: '',
+      bloodInUrine: '',
     },
     glucoseValidateMessage: '',
     specificGravityValidateMessage: '',
@@ -47,6 +48,7 @@ const Urinalysis = ({navigation, route}) => {
     bilirubinValidateMessage: '',
     colorValidateMessage: '',
     clarityValidateMessage: '',
+    bloodInUrineMessage: '',
   });
 
   const handleSubmit = async () => {
@@ -270,6 +272,23 @@ const Urinalysis = ({navigation, route}) => {
       });
     }
     return bilirubinValues.includes(bilirubin.toLowerCase());
+  };
+
+  const checkBloodInUrine = bloodInUrine => {
+    const bloodInUrineValues = ['negative'];
+    if (bloodInUrine !== 'negative') {
+      setState({
+        ...state,
+        bloodInUrineMessage:
+          'Blood in urine values are abnormal. The Doctor will be notified',
+      });
+    } else {
+      setState({
+        ...state,
+        bloodInUrineMessage: '',
+      });
+    }
+    return bloodInUrineValues.includes(bloodInUrine.toLowerCase());
   };
 
   const _header = () => (
@@ -619,30 +638,64 @@ const Urinalysis = ({navigation, route}) => {
         )}
 
         {/* pH Level */}
+        {/* pH Level */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>PH Level:</Text>
           <TextInput
             style={STYLES.field}
             value={state.chemistry.ph}
             onChangeText={text => {
-              checkPH(text);
               setState({
                 ...state,
                 chemistry: {
                   ...state.chemistry,
                   ph: text,
                 },
+               
               });
             }}
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
-            onBlur={() => checkPH(state.chemistry.ph)}
           />
         </View>
         {state.phValidateMessage !== '' && (
           <Text style={STYLES.errorMessage}>{state.phValidateMessage}</Text>
         )}
+
+        {/* BLOOD IN URINE */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Blood In Urine:</Text>
+
+          <Picker
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.chemistry.bloodInUrine}
+            onValueChange={value => {
+              const isValid = checkBloodInUrine(value);
+              setState({
+                ...state,
+                chemistry: {
+                  ...state.chemistry,
+                  bloodInUrine: value,
+                },
+                bloodInUrineMessage: isValid ? '' : 'Put values',
+              });
+            }}
+            onBlur={() => checkBloodInUrine(state.chemistry.bloodInUrine)}
+            style={STYLES.field}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="Enter  Value" value="" />
+            <Picker.Item label="negative" value="negative" />
+            <Picker.Item label="hemolysis(+10)" value="hemolysis(+10)" />
+            <Picker.Item label="++50" value="++50" />
+            <Picker.Item label="+++250" value="+++250" />
+            <Picker.Item label="NonHemolysis +10" value="NonHemolysis +10" />
+          </Picker>
+        </View>
+        {state.bloodInUrineMessage !== '' && (
+          <Text style={STYLES.errorMessage}>{state.bloodInUrineMessage}</Text>
+        )}
+
         <View style={STYLES.buttonContainer}>
           <TouchableOpacity
             style={STYLES.backButton}
