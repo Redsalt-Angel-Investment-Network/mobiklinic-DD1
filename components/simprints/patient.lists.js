@@ -605,7 +605,7 @@ const PatientLists = () => {
         })
       : [];
 
-  // Function to handle redirection when no patients are found
+  const reversedPatients = filteredPatients.slice().reverse();
   const handleRedirect = () => {
     navigation.navigate('PatientData');
   };
@@ -634,7 +634,7 @@ const PatientLists = () => {
 
         {loading ? (
           <Loader />
-        ) : filteredPatients.length === 0 ? (
+        ) : reversedPatients.length === 0 ? (
           <View>
             <Text style={styles.buttonText}>
               Patient Not Yet Registered <Emoji name="disappointed" />
@@ -644,7 +644,7 @@ const PatientLists = () => {
             </TouchableOpacity>
           </View>
         ) : (
-          filteredPatients.map(patient => (
+          reversedPatients.map(patient => (
             <PatientCard key={patient.id} patient={patient} />
           ))
         )}
