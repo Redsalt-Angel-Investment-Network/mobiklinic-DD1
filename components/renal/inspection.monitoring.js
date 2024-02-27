@@ -35,7 +35,7 @@ const InspectionMonitoring = ({navigation, route}) => {
   useEffect(() => {
     Alert.alert(
       'Instructions',
-      'Have you ever done screening for this patient before?\n\nClick "YES" it was. ',
+      'Have you ever done screening for this patient before?\n ',
       [
         {
           text: 'YES',

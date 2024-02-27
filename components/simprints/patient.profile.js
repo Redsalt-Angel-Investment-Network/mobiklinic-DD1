@@ -88,7 +88,7 @@ const PatientData = ({navigation}) => {
   useEffect(() => {
     calculateAge();
   }, [dateOfBirth]);
-  
+
   const calculateAge = () => {
     const today = new Date();
     const dob = new Date(dateOfBirth);
@@ -233,7 +233,9 @@ const PatientData = ({navigation}) => {
 
         {/* First Name */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>First Name:</Text>
+          <Text style={STYLES.label}>
+            First Name<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -248,7 +250,9 @@ const PatientData = ({navigation}) => {
 
         {/* Last Name */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Last Name:</Text>
+          <Text style={STYLES.label}>
+            Last Name<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -263,7 +267,9 @@ const PatientData = ({navigation}) => {
 
         {/* Phone Number */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Phone Number:</Text>
+          <Text style={STYLES.label}>
+            Phone Number<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -279,7 +285,9 @@ const PatientData = ({navigation}) => {
 
         {/* Gender */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Sex:</Text>
+          <Text style={STYLES.label}>
+            Sex<Text style={STYLES.pointer}>*</Text>:
+          </Text>
 
           <Picker
             placeholder="Sex"
@@ -298,17 +306,22 @@ const PatientData = ({navigation}) => {
         {/* occupation */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Occupation:</Text>
-          <TextInput
-            style={[
-              STYLES.field,
-              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
-            ]}
-            placeholderTextColor={COLORS.GREY} //
-            value={state.occupation}
-            onChangeText={text => setState({...state, occupation: text})}
-            placeholder="What does the beneficary do "
-          />
+          <Picker
+            placeholder="Sex"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.occupation}
+            onValueChange={(value, index) =>
+              setState({...state, occupation: value})
+            }
+            style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="" value="" />
+            <Picker.Item label="Employed" value="Employed" />
+            <Picker.Item label="Self-employed" value="Self-employed" />
+            <Picker.Item label="Unemployed" value="Unemployed" />
+          </Picker>
         </View>
+
         {/* Date for birth */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date of Birth:</Text>
@@ -404,7 +417,9 @@ const PatientData = ({navigation}) => {
 
         {/* Country */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Country:</Text>
+          <Text style={STYLES.label}>
+            Country<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <Picker
             style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
             selectedValue={selectedCountry}
@@ -710,5 +725,11 @@ const STYLES = StyleSheet.create({
     paddingLeft: 12,
     fontSize: 15,
     color: COLORS.BLACK,
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

@@ -14,6 +14,7 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
+import Loader from '../ui/loader';
 
 const Urinalysis = ({navigation, route}) => {
   const {historyData, inspectionData, patientId} = route.params;
@@ -53,8 +54,10 @@ const Urinalysis = ({navigation, route}) => {
 
   const handleSubmit = async () => {
     try {
+      if (state.isLoading) {
+        return;
+      }
       setState({...state, isLoading: true});
-
       const response = await fetch(`${API_URL}/api/renals`, {
         method: 'POST',
         headers: {
@@ -90,6 +93,7 @@ const Urinalysis = ({navigation, route}) => {
       setState({...state, isLoading: false});
     }
   };
+  if (state.isLoading) return <Loader />;
 
   // validate values to make sure they are in range else flag them
   const checkPH = ph => {
@@ -651,7 +655,6 @@ const Urinalysis = ({navigation, route}) => {
                   ...state.chemistry,
                   ph: text,
                 },
-               
               });
             }}
             placeholder="Enter pH level"

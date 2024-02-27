@@ -15,7 +15,6 @@ import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
 
-
 const RenalDrugs = ({route, navigation}) => {
   const {patientId} = route.params;
 
@@ -94,8 +93,29 @@ const RenalDrugs = ({route, navigation}) => {
     }
   };
 
+  const _header = () => (
+    <CustomHeader
+      left={
+        <TouchableOpacity
+          style={{
+            marginHorizontal: 4,
+            width: 25,
+            height: 25,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
+        </TouchableOpacity>
+      }
+      title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK </Text>}
+    />
+  );
+
   return (
     <View style={STYLES.wrapper}>
+      {_header()}
+
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Renal Drugs</Text>
