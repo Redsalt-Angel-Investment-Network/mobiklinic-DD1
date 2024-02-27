@@ -90,16 +90,15 @@ const SelectRenalActivity = ({navigation, route}) => {
         </View>
       </View>
 
-      {/* <View>
+      <View>
         <TouchableOpacity
-          style={styles.buttonSec}
+          // style={styles.buttonSec}
           onPress={() => navigation.navigate('Dashboard')}>
           <Text style={styles.buttonText}>
-            <Icon name="arrow-left" size={18} color={COLORS.PRIMARY} />
             Home Page
           </Text>
         </TouchableOpacity>
-      </View> */}
+      </View>
       <CopyRight />
     </View>
   );
@@ -177,6 +176,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     paddingHorizontal: 10,
+    marginHorizontal:13,
   },
   column: {
     flex: 1,

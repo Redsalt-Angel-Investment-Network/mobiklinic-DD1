@@ -189,7 +189,7 @@ const InsepectionRFT = ({navigation, route}) => {
 
         {/* Weight */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Weight:</Text>
+          <Text style={STYLES.label}>Weight <Text style={STYLES.pointer}>*</Text>:</Text>
           <TextInput
             style={STYLES.field}
             value={state.weight}
@@ -212,7 +212,7 @@ const InsepectionRFT = ({navigation, route}) => {
 
         {/* Height */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Height:</Text>
+          <Text style={STYLES.label}>Height <Text style={STYLES.pointer}>*</Text>:</Text>
           <TextInput
             style={STYLES.field}
             value={state.height}
@@ -570,5 +570,11 @@ const STYLES = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

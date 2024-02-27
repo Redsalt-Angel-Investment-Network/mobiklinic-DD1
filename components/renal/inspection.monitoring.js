@@ -312,12 +312,16 @@ const InspectionMonitoring = ({navigation, route}) => {
             {state.pluseValidationMessage}
           </Text>
         )}
-        <TouchableOpacity
-          style={STYLES.submit}
-          onPress={() => navigateToNextScreen()
-          }>
-          <Text style={STYLES.submitText}>Next</Text>
-        </TouchableOpacity>
+         <TouchableOpacity
+            style={STYLES.submit}
+            onPress={() =>
+              navigation.navigate('UrinalysisMonitoring', {
+                inspectionData: state,
+                patientId: patientId,
+              })
+            }>
+            <Text style={STYLES.submitText}>Next</Text>
+            </TouchableOpacity>
       </ScrollView>
     </View>
   );
