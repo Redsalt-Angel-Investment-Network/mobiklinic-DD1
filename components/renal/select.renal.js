@@ -78,14 +78,14 @@ const SelectRenalActivity = ({navigation, route}) => {
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-              navigation.navigate('Dashboard', {
+              navigation.navigate('RenalDrugs', {
                 patientId: patientId,
               })
             }>
             <View style={styles.cardIcon}>
               <FontAwesomeIcon name="home" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={styles.cardTitle}>Home</Text>
+            <Text style={styles.cardTitle}>Renal Drugs</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -137,6 +137,7 @@ const InspectionMonitoring = ({navigation, route}) => {
     }
   };
 
+  
   const _header = () => (
     <CustomHeader
       left={
@@ -313,11 +314,7 @@ const InspectionMonitoring = ({navigation, route}) => {
         )}
         <TouchableOpacity
           style={STYLES.submit}
-          onPress={() =>
-            navigation.navigate('UrinalysisMonitoring', {
-              inspectionData: state,
-              patientId: patientId,
-            })
+          onPress={() => navigateToNextScreen()
           }>
           <Text style={STYLES.submitText}>Next</Text>
         </TouchableOpacity>
