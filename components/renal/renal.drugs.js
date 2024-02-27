@@ -7,11 +7,14 @@ import {
   StyleSheet,
   StatusBar,
   ScrollView,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
+import {API_URL} from '@env';
+
 
 const RenalDrugs = ({route, navigation}) => {
   const {patientId} = route.params;
@@ -46,8 +49,49 @@ const RenalDrugs = ({route, navigation}) => {
   };
 
   const handleSubmit = async () => {
-    // Your code for submitting medicines
-    console.log('Medicines:', medicines);
+    try {
+      // Set isLoading to true to show loading indicator
+      // setState({ ...state, isLoading: true });
+
+      const response = await fetch(`${API_URL}/api/drugs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            drugs: medicines,
+            patient: patientId,
+          },
+        }),
+      });
+
+      if (response.ok) {
+        setMedicines([
+          {
+            name: '',
+            dosage: '',
+            frequency: '',
+            duration: '',
+            description: '',
+          },
+        ]);
+        navigation.navigate('Dashboard');
+        Alert.alert('Success', 'Medicine data posted successfully.');
+      } else {
+        // Handle error response
+        const error = await response.text();
+        console.error('Error posting medicine data:', error);
+        Alert.alert('Error', 'Failed to post medicine data.');
+      }
+    } catch (error) {
+      // Handle network errors
+      console.error('Error posting medicine data:', error);
+      Alert.alert('Error', 'Failed to post medicine data.');
+    } finally {
+      // Set isLoading to false to hide loading indicator
+      // setState({ ...state, isLoading: false });
+    }
   };
 
   return (
