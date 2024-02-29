@@ -411,14 +411,12 @@ const PatientCard = ({patient}) => {
                       <View key={index} style={styles.monitoringItem}>
                         <Text style={styles.inspectionItem}>{drug.name}</Text>
                         <Text style={styles.accordionLabel}>
-                          Dosage: {drug.dosage}
+                          Dosage: {drug.dosage} X {drug.frequency}
                         </Text>
                         <Text style={styles.accordionLabel}>
-                          Duration: {drug.duration}
+                          Duration: {drug.duration} days
                         </Text>
-                        <Text style={styles.accordionLabel}>
-                          Frequency: {drug.frequency}
-                        </Text>
+                       
                         {drug.description && (
                           <Text style={styles.accordionLabel}>
                             Description: {drug.description}

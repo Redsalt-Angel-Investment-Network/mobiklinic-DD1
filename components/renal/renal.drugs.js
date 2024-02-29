@@ -14,9 +14,11 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
+import Loader from '../ui/loader';
 
 const RenalDrugs = ({route, navigation}) => {
   const {patientId} = route.params;
+  const [isLoading, setIsLoading] = useState(false); 
 
   const [medicines, setMedicines] = useState([
     {
@@ -49,8 +51,7 @@ const RenalDrugs = ({route, navigation}) => {
 
   const handleSubmit = async () => {
     try {
-      // Set isLoading to true to show loading indicator
-      // setState({ ...state, isLoading: true });
+      setIsLoading(true); // Set isLoading to true to show loading indicator
 
       const response = await fetch(`${API_URL}/api/drugs`, {
         method: 'POST',
@@ -88,10 +89,10 @@ const RenalDrugs = ({route, navigation}) => {
       console.error('Error posting medicine data:', error);
       Alert.alert('Error', 'Failed to post medicine data.');
     } finally {
-      // Set isLoading to false to hide loading indicator
-      // setState({ ...state, isLoading: false });
+      setIsLoading(false); 
     }
   };
+  if (isLoading) return <Loader />;
 
   const _header = () => (
     <CustomHeader
@@ -143,6 +144,7 @@ const RenalDrugs = ({route, navigation}) => {
                   style={STYLES.medicineInput}
                   placeholder="Dosage"
                   value={medicine.dosage}
+                  placeholderTextColor={COLORS.GREY}
                   onChangeText={text =>
                     handleMedicineChange(index, 'dosage', text)
                   }
@@ -156,6 +158,7 @@ const RenalDrugs = ({route, navigation}) => {
                 <TextInput
                   style={STYLES.medicineInput}
                   placeholder="Frequency"
+                  placeholderTextColor={COLORS.GREY}
                   value={medicine.frequency}
                   keyboardType="numeric"
                   onChangeText={text =>
@@ -186,6 +189,8 @@ const RenalDrugs = ({route, navigation}) => {
                 placeholder="e.g Take after eating"
                 value={medicine.description}
                 placeholderTextColor={COLORS.GREY}
+                multiline={true}
+                numberOfLines={4}
                 onChangeText={text =>
                   handleMedicineChange(index, 'description', text)
                 }
@@ -460,7 +465,7 @@ const STYLES = StyleSheet.create({
     borderColor: COLORS.GREY,
     borderWidth: 1,
     width: 150,
-    color:COLORS.BLACK,
+    color: COLORS.BLACK,
   },
   textLabel: {
     fontSize: 18,
