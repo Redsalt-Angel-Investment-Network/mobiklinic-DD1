@@ -171,7 +171,7 @@ const InsepectionRFT = ({navigation, route}) => {
       {_header()}
 
       <ScrollView style={STYLES.body}>
-        <Text style={STYLES.title}>Beneficiary Inspection</Text>
+        <Text style={STYLES.title}>RFT Inspection</Text>
 
         {/* Signs and Symptoms */}
         <View style={STYLES.labeled}>
