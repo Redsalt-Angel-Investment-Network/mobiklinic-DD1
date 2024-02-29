@@ -129,11 +129,10 @@ const RenalDrugs = ({route, navigation}) => {
               <Text style={STYLES.label}>Medicine Name:</Text>
               <TextInput
                 style={STYLES.field}
-                placeholder="Name"
+                placeholder="e.g Paracetamol"
+                placeholderTextColor={COLORS.GREY}
                 value={medicine.name}
                 onChangeText={text => handleMedicineChange(index, 'name', text)}
-                multiline={true}
-                numberOfLines={4}
               />
             </View>
 
@@ -171,6 +170,7 @@ const RenalDrugs = ({route, navigation}) => {
               <TextInput
                 style={STYLES.field}
                 placeholder="Number of days"
+                placeholderTextColor={COLORS.GREY}
                 keyboardType="numeric"
                 value={medicine.duration}
                 onChangeText={text =>
@@ -183,8 +183,9 @@ const RenalDrugs = ({route, navigation}) => {
               <Text style={STYLES.label}>Description:</Text>
               <TextInput
                 style={STYLES.field}
-                placeholder="Description"
+                placeholder="e.g Take after eating"
                 value={medicine.description}
+                placeholderTextColor={COLORS.GREY}
                 onChangeText={text =>
                   handleMedicineChange(index, 'description', text)
                 }
@@ -459,6 +460,7 @@ const STYLES = StyleSheet.create({
     borderColor: COLORS.GREY,
     borderWidth: 1,
     width: 150,
+    color:COLORS.BLACK,
   },
   textLabel: {
     fontSize: 18,
