@@ -118,12 +118,7 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Primary Language: {patient.primaryLanguage}
           </Text>
-          <Text style={styles.accordionLabel}>
-            Country Of Residence: {patient.country}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            District: {patient.district}
-          </Text>
+    
           <Text style={styles.accordionLabel}>
             Next of Kin: {patient.nextOfKin}
           </Text>
@@ -324,65 +319,62 @@ const PatientCard = ({patient}) => {
               patient.monitorings &&
               patient.monitorings.map(monitoring => (
                 <View key={monitoring.id} style={styles.vaccinationItem}>
-                  {monitoring.monitoringData && (
-                    <View style={styles.monitoringItem}>
-                      {/* Chemistry */}
-                      <Text style={styles.inspectionItem}>Chemistry:</Text>
-                      <View>
-                        {monitoring.monitoringData.chemistry &&
-                          Object.entries(
-                            monitoring.monitoringData.chemistry,
-                          ).map(([key, value]) => (
+                {monitoring.monitoringData && monitoring.monitoringData.length > 0 && (
+                  <View style={styles.monitoringItem}>
+                    {/* Chemistry */}
+                    <Text style={styles.inspectionItem}>Chemistry:</Text>
+                    <View>
+                      {monitoring.monitoringData[0].chemistry &&
+                        Object.entries(monitoring.monitoringData[0].chemistry).map(
+                          ([key, value]) => (
                             <Text key={key} style={styles.accordionLabel}>
                               {key}: {value}
                             </Text>
-                          ))}
-                      </View>
-
-                      {/* Appearance */}
-                      <Text style={styles.inspectionItem}>Appearance:</Text>
-                      <View>
-                        {monitoring.monitoringData.appearance &&
-                          Object.entries(
-                            monitoring.monitoringData.appearance,
-                          ).map(([key, value]) => (
+                          )
+                        )}
+                    </View>
+              
+                    {/* Appearance */}
+                    <Text style={styles.inspectionItem}>Appearance:</Text>
+                    <View>
+                      {monitoring.monitoringData[0].appearance &&
+                        Object.entries(monitoring.monitoringData[0].appearance).map(
+                          ([key, value]) => (
                             <Text key={key} style={styles.accordionLabel}>
                               {key}: {value}
                             </Text>
-                          ))}
-                      </View>
-
-                      {/* Inspection Data */}
-                      <Text style={styles.inspectionItem}>
-                        Inspection Data:
-                      </Text>
-                      <View>
-                        {monitoring.monitoringData.inspectionData &&
-                          Object.entries(
-                            monitoring.monitoringData.inspectionData,
-                          ).map(([key, value]) => (
+                          )
+                        )}
+                    </View>
+              
+                    {/* Inspection Data */}
+                    <Text style={styles.inspectionItem}>Inspection Data:</Text>
+                    <View>
+                      {monitoring.monitoringData[0].inspectionData &&
+                        Object.entries(monitoring.monitoringData[0].inspectionData).map(
+                          ([key, value]) => (
                             <View key={key}>
                               {typeof value === 'object' ? (
-                                Object.entries(value).map(
-                                  ([subKey, subValue]) => (
-                                    <Text
-                                      key={subKey}
-                                      style={styles.accordionLabel}>
-                                      {subKey}: {subValue}
-                                    </Text>
-                                  ),
-                                )
+                                Object.entries(value).map(([subKey, subValue]) => (
+                                  <Text
+                                    key={subKey}
+                                    style={styles.accordionLabel}>
+                                    {subKey}: {subValue}
+                                  </Text>
+                                ))
                               ) : (
                                 <Text style={styles.accordionLabel}>
                                   {key}: {value}
                                 </Text>
                               )}
                             </View>
-                          ))}
-                      </View>
+                          )
+                        )}
                     </View>
-                  )}
-                </View>
+                  </View>
+                )}
+              </View>
+              
               ))}
           </View>
 
@@ -753,7 +745,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     marginBottom: 10,
-    borderLeftWidth: 1,
+    // borderLeftWidth: 1,
     fontSize: 16,
   },
   details: {
@@ -779,10 +771,11 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
   },
   inspectionItem: {
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 15,
     marginRight: 10,
     color: COLORS.BLACK,
+    marginBottom: 5,
+    textDecorationLine: 'underline',
   },
 });
 
