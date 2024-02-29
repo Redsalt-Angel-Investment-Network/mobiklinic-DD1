@@ -40,7 +40,7 @@ const PatientData = ({navigation}) => {
   useEffect(() => {
     Alert.alert(
       'Instructions',
-      'Have searched for this patient?\n\nClick "YES" it was. ',
+      'Have searched for this patient?\n\ ',
       [
         {
           text: 'YES',
