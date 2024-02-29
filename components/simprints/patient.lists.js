@@ -131,9 +131,7 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Ethnicity: {patient.ethinicity}
           </Text>
-          <Text style={styles.accordionLabel}>
-            Country Of Residence: {patient.country}
-          </Text>
+
           <Text style={styles.accordionLabel}>Height: {patient.height} cm</Text>
           <Text style={styles.accordionLabel}>
             Weight: {patient.weight} kgs
@@ -416,7 +414,7 @@ const PatientCard = ({patient}) => {
                         <Text style={styles.accordionLabel}>
                           Duration: {drug.duration} days
                         </Text>
-                       
+
                         {drug.description && (
                           <Text style={styles.accordionLabel}>
                             Description: {drug.description}
