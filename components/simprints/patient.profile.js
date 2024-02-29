@@ -40,7 +40,7 @@ const PatientData = ({navigation}) => {
   useEffect(() => {
     Alert.alert(
       'Instructions',
-      'Have searched for this patient?\n\ ',
+      'Have searched for this patient?\n ',
       [
         {
           text: 'YES',
@@ -75,7 +75,7 @@ const PatientData = ({navigation}) => {
   const currentDate = new Date();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(currentDate);
-  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [dateOfBirth, setDateOfBirth] = useState(null); // Initialize with null
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || dateOfBirth;
@@ -85,9 +85,7 @@ const PatientData = ({navigation}) => {
       setState({...state, dateOfBirth: currentDate});
     }
   };
-  useEffect(() => {
-    calculateAge();
-  }, [dateOfBirth]);
+  
 
   const calculateAge = () => {
     const today = new Date();
@@ -105,6 +103,7 @@ const PatientData = ({navigation}) => {
       const day = date.getDate();
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
+
       return `${day.toString().padStart(2, '0')}/${month
         .toString()
         .padStart(2, '0')}/${year}`;
@@ -324,7 +323,9 @@ const PatientData = ({navigation}) => {
 
         {/* Date for birth */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Date of Birth:</Text>
+          <Text style={STYLES.label}>
+            Date of Birth <Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TouchableOpacity
             style={STYLES.datePickerInput}
             onPress={() => setShowDatePicker('patient')}>
@@ -332,7 +333,7 @@ const PatientData = ({navigation}) => {
           </TouchableOpacity>
           {showDatePicker === 'patient' && (
             <DateTimePicker
-              value={dateOfBirth || new Date()} // Use null or fallback to current date
+              value={dateOfBirth || new Date()}
               mode="date"
               display="spinner"
               onChange={handleDateChange}
