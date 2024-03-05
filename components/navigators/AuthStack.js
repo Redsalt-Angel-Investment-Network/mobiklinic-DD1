@@ -37,6 +37,7 @@ import InsepectionRFT from '../renal/inspection.rft';
 import DrawerLogged from '../navigators/drawer.logged';
 import About from '../screens/about';
 import RenalDrugs from '../renal/renal.drugs';
+import DocChat from '../chat/docChat';
 
 const Stack = createStackNavigator();
 
@@ -210,6 +211,11 @@ function AuthStack() {
         name="RenalDrugs"
         options={{headerShown: false}}
         component={RenalDrugs}
+      />
+      <Stack.Screen
+        name="DocChat"
+        options={{headerShown: false}}
+        component={DocChat}
       />
     </Stack.Navigator>
   );
