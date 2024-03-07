@@ -1,4 +1,5 @@
 import React, {useContext} from 'react';
+
 import {
   View,
   TouchableOpacity,
@@ -98,7 +99,7 @@ const Dashboard = ({navigation}) => {
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Chat')}>
+            onPress={() => navigation.navigate('ChatComponent')}>
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
