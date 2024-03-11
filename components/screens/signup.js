@@ -57,6 +57,7 @@ const SignUp = ({navigation}) => {
     validationSchema: SignUpSchema,
 
     onSubmit: async values => {
+      setIsLoading(true);
       if (isLoading) {
         return;
       }
@@ -105,12 +106,6 @@ const SignUp = ({navigation}) => {
     formik;
 
   if (isLoading) return <Loader />;
-  // useEffect(() => {
-  //   if (hasRegistered) {
-  //     setIsLoading(false);
-  //     navigation.navigate('Login');
-  //   }
-  // }, [hasRegistered]);
 
   if (hasRegistered) {
     return (
