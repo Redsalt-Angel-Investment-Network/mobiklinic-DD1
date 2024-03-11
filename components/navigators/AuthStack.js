@@ -38,6 +38,7 @@ import DrawerLogged from '../navigators/drawer.logged';
 import About from '../screens/about';
 import RenalDrugs from '../renal/renal.drugs';
 import ChatComponent from '../chat/ChatComponent';
+import Cometchat from '../chat/Cometchat';
 
 const Stack = createStackNavigator();
 
@@ -217,6 +218,12 @@ function AuthStack() {
         options={{headerShown: false}}
         component={ChatComponent}
       />
+      <Stack.Screen
+        name="Cometchat"
+        options={{headerShown: false}}
+        component={Cometchat}
+      />
+      
     </Stack.Navigator>
   );
 }
