@@ -206,7 +206,7 @@ const PatientMedical = ({navigation, route}) => {
         <Text style={STYLES.label}>Medicine #{index + 1}:</Text>
 
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Prescriptions/Medicine:</Text>
+          <Text style={STYLES.label}>Medicine:</Text>
           <Picker
             placeholderTextColor={COLORS.BLACK}
             selectedValue={medicine.name}
@@ -236,6 +236,17 @@ const PatientMedical = ({navigation, route}) => {
 
             <Picker.Item label="Other" value="Other" />
           </Picker>
+          {medicine.name === 'Other' && (
+            <TextInput
+              style={STYLES.field}
+              placeholder="Enter other"
+              placeholderTextColor={COLORS.GREY}
+              value={medicine.description}
+              onChangeText={text =>
+                handleMedicineChange(index, 'description', text)
+              }
+            />
+          )}
         </View>
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Additional Instructions:</Text>
@@ -332,7 +343,9 @@ const PatientMedical = ({navigation, route}) => {
       <ScrollView style={STYLES.body}>
         {/* condition */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Signs and Symptoms:</Text>
+          <Text style={STYLES.label}>
+            Signs and Symptoms<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -350,7 +363,9 @@ const PatientMedical = ({navigation, route}) => {
         {/* Date for diagnosis */}
 
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Date for Diagnosis:</Text>
+          <Text style={STYLES.label}>
+            Date for Diagnosis<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TouchableOpacity
             style={STYLES.datePickerInput}
             onPress={() => setShowDatePicker('diagnoses')}>
@@ -387,7 +402,9 @@ const PatientMedical = ({navigation, route}) => {
 
         {/* Condition */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Condition:</Text>
+          <Text style={STYLES.label}>
+            Condition<Text style={STYLES.pointer}>*</Text>:
+          </Text>
 
           <Picker
             placeholderTextColor={COLORS.BLACK}
@@ -745,5 +762,11 @@ const STYLES = StyleSheet.create({
     fontSize: 16,
     textAlign: 'left',
     textDecorationLine: 'underline',
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
