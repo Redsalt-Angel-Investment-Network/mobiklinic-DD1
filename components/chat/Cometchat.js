@@ -8,11 +8,18 @@ const Cometchat = () => {
 
   useEffect(() => {
     // Initialize CometChat SDK
-    CometChat.init("in", "254111884f11d223").then(
+    let appId = "254111884f11d223";
+    let region = "in";
+    let appSetting = new CometChat.AppSettingsBuilder()
+                          .subscribePresenceForAllUsers()
+                          .setRegion(region)
+                          .build();
+  
+    CometChat.init(appId, appSetting).then(
       () => {
         console.log('CometChat Initialized');
         // Login user
-        CometChat.login("87", "1c44a2213f9beb5d37c805beb0985275d2be788e").then(
+        CometChat.login("superhero1", "1c44a2213f9beb5d37c805beb0985275d2be788e").then(
           (user) => {
             console.log('Login Successful:', { user });
             // Fetch previous messages
@@ -34,20 +41,25 @@ const Cometchat = () => {
       (error) => {
         console.log('CometChat Initialization failed with error:', { error });
       }
-    );
-
+    ).catch((error) => {
+      console.log('Unhandled Promise Rejection during initialization:', { error });
+    });
+  
     // Cleanup on component unmount
     return () => {
       CometChat.logout().then(() => {
         console.log('CometChat Logout Successful');
+      }).catch((error) => {
+        console.log('Logout failed with error:', { error });
       });
     };
   }, []);
+  
 
   const sendMessage = () => {
     if (text.trim() !== '') {
       const message = new CometChat.TextMessage(
-        UID,
+        "superhero2",
         text,
         CometChat.MESSAGE_TYPE.TEXT,
         CometChat.RECEIVER_TYPE.USER
