@@ -16,10 +16,6 @@ import {Picker} from '@react-native-picker/picker';
 
 const Inspection = ({navigation, route}) => {
   const {historyData, patientId} = route.params;
-  console.log('History Data:', historyData);
-  console.log('====================================');
-  console.log('PATIENT ID: ', patientId);
-  console.log('====================================');
 
   const [state, setState] = useState({
     selectedSymptoms: [],
