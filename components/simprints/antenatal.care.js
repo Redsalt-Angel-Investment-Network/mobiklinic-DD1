@@ -448,9 +448,7 @@ const AntenatalCare = ({navigation, route}) => {
         </View>
 
         {renderMedicineInputs()}
-        <TouchableOpacity
-          style={STYLES.addMedicineButton}
-          onPress={handleAddMedicine}>
+        <TouchableOpacity onPress={handleAddMedicine}>
           <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
         </TouchableOpacity>
 
@@ -762,9 +760,10 @@ const STYLES = StyleSheet.create({
   },
   addMedicineButtonText: {
     color: COLORS.PRIMARY,
-    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: 'left',
+    textDecorationLine: 'underline',
   },
   wrap: {
     flex: 1,
@@ -789,5 +788,11 @@ const STYLES = StyleSheet.create({
     marginTop: 5,
     marginBottom: 10,
     color: COLORS.BLACK,
+  },
+  medicineRemoveButton: {
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 15,
+    textAlign: 'right',
   },
 });

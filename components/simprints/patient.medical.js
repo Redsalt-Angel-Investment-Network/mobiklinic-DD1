@@ -478,7 +478,6 @@ const PatientMedical = ({navigation, route}) => {
         {/* Render medicine inputs */}
         {renderMedicineInputs()}
         <TouchableOpacity
-          // style={STYLES.addMedicineButton}
           onPress={handleAddMedicine}>
           <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
         </TouchableOpacity>
