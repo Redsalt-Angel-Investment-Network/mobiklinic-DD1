@@ -95,29 +95,17 @@ const Urinalysis = ({navigation, route}) => {
   };
   if (state.isLoading) return <Loader />;
 
-  // validate values to make sure they are in range else flag them
   const checkPH = ph => {
     const phValue = parseFloat(ph);
     if (isNaN(phValue)) {
-      setState({
-        ...state,
-        phValidateMessage: 'Please enter a valid number',
-      });
-      return false;
+      return 'Please enter a valid number';
     }
     if (phValue < 7.0 || phValue > 7.1) {
-      setState({
-        ...state,
-        phValidateMessage:
-          'PH values are abnormal. The Doctor will be notified',
-      });
-    } else {
-      setState({
-        ...state,
-        phValidateMessage: '',
-      });
+      return 'PH values are abnormal. \n Normal ranges are from 7.0 to 7.1.\nThe Doctor will be notified';
     }
+    return '';
   };
+  
   const checkGlucose = glucose => {
     const validGlucoseValues = ['negative', 'trace'];
 
@@ -139,24 +127,22 @@ const Urinalysis = ({navigation, route}) => {
   const checkSpecificGravity = specificGravity => {
     const sgValue = parseFloat(specificGravity);
     if (isNaN(sgValue)) {
-      setState({
-        ...state,
-        specificGravityValidateMessage: 'Please enter a valid number',
-      });
-      return false;
+      return {
+        isValid: false,
+        message: 'Please enter a valid number',
+      };
     }
-    if (sgValue < 1.005 || sgValue > 1.025) {
-      setState({
-        ...state,
-        specificGravityValidateMessage:
+    if (sgValue < 1.005) {
+      return {
+        isValid: false,
+        message:
           'Specific gravity values are abnormal. The Doctor will be notified',
-      });
-    } else {
-      setState({
-        ...state,
-        specificGravityValidateMessage: '',
-      });
+      };
     }
+    return {
+      isValid: true,
+      message: '',
+    };
   };
 
   const checkProtein = protein => {
@@ -396,7 +382,7 @@ const Urinalysis = ({navigation, route}) => {
             placeholderTextColor={COLORS.GREY}
             selectedValue={state.chemistry.specificGravity}
             onValueChange={value => {
-              const isValid = checkSpecificGravity(value);
+              const {isValid, message} = checkSpecificGravity(value);
 
               setState({
                 ...state,
@@ -404,13 +390,10 @@ const Urinalysis = ({navigation, route}) => {
                   ...state.chemistry,
                   specificGravity: value,
                 },
-                specificGravityValidateMessage: isValid
-                  ? ''
-                  : 'Put Specific Gravity values',
+                specificGravityValidateMessage: message,
               });
             }}
             style={STYLES.field}
-            onBlur={() => checkSpecificGravity(state.chemistry.specificGravity)}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Select Specific Gravity" value="" />
             <Picker.Item label="1.005" value="1.005" />
@@ -642,7 +625,6 @@ const Urinalysis = ({navigation, route}) => {
         )}
 
         {/* pH Level */}
-        {/* pH Level */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>PH Level:</Text>
           <TextInput
@@ -655,11 +637,18 @@ const Urinalysis = ({navigation, route}) => {
                   ...state.chemistry,
                   ph: text,
                 },
+                phValidateMessage: checkPH(text), // Update phValidateMessage directly
               });
             }}
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
+            onBlur={() => {
+              setState({
+                ...state,
+                phValidateMessage: checkPH(state.chemistry.ph), // Check pH and update phValidateMessage on blur
+              });
+            }}
           />
         </View>
         {state.phValidateMessage !== '' && (
@@ -969,5 +958,11 @@ const STYLES = StyleSheet.create({
     minHeight: 70,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

@@ -101,25 +101,14 @@ const UrinalysisMonitoring = ({navigation, route}) => {
   const checkPH = ph => {
     const phValue = parseFloat(ph);
     if (isNaN(phValue)) {
-      setState({
-        ...state,
-        phValidateMessage: 'Please enter a valid number',
-      });
-      return false;
+      return 'Please enter a valid number';
     }
-    if (phValue < 4.5 || phValue > 8.0) {
-      setState({
-        ...state,
-        phValidateMessage:
-          'PH values are abnormal. The Doctor will be notified',
-      });
-    } else {
-      setState({
-        ...state,
-        phValidateMessage: '',
-      });
+    if (phValue < 7.0 || phValue > 7.1) {
+      return 'PH values are abnormal. \n Normal ranges are from 7.0 to 7.1.\nThe Doctor will be notified';
     }
+    return '';
   };
+  
   const checkGlucose = glucose => {
     const validGlucoseValues = ['negative', 'trace'];
 
@@ -141,24 +130,22 @@ const UrinalysisMonitoring = ({navigation, route}) => {
   const checkSpecificGravity = specificGravity => {
     const sgValue = parseFloat(specificGravity);
     if (isNaN(sgValue)) {
-      setState({
-        ...state,
-        specificGravityValidateMessage: 'Please enter a valid number',
-      });
-      return false;
+      return {
+        isValid: false,
+        message: 'Please enter a valid number',
+      };
     }
-    if (sgValue < 1.005 || sgValue > 1.025) {
-      setState({
-        ...state,
-        specificGravityValidateMessage:
+    if (sgValue < 1.005) {
+      return {
+        isValid: false,
+        message:
           'Specific gravity values are abnormal. The Doctor will be notified',
-      });
-    } else {
-      setState({
-        ...state,
-        specificGravityValidateMessage: '',
-      });
+      };
     }
+    return {
+      isValid: true,
+      message: '',
+    };
   };
 
   const checkProtein = protein => {
@@ -650,19 +637,24 @@ const UrinalysisMonitoring = ({navigation, route}) => {
             style={STYLES.field}
             value={state.chemistry.ph}
             onChangeText={text => {
-              checkPH(text);
               setState({
                 ...state,
                 chemistry: {
                   ...state.chemistry,
                   ph: text,
                 },
+                phValidateMessage: checkPH(text), // Update phValidateMessage directly
               });
             }}
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
-            onBlur={() => checkPH(state.chemistry.ph)}
+            onBlur={() => {
+              setState({
+                ...state,
+                phValidateMessage: checkPH(state.chemistry.ph), // Check pH and update phValidateMessage on blur
+              });
+            }}
           />
         </View>
         {state.phValidateMessage !== '' && (
