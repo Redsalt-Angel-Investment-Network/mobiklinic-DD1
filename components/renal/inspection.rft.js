@@ -14,11 +14,12 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 
-const InsepectionRFT = ({navigation, route}) => {
+const Inspection = ({navigation, route}) => {
   const {patientId, age, sex} = route.params;
 
   const [state, setState] = useState({
-    signsAndSymptoms: '',
+    selectedSymptoms: [],
+    otherSymptoms: '',
     weight: '',
     height: '',
     bmi: '',
@@ -32,11 +33,10 @@ const InsepectionRFT = ({navigation, route}) => {
     pluseValidationMessage: '',
     weightValidationMessage: '',
   });
-
   useEffect(() => {
     Alert.alert(
       'Instructions',
-      'Has the doctor recommended the Renal Functional Test?\n\nClick "YES" it was. ',
+      'Has this treatment been recommended by the Doctor?\n ',
       [
         {
           text: 'YES',
@@ -51,7 +51,6 @@ const InsepectionRFT = ({navigation, route}) => {
       {cancelable: false},
     );
   }, []);
-
   const calculateBMI = (weight, height) => {
     const weightInKg = parseFloat(weight);
     const heightInM = parseFloat(height) / 100; // Convert height to meters
@@ -77,7 +76,7 @@ const InsepectionRFT = ({navigation, route}) => {
       setState({
         ...state,
         systolicValidationMessage:
-          'Systolic blood pressure is outside the normal range. Doctor will be notified',
+          'Systolic blood pressure is outside the normal range.\nNormal ranges are between 100 to 139.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -101,7 +100,7 @@ const InsepectionRFT = ({navigation, route}) => {
       setState({
         ...state,
         diastolicValidationMessage:
-          'Diastolic blood pressure is outside the normal range. Doctor will be notified',
+          'Diastolic blood pressure is outside the normal range.\nNormal ranges are between 60 to 89.\nDoctor will be notified.',
       });
     } else {
       setState({
@@ -110,7 +109,6 @@ const InsepectionRFT = ({navigation, route}) => {
       });
     }
   };
-
   const checkWeight = weight => {
     const weightInKg = parseFloat(weight);
     if (weightInKg === '') {
@@ -121,7 +119,6 @@ const InsepectionRFT = ({navigation, route}) => {
       return;
     }
   };
-
   const checkPluseBP = heartPulse => {
     const pluse = parseFloat(heartPulse);
     if (isNaN(pluse)) {
@@ -136,12 +133,131 @@ const InsepectionRFT = ({navigation, route}) => {
       setState({
         ...state,
         pluseValidationMessage:
-          'Heart pulse is outside the normal range. Doctor will be notified',
+          'Heart pulse is outside the normal range.\nNormal ranges are between 60 to 100.\nDoctor will be notified.',
       });
     } else {
       setState({
         ...state,
         pluseValidationMessage: '',
+      });
+    }
+  };
+
+  const utiSymptoms = [
+    'Pain or burning sensation during urination',
+    'Frequent urination',
+    'Strong urge to urinate',
+    'Cloudy or bloody urine',
+    'Strong-smelling urine',
+    'Pelvic pain (in women)',
+    'Rectal pain (in men)',
+    'Other',
+  ];
+
+  const handleSymptomChange = symptom => {
+    if (symptom === 'Other') {
+      setState({
+        ...state,
+        otherSymptoms: '',
+        selectedSymptoms: [...state.selectedSymptoms, symptom],
+      });
+    } else {
+      setState({
+        ...state,
+        selectedSymptoms: [...state.selectedSymptoms, symptom],
+      });
+    }
+  };
+  const handleOtherSymptomsChange = text => {
+    setState({
+      ...state,
+      otherSymptoms: text,
+    });
+  };
+  const handleOtherSymptomsSubmit = () => {
+    if (state.otherSymptoms.trim() !== '') {
+      setState({
+        ...state,
+        selectedSymptoms: [
+          ...state.selectedSymptoms,
+          state.otherSymptoms.trim(),
+        ],
+        otherSymptoms: '',
+      });
+    }
+  };
+
+  const _renderSelectedSymptoms = () => {
+    return (
+      <View style={STYLES.selectedSymptomsContainer}>
+        <Text style={STYLES.label}>Selected Symptoms:</Text>
+        {state.selectedSymptoms.map((symptom, index) => (
+          <Text key={index} style={STYLES.labelError}>
+            {symptom}
+          </Text>
+        ))}
+      </View>
+    );
+  };
+  const _renderSymptomDropdown = () => {
+    return (
+      <View style={STYLES.labeled}>
+        <Text style={STYLES.label}>
+          Signs and Symptoms<Text style={STYLES.pointer}>*</Text>:
+        </Text>
+        <Picker
+          selectedValue={state.selectedSymptoms}
+          onValueChange={handleSymptomChange}
+          mode="dropdown"
+          style={[
+            STYLES.field,
+            {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+          ]}>
+          {utiSymptoms.map((symptom, index) => (
+            <Picker.Item key={index} label={symptom} value={symptom} />
+          ))}
+        </Picker>
+        {state.selectedSymptoms.includes('Other') && (
+          <TextInput
+            style={[
+              STYLES.field,
+              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+            ]}
+            value={state.otherSymptoms}
+            onChangeText={handleOtherSymptomsChange}
+            onSubmitEditing={handleOtherSymptomsSubmit}
+            placeholder="Enter Other"
+            placeholderTextColor={COLORS.BLACK}
+            multiline={true}
+            numberOfLines={4}
+          />
+        )}
+      </View>
+    );
+  };
+
+  const handleNextButtonPress = () => {
+    if (
+      state.selectedSymptoms.length === 0 ||
+      state.weight.trim() === '' ||
+      // state.height.trim() === '' ||
+      state.bloodPressure.systolicPressure.trim() === '' ||
+      state.bloodPressure.diastolicPressure.trim() === '' ||
+      state.bloodPressure.heartPulse.trim() === ''
+    ) {
+      // Display an alert to the user
+      Alert.alert(
+        'Missing Information',
+        'Please fill in all required fields.',
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: false},
+      );
+    } else {
+      navigation.navigate('RenalFunctionTest', {
+        inspectionData: state,
+        patientId: patientId,
+        age: age,
+        sex: sex,
       });
     }
   };
@@ -171,37 +287,28 @@ const InsepectionRFT = ({navigation, route}) => {
       {_header()}
 
       <ScrollView style={STYLES.body}>
-        <Text style={STYLES.title}>RFT Inspection</Text>
+        <Text style={STYLES.title}>Beneficiary Inspection - Monitoring</Text>
 
         {/* Signs and Symptoms */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Signs and Symptoms:</Text>
-          <TextInput
-            style={STYLES.field}
-            value={state.signsAndSymptoms}
-            onChangeText={text => setState({...state, signsAndSymptoms: text})}
-            placeholder="Enter Signs and Symptoms"
-            placeholderTextColor={COLORS.GREY}
-            multiline={true}
-            numberOfLines={4}
-          />
-        </View>
+        {_renderSymptomDropdown()}
+        {_renderSelectedSymptoms()}
 
         {/* Weight */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Weight <Text style={STYLES.pointer}>*</Text>:</Text>
+          <Text style={STYLES.label}>
+            Weight<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={STYLES.field}
             value={state.weight}
             onChangeText={text => {
               checkWeight(text);
-              const bmi = calculateBMI(text, state.height);
+              const bmi = calculateBMI(state.height, text);
               setState({...state, weight: text, bmi});
             }}
-            placeholder="Enter Weight in kgs"
+            placeholder="Enter Weight in Kgs"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
-            onBlur={() => checkWeight(state.weight)}
           />
         </View>
         {state.weightValidationMessage !== '' && (
@@ -212,7 +319,7 @@ const InsepectionRFT = ({navigation, route}) => {
 
         {/* Height */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Height <Text style={STYLES.pointer}>*</Text>:</Text>
+          <Text style={STYLES.label}>Height:</Text>
           <TextInput
             style={STYLES.field}
             value={state.height}
@@ -220,7 +327,7 @@ const InsepectionRFT = ({navigation, route}) => {
               const bmi = calculateBMI(state.weight, text);
               setState({...state, height: text, bmi});
             }}
-            placeholder="Enter Height in cm"
+            placeholder="Enter Height in cms"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />
@@ -237,7 +344,9 @@ const InsepectionRFT = ({navigation, route}) => {
         {/* Blood Pressure */}
         <View>
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Systolic Blood Pressure:</Text>
+            <Text style={STYLES.label}>
+              Systolic Blood Pressure<Text style={STYLES.pointer}>*</Text>:
+            </Text>
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.systolicPressure}
@@ -266,8 +375,11 @@ const InsepectionRFT = ({navigation, route}) => {
             </Text>
           )}
 
+          {/* diastolic pressure */}
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Diastolic Blood Pressure:</Text>
+            <Text style={STYLES.label}>
+              Diastolic Blood Pressure<Text style={STYLES.pointer}>*</Text>:
+            </Text>
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.diastolicPressure}
@@ -298,7 +410,9 @@ const InsepectionRFT = ({navigation, route}) => {
 
           {/* blood pressure */}
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Heart Pluse:</Text>
+            <Text style={STYLES.label}>
+              Heart Pluse<Text style={STYLES.pointer}>*</Text>:
+            </Text>
 
             <TextInput
               style={STYLES.field}
@@ -326,24 +440,25 @@ const InsepectionRFT = ({navigation, route}) => {
             {state.pluseValidationMessage}
           </Text>
         )}
-        <TouchableOpacity
-          style={STYLES.submit}
-          onPress={() =>
-            navigation.navigate('RenalFunctionTest', {
-              inspectionData: state,
-              patientId: patientId,
-              age: age,
-              sex: sex,
-            })
-          }>
-          <Text style={STYLES.submitText}>Next</Text>
-        </TouchableOpacity>
+        <View style={STYLES.buttonContainer}>
+          <TouchableOpacity
+            style={STYLES.backButton}
+            onPress={() => navigation.goBack()}>
+            <Text style={STYLES.backButtonText}>Back</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={STYLES.submit}
+            onPress={handleNextButtonPress}>
+            <Text style={STYLES.submitText}>Next</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-export default InsepectionRFT;
+export default Inspection;
 
 const STYLES = StyleSheet.create({
   wrapper: {
@@ -376,6 +491,13 @@ const STYLES = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     color: COLORS.BLACK,
+    fontSize: 14,
+  },
+  labelError: {
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginRight: 5,
+    color: COLORS.PRIMARY,
     fontSize: 14,
   },
   title: {
@@ -474,7 +596,8 @@ const STYLES = StyleSheet.create({
   },
   submit: {
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: COLORS.BLACK,
+    paddingHorizontal: 50,
     paddingVertical: 10,
     borderRadius: 10,
     marginBottom: 20,
@@ -483,6 +606,23 @@ const STYLES = StyleSheet.create({
     borderColor: COLORS.BLACK,
   },
   submitText: {
+    color: COLORS.WHITE,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  backButton: {
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: 50,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 10,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
+  },
+  backButtonText: {
     color: COLORS.BLACK,
     fontSize: 18,
     fontWeight: 'bold',
@@ -570,6 +710,24 @@ const STYLES = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
+  },
+  fieldError: {
+    borderWidth: 1,
+    borderColor: 'red',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: COLORS.BLACK,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 70,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
   pointer: {
     color: 'red',
