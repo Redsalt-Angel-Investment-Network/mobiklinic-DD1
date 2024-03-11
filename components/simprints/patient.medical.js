@@ -45,8 +45,8 @@ const PatientMedical = ({navigation, route}) => {
   const [customCondition, setCustomCondition] = useState('');
   const [showCustomConditionInput, setShowCustomConditionInput] =
     useState(false);
-  const [dateOfDiagnosis, setDateOfDiagnosis] = useState(''); // Add state for date of vaccination
-  const [followUpDate, setFollowUpDate] = useState(''); // Add state for date for next dose
+  const [dateOfDiagnosis, setDateOfDiagnosis] = useState('');
+  const [followUpDate, setFollowUpDate] = useState('');
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || dateOfDiagnosis;
@@ -461,7 +461,7 @@ const PatientMedical = ({navigation, route}) => {
         {/* Render medicine inputs */}
         {renderMedicineInputs()}
         <TouchableOpacity
-          style={STYLES.addMedicineButton}
+          // style={STYLES.addMedicineButton}
           onPress={handleAddMedicine}>
           <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
         </TouchableOpacity>
@@ -725,9 +725,9 @@ const STYLES = StyleSheet.create({
     color: COLORS.BLACK,
   },
   medicineRemoveButton: {
-    color: COLORS.RED, // Customize the color as needed
+    color: 'red',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 15,
     textAlign: 'right',
   },
   addMedicineButton: {
@@ -741,8 +741,9 @@ const STYLES = StyleSheet.create({
   },
   addMedicineButtonText: {
     color: COLORS.PRIMARY,
-    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: 'left',
+    textDecorationLine: 'underline',
   },
 });
