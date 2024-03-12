@@ -15,13 +15,11 @@ import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
 import Loader from '../ui/loader';
+import UrinalysisCounter from './urinalysis.counter';
 
 const Urinalysis = ({navigation, route}) => {
   const {historyData, inspectionData, patientId} = route.params;
-  console.log('History Data', historyData);
-  console.log('====================================');
-  console.log('Inspection Data', inspectionData);
-  console.log('====================================');
+ 
 
   const [state, setState] = useState({
     appearance: {
@@ -105,7 +103,7 @@ const Urinalysis = ({navigation, route}) => {
     }
     return '';
   };
-  
+
   const checkGlucose = glucose => {
     const validGlucoseValues = ['negative', 'trace'];
 
@@ -301,9 +299,10 @@ const Urinalysis = ({navigation, route}) => {
   );
   return (
     <View style={STYLES.wrapper}>
+      <UrinalysisCounter />
+
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       {_header()}
-
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Urinalysis Tests - Screening</Text>
 

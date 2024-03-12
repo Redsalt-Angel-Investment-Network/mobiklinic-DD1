@@ -24,7 +24,7 @@ import ReceivedChats from '../screens/Received.Chats';
 import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
-import Urinalysis from '../renal/urinalysis..screening';
+import Urinalysis from '../renal/urinalysis.screening';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
 import Inspection from '../renal/inspection.screening';
@@ -37,6 +37,7 @@ import InsepectionRFT from '../renal/inspection.rft';
 import DrawerLogged from '../navigators/drawer.logged';
 import About from '../screens/about';
 import RenalDrugs from '../renal/renal.drugs';
+import UrinalysisCounter from '../renal/urinalysis.counter';
 
 const Stack = createStackNavigator();
 
@@ -210,6 +211,11 @@ function AuthStack() {
         name="RenalDrugs"
         options={{headerShown: false}}
         component={RenalDrugs}
+      />
+      <Stack.Screen
+        name="UrinalysisCounter"
+        options={{headerShown: false}}
+        component={UrinalysisCounter}
       />
     </Stack.Navigator>
   );
