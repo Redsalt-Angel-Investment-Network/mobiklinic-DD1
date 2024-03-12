@@ -299,10 +299,11 @@ const Urinalysis = ({navigation, route}) => {
   );
   return (
     <View style={STYLES.wrapper}>
-      <UrinalysisCounter />
 
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       {_header()}
+      <UrinalysisCounter />
+
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Urinalysis Tests - Screening</Text>
 

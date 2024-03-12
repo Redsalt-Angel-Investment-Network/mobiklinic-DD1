@@ -15,6 +15,7 @@ import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
 import Loader from '../ui/loader';
+import UrinalysisCounter from './urinalysis.counter';
 
 const UrinalysisMonitoring = ({navigation, route}) => {
   const {inspectionData, patientId} = route.params;
@@ -108,7 +109,7 @@ const UrinalysisMonitoring = ({navigation, route}) => {
     }
     return '';
   };
-  
+
   const checkGlucose = glucose => {
     const validGlucoseValues = ['negative', 'trace'];
 
@@ -305,7 +306,9 @@ const UrinalysisMonitoring = ({navigation, route}) => {
   return (
     <View style={STYLES.wrapper}>
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
+
       {_header()}
+      <UrinalysisCounter />
 
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}> Follow Up Urinalysis Tests</Text>
