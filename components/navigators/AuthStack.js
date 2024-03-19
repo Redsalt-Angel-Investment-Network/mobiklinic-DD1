@@ -40,6 +40,7 @@ import RenalDrugs from '../renal/renal.drugs';
 import ChatComponent from '../chat/ChatComponent';
 import Cometchat from '../chat/Cometchat';
 import ChatScreen2 from '../chat/socket2';
+import {ChatView} from '../chat/ChartView';
 
 const Stack = createStackNavigator();
 
@@ -228,6 +229,11 @@ function AuthStack() {
         name="ChatScreen2"
         options={{headerShown: false}}
         component={ChatScreen2}
+      />
+      <Stack.Screen
+        name="ChatView"
+        options={{headerShown: false}}
+        component={ChatView}
       />
       
     </Stack.Navigator>
