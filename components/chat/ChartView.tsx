@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Image } from 'react-native';
 import PubNub from 'pubnub';
 import { PubNubProvider } from 'pubnub-react';
 import {
@@ -57,16 +57,27 @@ export function ChatView(): JSX.Element {
 }
 
 function UserList({ onSelectChat }: { onSelectChat: (chatName: string) => void }) {
+  const userAvatars = {
+    Ibrahim: require('../../assets/adaptive-icon.png'),
+    Daphne: require('../../assets/adaptive-icon.png'),
+    // Add more avatars here
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <TouchableOpacity onPress={() => onSelectChat('Ibrahim')}>
-        <Text style={styles.userName}>Ibrahim</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('John')}>
-        <Text style={styles.userName}>John</Text>
-      </TouchableOpacity>
-      {/* Add more users here */}
-    </ScrollView>
+    <View>
+      <Text style={styles.userListHeader}>Welcome to Mobi Doctors</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <TouchableOpacity onPress={() => onSelectChat('Dr Ibrahim')} style={styles.userItem}>
+          <Image source={userAvatars['Ibrahim']} style={styles.avatar} />
+          <Text style={styles.userName}>Dr Ibrahim</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => onSelectChat('Dr Daphne')} style={styles.userItem}>
+          <Image source={userAvatars['Daphne']} style={styles.avatar} />
+          <Text style={styles.userName}>Dr Daphnne</Text>
+        </TouchableOpacity>
+        {/* Add more users here */}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -99,16 +110,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  userListHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 10,
+  },
   scrollViewContent: {
-    paddingVertical: 20,
     paddingHorizontal: 10,
   },
-  userName: {
-    fontSize: 18,
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
     paddingBottom: 5,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  userName: {
+    fontSize: 18,
   },
   chatRoomContainer: {
     flex: 1,
