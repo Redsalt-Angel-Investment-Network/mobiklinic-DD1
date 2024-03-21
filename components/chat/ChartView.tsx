@@ -38,6 +38,9 @@ export function ChatView(): JSX.Element {
 
   return (
     <View style={styles.container}>
+      {/* <View style={styles.userListHeader}>
+        <Text style={styles.userListHeaderText}>Welcome to Mobi Doctors</Text>
+      </View> */}
       {pubnubInstance && (
         <PubNubProvider client={pubnubInstance}>
           {activeChat ? (
@@ -59,24 +62,24 @@ export function ChatView(): JSX.Element {
 function UserList({ onSelectChat }: { onSelectChat: (chatName: string) => void }) {
   const userAvatars = {
     Ibrahim: require('../../assets/adaptive-icon.png'),
-    Daphne: require('../../assets/adaptive-icon.png'),
+    John: require('../../assets/adaptive-icon.png'),
     // Add more avatars here
   };
 
   return (
     <View>
       <Text style={styles.userListHeader}>Welcome to Mobi Doctors</Text>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <TouchableOpacity onPress={() => onSelectChat('Dr Ibrahim')} style={styles.userItem}>
-          <Image source={userAvatars['Ibrahim']} style={styles.avatar} />
-          <Text style={styles.userName}>Dr Ibrahim</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => onSelectChat('Dr Daphne')} style={styles.userItem}>
-          <Image source={userAvatars['Daphne']} style={styles.avatar} />
-          <Text style={styles.userName}>Dr Daphnne</Text>
-        </TouchableOpacity>
-        {/* Add more users here */}
-      </ScrollView>
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <TouchableOpacity onPress={() => onSelectChat('Ibrahim')} style={styles.userItem}>
+        <Image source={userAvatars['Ibrahim']} style={styles.avatar} />
+        <Text style={styles.userName}>Ibrahim</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onSelectChat('John')} style={styles.userItem}>
+        <Image source={userAvatars['John']} style={styles.avatar} />
+        <Text style={styles.userName}>John</Text>
+      </TouchableOpacity>
+      {/* Add more users here */}
+    </ScrollView>
     </View>
   );
 }
@@ -148,9 +151,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButton: {
-    fontSize: 20,
+    fontSize: 16,
     color: 'blue',
     marginBottom: 10,
-    marginTop: 20,
   },
 });
