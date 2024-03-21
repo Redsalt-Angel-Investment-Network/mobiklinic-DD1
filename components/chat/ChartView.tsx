@@ -63,6 +63,10 @@ function UserList({ onSelectChat }: { onSelectChat: (chatName: string) => void }
   const userAvatars = {
     Ibrahim: require('../../assets/adaptive-icon.png'),
     John: require('../../assets/adaptive-icon.png'),
+    Miiro: require('../../assets/adaptive-icon.png'),
+    Fred: require('../../assets/adaptive-icon.png'),
+    Rogers: require('../../assets/adaptive-icon.png'),
+    Alima: require('../../assets/adaptive-icon.png'),
     // Add more avatars here
   };
 
@@ -72,11 +76,27 @@ function UserList({ onSelectChat }: { onSelectChat: (chatName: string) => void }
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <TouchableOpacity onPress={() => onSelectChat('Dr-Ibrahim')} style={styles.userItem}>
         <Image source={userAvatars['Ibrahim']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr Ibrahim</Text>
+        <Text style={styles.userName}>Dr Ibrahim Mutyaba</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => onSelectChat('Dr-John')} style={styles.userItem}>
         <Image source={userAvatars['John']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr John</Text>
+        <Text style={styles.userName}>Dr John Mulungi</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onSelectChat('Dr-Miiro')} style={styles.userItem}>
+        <Image source={userAvatars['Miiro']} style={styles.avatar} />
+        <Text style={styles.userName}>Dr Miiro Chraish</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onSelectChat('Dr-Fred')} style={styles.userItem}>
+        <Image source={userAvatars['Fred']} style={styles.avatar} />
+        <Text style={styles.userName}>Dr Fred Okori</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onSelectChat('Dr-Rogers')} style={styles.userItem}>
+        <Image source={userAvatars['Rogers']} style={styles.avatar} />
+        <Text style={styles.userName}>Dr Rogers Ndayisaba</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => onSelectChat('Dr-Alima')} style={styles.userItem}>
+        <Image source={userAvatars['Alima']} style={styles.avatar} />
+        <Text style={styles.userName}>Dr Alimah Komuhangi</Text>
       </TouchableOpacity>
       {/* Add more users here */}
     </ScrollView>
@@ -131,6 +151,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
     paddingBottom: 5,
+  
   },
   avatar: {
     width: 50,
@@ -151,8 +172,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButton: {
-    fontSize: 16,
-    color: 'blue',
+    fontSize: 20,
+    color: '#21618C',
     marginBottom: 10,
+    marginTop: 10,
+    fontWeight: 'bold',
   },
 });
