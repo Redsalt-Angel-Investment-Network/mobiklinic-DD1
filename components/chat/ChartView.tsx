@@ -70,13 +70,13 @@ function UserList({ onSelectChat }: { onSelectChat: (chatName: string) => void }
     <View>
       <Text style={styles.userListHeader}>Welcome to Mobi Doctors</Text>
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <TouchableOpacity onPress={() => onSelectChat('Ibrahim')} style={styles.userItem}>
+      <TouchableOpacity onPress={() => onSelectChat('Dr-Ibrahim')} style={styles.userItem}>
         <Image source={userAvatars['Ibrahim']} style={styles.avatar} />
-        <Text style={styles.userName}>Ibrahim</Text>
+        <Text style={styles.userName}>Dr Ibrahim</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('John')} style={styles.userItem}>
+      <TouchableOpacity onPress={() => onSelectChat('Dr-John')} style={styles.userItem}>
         <Image source={userAvatars['John']} style={styles.avatar} />
-        <Text style={styles.userName}>John</Text>
+        <Text style={styles.userName}>Dr John</Text>
       </TouchableOpacity>
       {/* Add more users here */}
     </ScrollView>
