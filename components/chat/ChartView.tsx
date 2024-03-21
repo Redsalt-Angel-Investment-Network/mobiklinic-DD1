@@ -28,8 +28,8 @@ export function ChatView(): JSX.Element {
     }
   }, [userLog, userNames]); // Make sure userLog and userNames are included in the dependency array
 
-  const handleChatSelection = (chatName: string) => {
-    setActiveChat(chatName);
+  const handleChatSelection = (doctorName: string) => {
+    setActiveChat(`${doctorName}-${userNames}`); // Unique channel for each user-doctor chat
   };
 
   const handleSendMessage = () => {
@@ -38,9 +38,6 @@ export function ChatView(): JSX.Element {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.userListHeader}>
-        <Text style={styles.userListHeaderText}>Welcome to Mobi Doctors</Text>
-      </View> */}
       {pubnubInstance && (
         <PubNubProvider client={pubnubInstance}>
           {activeChat ? (
@@ -51,7 +48,7 @@ export function ChatView(): JSX.Element {
               onCloseChat={() => setActiveChat(null)}
             />
           ) : (
-            <UserList onSelectChat={handleChatSelection} />
+            <DoctorList onSelectChat={handleChatSelection} />
           )}
         </PubNubProvider>
       )}
@@ -59,47 +56,39 @@ export function ChatView(): JSX.Element {
   );
 }
 
-function UserList({ onSelectChat }: { onSelectChat: (chatName: string) => void }) {
-  const userAvatars = {
-    Ibrahim: require('../../assets/adaptive-icon.png'),
-    John: require('../../assets/adaptive-icon.png'),
-    Miiro: require('../../assets/adaptive-icon.png'),
-    Fred: require('../../assets/adaptive-icon.png'),
-    Rogers: require('../../assets/adaptive-icon.png'),
-    Alima: require('../../assets/adaptive-icon.png'),
+function DoctorList({ onSelectChat }: { onSelectChat: (doctorName: string) => void }) {
+  const doctors = [
+    'Dr-Ibrahim',
+    'Dr-John',
+    'Dr-Miiro',
+    'Dr-Fred',
+    'Dr-Rogers',
+    'Dr-Alima',
+    // Add more doctors here
+  ];
+
+  const userAvatars: { [key: string]: any } = {
+    'Dr-Ibrahim': require('../../assets/adaptive-icon.png'),
+    'Dr-John': require('../../assets/adaptive-icon.png'),
+    'Dr-Miiro': require('../../assets/adaptive-icon.png'),
+    'Dr-Fred': require('../../assets/adaptive-icon.png'),
+    'Dr-Rogers': require('../../assets/adaptive-icon.png'),
+    'Dr-Alima': require('../../assets/adaptive-icon.png'),
     // Add more avatars here
   };
+  
 
   return (
     <View>
       <Text style={styles.userListHeader}>Welcome to Mobi Doctors</Text>
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <TouchableOpacity onPress={() => onSelectChat('Dr-Ibrahim')} style={styles.userItem}>
-        <Image source={userAvatars['Ibrahim']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr Ibrahim Mutyaba</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('Dr-John')} style={styles.userItem}>
-        <Image source={userAvatars['John']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr John Mulungi</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('Dr-Miiro')} style={styles.userItem}>
-        <Image source={userAvatars['Miiro']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr Miiro Chraish</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('Dr-Fred')} style={styles.userItem}>
-        <Image source={userAvatars['Fred']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr Fred Okori</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('Dr-Rogers')} style={styles.userItem}>
-        <Image source={userAvatars['Rogers']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr Rogers Ndayisaba</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => onSelectChat('Dr-Alima')} style={styles.userItem}>
-        <Image source={userAvatars['Alima']} style={styles.avatar} />
-        <Text style={styles.userName}>Dr Alimah Komuhangi</Text>
-      </TouchableOpacity>
-      {/* Add more users here */}
-    </ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {doctors.map(doctor => (
+          <TouchableOpacity key={doctor} onPress={() => onSelectChat(doctor)} style={styles.userItem}>
+            <Image source={userAvatars[doctor]} style={styles.avatar} />
+            <Text style={styles.userName}>{doctor}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -151,7 +140,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
     paddingBottom: 5,
-  
   },
   avatar: {
     width: 50,
