@@ -38,6 +38,7 @@ import DrawerLogged from '../navigators/drawer.logged';
 import About from '../screens/about';
 import RenalDrugs from '../renal/renal.drugs';
 import UrinalysisCounter from '../renal/urinalysis.counter';
+import Hospital from '../screens/hospitals';
 
 const Stack = createStackNavigator();
 
@@ -216,6 +217,11 @@ function AuthStack() {
         name="UrinalysisCounter"
         options={{headerShown: false}}
         component={UrinalysisCounter}
+      />
+       <Stack.Screen
+        name="Hospital"
+        options={{headerShown: false}}
+        component={Hospital}
       />
     </Stack.Navigator>
   );
