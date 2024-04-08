@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState,useEffect} from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,12 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 
-const InspectionMonitoring = ({navigation, route}) => {
+const Inspection = ({navigation, route}) => {
   const {patientId} = route.params;
 
   const [state, setState] = useState({
-    signsAndSymptoms: '',
+    selectedSymptoms: [],
+    otherSymptoms: '',
     weight: '',
     height: '',
     bmi: '',
@@ -31,11 +32,10 @@ const InspectionMonitoring = ({navigation, route}) => {
     diastolicValidationMessage: '',
     pluseValidationMessage: '',
   });
-
   useEffect(() => {
     Alert.alert(
       'Instructions',
-      'Have you ever done screening for this patient before?\n\nClick "YES" it was. ',
+      'Have you ever done screening for this patient before?\n ',
       [
         {
           text: 'YES',
@@ -53,7 +53,6 @@ const InspectionMonitoring = ({navigation, route}) => {
       {cancelable: false},
     );
   }, []);
-
   const calculateBMI = (weight, height) => {
     const weightInKg = parseFloat(weight);
     const heightInM = parseFloat(height) / 100; // Convert height to meters
@@ -137,7 +136,123 @@ const InspectionMonitoring = ({navigation, route}) => {
     }
   };
 
-  
+  const utiSymptoms = [
+    'Pain or burning sensation during urination',
+    'Frequent urination',
+    'Strong urge to urinate',
+    'Cloudy or bloody urine',
+    'Strong-smelling urine',
+    'Pelvic pain (in women)',
+    'Rectal pain (in men)',
+    'Other',
+  ];
+
+  const handleSymptomChange = symptom => {
+    if (symptom === 'Other') {
+      setState({
+        ...state,
+        otherSymptoms: '',
+        selectedSymptoms: [...state.selectedSymptoms, symptom],
+      });
+    } else {
+      setState({
+        ...state,
+        selectedSymptoms: [...state.selectedSymptoms, symptom],
+      });
+    }
+  };
+  const handleOtherSymptomsChange = text => {
+    setState({
+      ...state,
+      otherSymptoms: text,
+    });
+  };
+  const handleOtherSymptomsSubmit = () => {
+    if (state.otherSymptoms.trim() !== '') {
+      setState({
+        ...state,
+        selectedSymptoms: [
+          ...state.selectedSymptoms,
+          state.otherSymptoms.trim(),
+        ],
+        otherSymptoms: '',
+      });
+    }
+  };
+
+  const _renderSelectedSymptoms = () => {
+    return (
+      <View style={STYLES.selectedSymptomsContainer}>
+        <Text style={STYLES.label}>Selected Symptoms:</Text>
+        {state.selectedSymptoms.map((symptom, index) => (
+          <Text key={index} style={STYLES.labelError}>
+            {symptom}
+          </Text>
+        ))}
+      </View>
+    );
+  };
+  const _renderSymptomDropdown = () => {
+    return (
+      <View style={STYLES.labeled}>
+        <Text style={STYLES.label}>
+          Signs and Symptoms<Text style={STYLES.pointer}>*</Text>:
+        </Text>
+        <Picker
+          selectedValue={state.selectedSymptoms}
+          onValueChange={handleSymptomChange}
+          mode="dropdown"
+          style={[
+            STYLES.field,
+            {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+          ]}>
+          {utiSymptoms.map((symptom, index) => (
+            <Picker.Item key={index} label={symptom} value={symptom} />
+          ))}
+        </Picker>
+        {state.selectedSymptoms.includes('Other') && (
+          <TextInput
+            style={[
+              STYLES.field,
+              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+            ]}
+            value={state.otherSymptoms}
+            onChangeText={handleOtherSymptomsChange}
+            onSubmitEditing={handleOtherSymptomsSubmit}
+            placeholder="Enter Other"
+            placeholderTextColor={COLORS.BLACK}
+            multiline={true}
+            numberOfLines={4}
+          />
+        )}
+      </View>
+    );
+  };
+
+  const handleNextButtonPress = () => {
+    if (
+      state.selectedSymptoms.length === 0 ||
+      state.weight.trim() === '' ||
+      // state.height.trim() === '' ||
+      state.bloodPressure.systolicPressure.trim() === '' ||
+      state.bloodPressure.diastolicPressure.trim() === '' ||
+      state.bloodPressure.heartPulse.trim() === ''
+    ) {
+      // Display an alert to the user
+      Alert.alert(
+        'Missing Information',
+        'Please fill in all required fields.',
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: false},
+      );
+    } else {
+      navigation.navigate('UrinalysisMonitoring', {
+        inspectionData: state,
+        patientId: patientId,
+      });
+    }
+  };
+
   const _header = () => (
     <CustomHeader
       left={
@@ -163,33 +278,25 @@ const InspectionMonitoring = ({navigation, route}) => {
       {_header()}
 
       <ScrollView style={STYLES.body}>
-        <Text style={STYLES.title}>Follow Up Monitoring</Text>
+        <Text style={STYLES.title}>Beneficiary Inspection - Monitoring</Text>
 
         {/* Signs and Symptoms */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Signs and Symptoms:</Text>
-          <TextInput
-            style={STYLES.field}
-            value={state.signsAndSymptoms}
-            onChangeText={text => setState({...state, signsAndSymptoms: text})}
-            placeholder="Enter Signs and Symptoms"
-            placeholderTextColor={COLORS.GREY}
-            multiline={true}
-            numberOfLines={4}
-          />
-        </View>
+        {_renderSymptomDropdown()}
+        {_renderSelectedSymptoms()}
 
         {/* Weight */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Weight:</Text>
+          <Text style={STYLES.label}>
+            Weight<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={STYLES.field}
             value={state.weight}
             onChangeText={text => {
-              const bmi = calculateBMI(text, state.height);
+              const bmi = calculateBMI(state.height, text);
               setState({...state, weight: text, bmi});
             }}
-            placeholder="Enter Weight in kgs"
+            placeholder="Enter Weight in Kgs"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
           />
@@ -222,7 +329,9 @@ const InspectionMonitoring = ({navigation, route}) => {
         {/* Blood Pressure */}
         <View>
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Systolic Blood Pressure:</Text>
+            <Text style={STYLES.label}>
+              Systolic Blood Pressure<Text style={STYLES.pointer}>*</Text>:
+            </Text>
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.systolicPressure}
@@ -253,7 +362,9 @@ const InspectionMonitoring = ({navigation, route}) => {
 
           {/* diastolic pressure */}
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Diastolic Blood Pressure:</Text>
+            <Text style={STYLES.label}>
+              Diastolic Blood Pressure<Text style={STYLES.pointer}>*</Text>:
+            </Text>
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.diastolicPressure}
@@ -284,7 +395,9 @@ const InspectionMonitoring = ({navigation, route}) => {
 
           {/* blood pressure */}
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Heart Pluse:</Text>
+            <Text style={STYLES.label}>
+              Heart Pluse<Text style={STYLES.pointer}>*</Text>:
+            </Text>
 
             <TextInput
               style={STYLES.field}
@@ -312,18 +425,25 @@ const InspectionMonitoring = ({navigation, route}) => {
             {state.pluseValidationMessage}
           </Text>
         )}
-        <TouchableOpacity
-          style={STYLES.submit}
-          onPress={() => navigateToNextScreen()
-          }>
-          <Text style={STYLES.submitText}>Next</Text>
-        </TouchableOpacity>
+        <View style={STYLES.buttonContainer}>
+          <TouchableOpacity
+            style={STYLES.backButton}
+            onPress={() => navigation.goBack()}>
+            <Text style={STYLES.backButtonText}>Back</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={STYLES.submit}
+            onPress={handleNextButtonPress}>
+            <Text style={STYLES.submitText}>Next</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-export default InspectionMonitoring;
+export default Inspection;
 
 const STYLES = StyleSheet.create({
   wrapper: {
@@ -356,6 +476,13 @@ const STYLES = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     color: COLORS.BLACK,
+    fontSize: 14,
+  },
+  labelError: {
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginRight: 5,
+    color: COLORS.PRIMARY,
     fontSize: 14,
   },
   title: {
@@ -454,7 +581,8 @@ const STYLES = StyleSheet.create({
   },
   submit: {
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: COLORS.BLACK,
+    paddingHorizontal: 50,
     paddingVertical: 10,
     borderRadius: 10,
     marginBottom: 20,
@@ -463,6 +591,23 @@ const STYLES = StyleSheet.create({
     borderColor: COLORS.BLACK,
   },
   submitText: {
+    color: COLORS.WHITE,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  backButton: {
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: 50,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginTop: 10,
+    borderWidth: 2,
+    borderColor: COLORS.BLACK,
+  },
+  backButtonText: {
     color: COLORS.BLACK,
     fontSize: 18,
     fontWeight: 'bold',
@@ -550,5 +695,29 @@ const STYLES = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
     marginBottom: 5,
+  },
+  fieldError: {
+    borderWidth: 1,
+    borderColor: 'red',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: COLORS.BLACK,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 70,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

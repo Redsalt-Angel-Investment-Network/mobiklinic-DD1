@@ -16,13 +16,10 @@ import {Picker} from '@react-native-picker/picker';
 
 const Inspection = ({navigation, route}) => {
   const {historyData, patientId} = route.params;
-  console.log('History Data:', historyData);
-  console.log('====================================');
-  console.log('PATIENT ID: ', patientId);
-  console.log('====================================');
 
   const [state, setState] = useState({
-    signsAndSymptoms: '',
+    selectedSymptoms: [],
+    otherSymptoms: '',
     weight: '',
     height: '',
     bmi: '',
@@ -119,6 +116,125 @@ const Inspection = ({navigation, route}) => {
     }
   };
 
+  const utiSymptoms = [
+    'Pain or burning sensation during urination',
+    'Frequent urination',
+    'Strong urge to urinate',
+    'Cloudy or bloody urine',
+    'Strong-smelling urine',
+    'Pelvic pain (in women)',
+    'Rectal pain (in men)',
+    'Other',
+  ];
+
+  const handleSymptomChange = symptom => {
+    if (symptom === 'Other') {
+      setState({
+        ...state,
+        otherSymptoms: '',
+        selectedSymptoms: [...state.selectedSymptoms, symptom],
+      });
+    } else {
+      setState({
+        ...state,
+        selectedSymptoms: [...state.selectedSymptoms, symptom],
+      });
+    }
+  };
+  const handleOtherSymptomsChange = text => {
+    setState({
+      ...state,
+      otherSymptoms: text,
+    });
+  };
+  const handleOtherSymptomsSubmit = () => {
+    if (state.otherSymptoms.trim() !== '') {
+      setState({
+        ...state,
+        selectedSymptoms: [
+          ...state.selectedSymptoms,
+          state.otherSymptoms.trim(),
+        ],
+        otherSymptoms: '',
+      });
+    }
+  };
+
+  const _renderSelectedSymptoms = () => {
+    return (
+      <View style={STYLES.selectedSymptomsContainer}>
+        <Text style={STYLES.label}>Selected Symptoms:</Text>
+        {state.selectedSymptoms.map((symptom, index) => (
+          <Text key={index} style={STYLES.labelError}>
+            {symptom}
+          </Text>
+        ))}
+      </View>
+    );
+  };
+  const _renderSymptomDropdown = () => {
+    return (
+      <View style={STYLES.labeled}>
+        <Text style={STYLES.label}>
+          Signs and Symptoms<Text style={STYLES.pointer}>*</Text>:
+        </Text>
+        <Picker
+          selectedValue={state.selectedSymptoms}
+          onValueChange={handleSymptomChange}
+          mode="dropdown"
+          style={[
+            STYLES.field,
+            {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+          ]}>
+          {utiSymptoms.map((symptom, index) => (
+            <Picker.Item key={index} label={symptom} value={symptom} />
+          ))}
+        </Picker>
+        {state.selectedSymptoms.includes('Other') && (
+          <TextInput
+            style={[
+              STYLES.field,
+              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+            ]}
+            value={state.otherSymptoms}
+            onChangeText={handleOtherSymptomsChange}
+            onSubmitEditing={handleOtherSymptomsSubmit}
+            placeholder="Enter Other"
+            placeholderTextColor={COLORS.BLACK}
+            multiline={true}
+            numberOfLines={4}
+          />
+        )}
+      </View>
+    );
+  };
+
+  const handleNextButtonPress = () => {
+    if (
+      state.selectedSymptoms.length === 0 ||
+      state.weight.trim() === '' ||
+      state.height.trim() === '' ||
+      state.bloodPressure.systolicPressure.trim() === '' ||
+      state.bloodPressure.diastolicPressure.trim() === '' ||
+      state.bloodPressure.heartPulse.trim() === ''
+    ) {
+      // Display an alert to the user
+      Alert.alert(
+        'Missing Information',
+        'Please fill in all required fields.',
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: false},
+      );
+    } else {
+      // All required fields are filled, navigate to the next page
+      navigation.navigate('Urinalysis', {
+        inspectionData: state,
+        historyData: historyData,
+        patientId: patientId,
+      });
+    }
+  };
+
   const _header = () => (
     <CustomHeader
       left={
@@ -147,22 +263,14 @@ const Inspection = ({navigation, route}) => {
         <Text style={STYLES.title}>Beneficiary Inspection</Text>
 
         {/* Signs and Symptoms */}
-        <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Signs and Symptoms:</Text>
-          <TextInput
-            style={STYLES.field}
-            value={state.signsAndSymptoms}
-            onChangeText={text => setState({...state, signsAndSymptoms: text})}
-            placeholder="Enter Signs and Symptoms"
-            placeholderTextColor={COLORS.GREY}
-            multiline={true}
-            numberOfLines={4}
-          />
-        </View>
+        {_renderSymptomDropdown()}
+        {_renderSelectedSymptoms()}
 
         {/* Weight */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Weight:</Text>
+          <Text style={STYLES.label}>
+            Weight<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={STYLES.field}
             value={state.weight}
@@ -203,7 +311,9 @@ const Inspection = ({navigation, route}) => {
         {/* Blood Pressure */}
         <View>
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Systolic Blood Pressure:</Text>
+            <Text style={STYLES.label}>
+              Systolic Blood Pressure<Text style={STYLES.pointer}>*</Text>:
+            </Text>
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.systolicPressure}
@@ -234,7 +344,9 @@ const Inspection = ({navigation, route}) => {
 
           {/* diastolic pressure */}
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Diastolic Blood Pressure:</Text>
+            <Text style={STYLES.label}>
+              Diastolic Blood Pressure<Text style={STYLES.pointer}>*</Text>:
+            </Text>
             <TextInput
               style={STYLES.field}
               value={state.bloodPressure.diastolicPressure}
@@ -265,7 +377,9 @@ const Inspection = ({navigation, route}) => {
 
           {/* blood pressure */}
           <View style={STYLES.labeled}>
-            <Text style={STYLES.label}>Heart Pluse:</Text>
+            <Text style={STYLES.label}>
+              Heart Pluse<Text style={STYLES.pointer}>*</Text>:
+            </Text>
 
             <TextInput
               style={STYLES.field}
@@ -302,13 +416,7 @@ const Inspection = ({navigation, route}) => {
 
           <TouchableOpacity
             style={STYLES.submit}
-            onPress={() =>
-              navigation.navigate('Urinalysis', {
-                inspectionData: state,
-                historyData: historyData,
-                patientId: patientId,
-              })
-            }>
+            onPress={handleNextButtonPress}>
             <Text style={STYLES.submitText}>Next</Text>
           </TouchableOpacity>
         </View>
@@ -350,6 +458,13 @@ const STYLES = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     color: COLORS.BLACK,
+    fontSize: 14,
+  },
+  labelError: {
+    fontWeight: 'bold',
+    marginLeft: 5,
+    marginRight: 5,
+    color: COLORS.PRIMARY,
     fontSize: 14,
   },
   title: {
@@ -580,5 +695,11 @@ const STYLES = StyleSheet.create({
     minHeight: 70,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

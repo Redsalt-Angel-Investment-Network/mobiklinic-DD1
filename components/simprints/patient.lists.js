@@ -30,6 +30,7 @@ const PatientCard = ({patient}) => {
   const [rftExpanded, setRFTExpanded] = useState(false);
   const [antenantalExpanded, setAntenantalExpanded] = useState(false);
   const [diagnosisExpanded, setDiagnosisExpanded] = useState(false);
+  const [drugsExpanded, setDrugsExpanded] = useState(false);
 
   const toggleAccordion = () => {
     setExpanded(!expanded);
@@ -52,7 +53,9 @@ const PatientCard = ({patient}) => {
   const toggleDiagnosis = () => {
     setDiagnosisExpanded(!diagnosisExpanded);
   };
-
+  const toggleDrugs = () => {
+    setDrugsExpanded(!drugsExpanded);
+  };
   const handleRedirect = () => {
     console.log('Patient ID:', patient.id);
     const age = calculateAge(patient.dateOfBirth);
@@ -118,12 +121,7 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Primary Language: {patient.primaryLanguage}
           </Text>
-          <Text style={styles.accordionLabel}>
-            Country Of Residence: {patient.country}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            District: {patient.district}
-          </Text>
+
           <Text style={styles.accordionLabel}>
             Next of Kin: {patient.nextOfKin}
           </Text>
@@ -133,6 +131,7 @@ const PatientCard = ({patient}) => {
           <Text style={styles.accordionLabel}>
             Ethnicity: {patient.ethinicity}
           </Text>
+
           <Text style={styles.accordionLabel}>Height: {patient.height} cm</Text>
           <Text style={styles.accordionLabel}>
             Weight: {patient.weight} kgs
@@ -324,64 +323,105 @@ const PatientCard = ({patient}) => {
               patient.monitorings &&
               patient.monitorings.map(monitoring => (
                 <View key={monitoring.id} style={styles.vaccinationItem}>
-                  {monitoring.monitoringData && (
-                    <View style={styles.monitoringItem}>
-                      {/* Chemistry */}
-                      <Text style={styles.inspectionItem}>Chemistry:</Text>
-                      <View>
-                        {monitoring.monitoringData.chemistry &&
-                          Object.entries(
-                            monitoring.monitoringData.chemistry,
-                          ).map(([key, value]) => (
-                            <Text key={key} style={styles.accordionLabel}>
-                              {key}: {value}
-                            </Text>
-                          ))}
-                      </View>
+                  {monitoring.monitoringData &&
+                    monitoring.monitoringData.length > 0 && (
+                      <View style={styles.monitoringItem}>
+                        {/* Chemistry */}
+                        <Text style={styles.inspectionItem}>Chemistry:</Text>
+                        <View>
+                          {monitoring.monitoringData[0].chemistry &&
+                            Object.entries(
+                              monitoring.monitoringData[0].chemistry,
+                            ).map(([key, value]) => (
+                              <Text key={key} style={styles.accordionLabel}>
+                                {key}: {value}
+                              </Text>
+                            ))}
+                        </View>
 
-                      {/* Appearance */}
-                      <Text style={styles.inspectionItem}>Appearance:</Text>
-                      <View>
-                        {monitoring.monitoringData.appearance &&
-                          Object.entries(
-                            monitoring.monitoringData.appearance,
-                          ).map(([key, value]) => (
-                            <Text key={key} style={styles.accordionLabel}>
-                              {key}: {value}
-                            </Text>
-                          ))}
-                      </View>
+                        {/* Appearance */}
+                        <Text style={styles.inspectionItem}>Appearance:</Text>
+                        <View>
+                          {monitoring.monitoringData[0].appearance &&
+                            Object.entries(
+                              monitoring.monitoringData[0].appearance,
+                            ).map(([key, value]) => (
+                              <Text key={key} style={styles.accordionLabel}>
+                                {key}: {value}
+                              </Text>
+                            ))}
+                        </View>
 
-                      {/* Inspection Data */}
-                      <Text style={styles.inspectionItem}>
-                        Inspection Data:
-                      </Text>
-                      <View>
-                        {monitoring.monitoringData.inspectionData &&
-                          Object.entries(
-                            monitoring.monitoringData.inspectionData,
-                          ).map(([key, value]) => (
-                            <View key={key}>
-                              {typeof value === 'object' ? (
-                                Object.entries(value).map(
-                                  ([subKey, subValue]) => (
-                                    <Text
-                                      key={subKey}
-                                      style={styles.accordionLabel}>
-                                      {subKey}: {subValue}
-                                    </Text>
-                                  ),
-                                )
-                              ) : (
-                                <Text style={styles.accordionLabel}>
-                                  {key}: {value}
-                                </Text>
-                              )}
-                            </View>
-                          ))}
+                        {/* Inspection Data */}
+                        <Text style={styles.inspectionItem}>
+                          Inspection Data:
+                        </Text>
+                        <View>
+                          {monitoring.monitoringData[0].inspectionData &&
+                            Object.entries(
+                              monitoring.monitoringData[0].inspectionData,
+                            ).map(([key, value]) => (
+                              <View key={key}>
+                                {typeof value === 'object' ? (
+                                  Object.entries(value).map(
+                                    ([subKey, subValue]) => (
+                                      <Text
+                                        key={subKey}
+                                        style={styles.accordionLabel}>
+                                        {subKey}: {subValue}
+                                      </Text>
+                                    ),
+                                  )
+                                ) : (
+                                  <Text style={styles.accordionLabel}>
+                                    {key}: {value}
+                                  </Text>
+                                )}
+                              </View>
+                            ))}
+                        </View>
                       </View>
-                    </View>
-                  )}
+                    )}
+                </View>
+              ))}
+          </View>
+
+          {/* drugs for rft */}
+          {/* Drugs */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleDrugs}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Drugs</Text>
+              <FontAwesomeIcon
+                name={drugsExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {patient &&
+              !drugsExpanded &&
+              patient.drugs &&
+              patient.drugs.map(drugGroup => (
+                <View key={drugGroup.id} style={styles.vaccinationItem}>
+                  {drugGroup.drugs &&
+                    drugGroup.drugs.map((drug, index) => (
+                      <View key={index} style={styles.monitoringItem}>
+                        <Text style={styles.inspectionItem}>{drug.name}</Text>
+                        <Text style={styles.accordionLabel}>
+                          Dosage: {drug.dosage} X {drug.frequency}
+                        </Text>
+                        <Text style={styles.accordionLabel}>
+                          Duration: {drug.duration} days
+                        </Text>
+
+                        {drug.description && (
+                          <Text style={styles.accordionLabel}>
+                            Description: {drug.description}
+                          </Text>
+                        )}
+                      </View>
+                    ))}
                 </View>
               ))}
           </View>
@@ -605,7 +645,7 @@ const PatientLists = () => {
         })
       : [];
 
-  // Function to handle redirection when no patients are found
+  const reversedPatients = filteredPatients.slice().reverse();
   const handleRedirect = () => {
     navigation.navigate('PatientData');
   };
@@ -634,7 +674,7 @@ const PatientLists = () => {
 
         {loading ? (
           <Loader />
-        ) : filteredPatients.length === 0 ? (
+        ) : reversedPatients.length === 0 ? (
           <View>
             <Text style={styles.buttonText}>
               Patient Not Yet Registered <Emoji name="disappointed" />
@@ -644,7 +684,7 @@ const PatientLists = () => {
             </TouchableOpacity>
           </View>
         ) : (
-          filteredPatients.map(patient => (
+          reversedPatients.map(patient => (
             <PatientCard key={patient.id} patient={patient} />
           ))
         )}
@@ -753,7 +793,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     marginBottom: 10,
-    borderLeftWidth: 1,
+    // borderLeftWidth: 1,
     fontSize: 16,
   },
   details: {
@@ -779,10 +819,11 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
   },
   inspectionItem: {
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 15,
     marginRight: 10,
     color: COLORS.BLACK,
+    marginBottom: 5,
+    textDecorationLine: 'underline',
   },
 });
 

@@ -45,8 +45,8 @@ const PatientMedical = ({navigation, route}) => {
   const [customCondition, setCustomCondition] = useState('');
   const [showCustomConditionInput, setShowCustomConditionInput] =
     useState(false);
-  const [dateOfDiagnosis, setDateOfDiagnosis] = useState(''); // Add state for date of vaccination
-  const [followUpDate, setFollowUpDate] = useState(''); // Add state for date for next dose
+  const [dateOfDiagnosis, setDateOfDiagnosis] = useState('');
+  const [followUpDate, setFollowUpDate] = useState('');
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || dateOfDiagnosis;
@@ -206,7 +206,7 @@ const PatientMedical = ({navigation, route}) => {
         <Text style={STYLES.label}>Medicine #{index + 1}:</Text>
 
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Prescriptions/Medicine:</Text>
+          <Text style={STYLES.label}>Medicine:</Text>
           <Picker
             placeholderTextColor={COLORS.BLACK}
             selectedValue={medicine.name}
@@ -236,6 +236,17 @@ const PatientMedical = ({navigation, route}) => {
 
             <Picker.Item label="Other" value="Other" />
           </Picker>
+          {medicine.name === 'Other' && (
+            <TextInput
+              style={STYLES.field}
+              placeholder="Enter other"
+              placeholderTextColor={COLORS.GREY}
+              value={medicine.description}
+              onChangeText={text =>
+                handleMedicineChange(index, 'description', text)
+              }
+            />
+          )}
         </View>
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Additional Instructions:</Text>
@@ -332,7 +343,9 @@ const PatientMedical = ({navigation, route}) => {
       <ScrollView style={STYLES.body}>
         {/* condition */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Signs and Symptoms:</Text>
+          <Text style={STYLES.label}>
+            Signs and Symptoms<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -350,7 +363,9 @@ const PatientMedical = ({navigation, route}) => {
         {/* Date for diagnosis */}
 
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Date for Diagnosis:</Text>
+          <Text style={STYLES.label}>
+            Date for Diagnosis<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TouchableOpacity
             style={STYLES.datePickerInput}
             onPress={() => setShowDatePicker('diagnoses')}>
@@ -387,7 +402,9 @@ const PatientMedical = ({navigation, route}) => {
 
         {/* Condition */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Condition:</Text>
+          <Text style={STYLES.label}>
+            Condition<Text style={STYLES.pointer}>*</Text>:
+          </Text>
 
           <Picker
             placeholderTextColor={COLORS.BLACK}
@@ -461,7 +478,6 @@ const PatientMedical = ({navigation, route}) => {
         {/* Render medicine inputs */}
         {renderMedicineInputs()}
         <TouchableOpacity
-          style={STYLES.addMedicineButton}
           onPress={handleAddMedicine}>
           <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
         </TouchableOpacity>
@@ -725,9 +741,9 @@ const STYLES = StyleSheet.create({
     color: COLORS.BLACK,
   },
   medicineRemoveButton: {
-    color: COLORS.RED, // Customize the color as needed
+    color: 'red',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 15,
     textAlign: 'right',
   },
   addMedicineButton: {
@@ -741,8 +757,15 @@ const STYLES = StyleSheet.create({
   },
   addMedicineButtonText: {
     color: COLORS.PRIMARY,
-    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: 'left',
+    textDecorationLine: 'underline',
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

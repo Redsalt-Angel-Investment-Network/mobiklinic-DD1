@@ -14,10 +14,11 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
-
+import Loader from '../ui/loader';
 
 const RenalDrugs = ({route, navigation}) => {
   const {patientId} = route.params;
+  const [isLoading, setIsLoading] = useState(false); 
 
   const [medicines, setMedicines] = useState([
     {
@@ -50,8 +51,7 @@ const RenalDrugs = ({route, navigation}) => {
 
   const handleSubmit = async () => {
     try {
-      // Set isLoading to true to show loading indicator
-      // setState({ ...state, isLoading: true });
+      setIsLoading(true); // Set isLoading to true to show loading indicator
 
       const response = await fetch(`${API_URL}/api/drugs`, {
         method: 'POST',
@@ -89,13 +89,34 @@ const RenalDrugs = ({route, navigation}) => {
       console.error('Error posting medicine data:', error);
       Alert.alert('Error', 'Failed to post medicine data.');
     } finally {
-      // Set isLoading to false to hide loading indicator
-      // setState({ ...state, isLoading: false });
+      setIsLoading(false); 
     }
   };
+  if (isLoading) return <Loader />;
+
+  const _header = () => (
+    <CustomHeader
+      left={
+        <TouchableOpacity
+          style={{
+            marginHorizontal: 4,
+            width: 25,
+            height: 25,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
+        </TouchableOpacity>
+      }
+      title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK </Text>}
+    />
+  );
 
   return (
     <View style={STYLES.wrapper}>
+      {_header()}
+
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Renal Drugs</Text>
@@ -109,11 +130,10 @@ const RenalDrugs = ({route, navigation}) => {
               <Text style={STYLES.label}>Medicine Name:</Text>
               <TextInput
                 style={STYLES.field}
-                placeholder="Name"
+                placeholder="e.g Paracetamol"
+                placeholderTextColor={COLORS.GREY}
                 value={medicine.name}
                 onChangeText={text => handleMedicineChange(index, 'name', text)}
-                multiline={true}
-                numberOfLines={4}
               />
             </View>
 
@@ -124,6 +144,7 @@ const RenalDrugs = ({route, navigation}) => {
                   style={STYLES.medicineInput}
                   placeholder="Dosage"
                   value={medicine.dosage}
+                  placeholderTextColor={COLORS.GREY}
                   onChangeText={text =>
                     handleMedicineChange(index, 'dosage', text)
                   }
@@ -137,6 +158,7 @@ const RenalDrugs = ({route, navigation}) => {
                 <TextInput
                   style={STYLES.medicineInput}
                   placeholder="Frequency"
+                  placeholderTextColor={COLORS.GREY}
                   value={medicine.frequency}
                   keyboardType="numeric"
                   onChangeText={text =>
@@ -151,6 +173,7 @@ const RenalDrugs = ({route, navigation}) => {
               <TextInput
                 style={STYLES.field}
                 placeholder="Number of days"
+                placeholderTextColor={COLORS.GREY}
                 keyboardType="numeric"
                 value={medicine.duration}
                 onChangeText={text =>
@@ -163,8 +186,11 @@ const RenalDrugs = ({route, navigation}) => {
               <Text style={STYLES.label}>Description:</Text>
               <TextInput
                 style={STYLES.field}
-                placeholder="Description"
+                placeholder="e.g Take after eating"
                 value={medicine.description}
+                placeholderTextColor={COLORS.GREY}
+                multiline={true}
+                numberOfLines={4}
                 onChangeText={text =>
                   handleMedicineChange(index, 'description', text)
                 }
@@ -439,6 +465,7 @@ const STYLES = StyleSheet.create({
     borderColor: COLORS.GREY,
     borderWidth: 1,
     width: 150,
+    color: COLORS.BLACK,
   },
   textLabel: {
     fontSize: 18,

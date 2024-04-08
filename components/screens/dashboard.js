@@ -99,11 +99,19 @@ const Dashboard = ({navigation}) => {
 
           <TouchableOpacity
             style={STYLES.card}
+
             onPress={() => navigation.navigate('ChatView')}>
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Doctor Chat</Text>
+
+            onPress={() => navigation.navigate('Hospital')}>
+            <View style={STYLES.cardIcon}>
+            <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Hospitals</Text>
+
           </TouchableOpacity>
 
           <TouchableOpacity

@@ -91,7 +91,7 @@ const History = ({navigation, route}) => {
       {_header()}
 
       <ScrollView style={STYLES.body}>
-        <Text style={STYLES.title}>Beneficiary History</Text>
+        <Text style={STYLES.title}>Beneficiary Screening History</Text>
         {/* UTI History */}
         <View>
           <View style={STYLES.labeled}>

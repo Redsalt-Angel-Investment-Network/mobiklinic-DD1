@@ -14,6 +14,8 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
+import Loader from '../ui/loader';
+
 
 const RenalFunctionTest = ({navigation, route}) => {
   const {inspectionData, patientId, age, sex} = route.params;
@@ -38,8 +40,10 @@ const RenalFunctionTest = ({navigation, route}) => {
 
   const handleSubmit = async () => {
     try {
+      if (state.isLoading) {
+        return;
+      }
       setState({...state, isLoading: true});
-
       const response = await fetch(`${API_URL}/api/rfts`, {
         method: 'POST',
         headers: {
@@ -60,7 +64,6 @@ const RenalFunctionTest = ({navigation, route}) => {
         navigation.navigate('Dashboard');
         console.log('Renal Function Test data posted successfully.');
         console.log(data);
-       
       } else {
         const error = await response.text();
         console.log(response.status);
@@ -74,11 +77,13 @@ const RenalFunctionTest = ({navigation, route}) => {
       setState({...state, isLoading: false});
     }
   };
+  if (state.isLoading) return <Loader />;
 
   // validate values to make sure they are in range else flag them
   const checkSodium = sodium => {
     const sodiumValue = parseFloat(sodium);
-    if (isNaN(sodiumValue)) {``
+    if (isNaN(sodiumValue)) {
+      ``;
       setState(prevState => ({
         ...prevState,
         sodiumValidateMessage: 'Please enter a valid number',

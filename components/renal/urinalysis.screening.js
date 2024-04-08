@@ -14,13 +14,12 @@ import CustomHeader from '../ui/custom-header';
 import {COLORS} from '../constants/styles';
 import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
+import Loader from '../ui/loader';
+import UrinalysisCounter from './urinalysis.counter';
 
 const Urinalysis = ({navigation, route}) => {
   const {historyData, inspectionData, patientId} = route.params;
-  console.log('History Data', historyData);
-  console.log('====================================');
-  console.log('Inspection Data', inspectionData);
-  console.log('====================================');
+ 
 
   const [state, setState] = useState({
     appearance: {
@@ -53,8 +52,10 @@ const Urinalysis = ({navigation, route}) => {
 
   const handleSubmit = async () => {
     try {
+      if (state.isLoading) {
+        return;
+      }
       setState({...state, isLoading: true});
-
       const response = await fetch(`${API_URL}/api/renals`, {
         method: 'POST',
         headers: {
@@ -90,30 +91,19 @@ const Urinalysis = ({navigation, route}) => {
       setState({...state, isLoading: false});
     }
   };
+  if (state.isLoading) return <Loader />;
 
-  // validate values to make sure they are in range else flag them
   const checkPH = ph => {
     const phValue = parseFloat(ph);
     if (isNaN(phValue)) {
-      setState({
-        ...state,
-        phValidateMessage: 'Please enter a valid number',
-      });
-      return false;
+      return 'Please enter a valid number';
     }
     if (phValue < 7.0 || phValue > 7.1) {
-      setState({
-        ...state,
-        phValidateMessage:
-          'PH values are abnormal. The Doctor will be notified',
-      });
-    } else {
-      setState({
-        ...state,
-        phValidateMessage: '',
-      });
+      return 'PH values are abnormal. \n Normal ranges are from 7.0 to 7.1.\nThe Doctor will be notified';
     }
+    return '';
   };
+
   const checkGlucose = glucose => {
     const validGlucoseValues = ['negative', 'trace'];
 
@@ -135,24 +125,22 @@ const Urinalysis = ({navigation, route}) => {
   const checkSpecificGravity = specificGravity => {
     const sgValue = parseFloat(specificGravity);
     if (isNaN(sgValue)) {
-      setState({
-        ...state,
-        specificGravityValidateMessage: 'Please enter a valid number',
-      });
-      return false;
+      return {
+        isValid: false,
+        message: 'Please enter a valid number',
+      };
     }
-    if (sgValue < 1.005 || sgValue > 1.025) {
-      setState({
-        ...state,
-        specificGravityValidateMessage:
+    if (sgValue < 1.005) {
+      return {
+        isValid: false,
+        message:
           'Specific gravity values are abnormal. The Doctor will be notified',
-      });
-    } else {
-      setState({
-        ...state,
-        specificGravityValidateMessage: '',
-      });
+      };
     }
+    return {
+      isValid: true,
+      message: '',
+    };
   };
 
   const checkProtein = protein => {
@@ -311,8 +299,10 @@ const Urinalysis = ({navigation, route}) => {
   );
   return (
     <View style={STYLES.wrapper}>
+
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       {_header()}
+      <UrinalysisCounter />
 
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Urinalysis Tests - Screening</Text>
@@ -392,7 +382,7 @@ const Urinalysis = ({navigation, route}) => {
             placeholderTextColor={COLORS.GREY}
             selectedValue={state.chemistry.specificGravity}
             onValueChange={value => {
-              const isValid = checkSpecificGravity(value);
+              const {isValid, message} = checkSpecificGravity(value);
 
               setState({
                 ...state,
@@ -400,13 +390,10 @@ const Urinalysis = ({navigation, route}) => {
                   ...state.chemistry,
                   specificGravity: value,
                 },
-                specificGravityValidateMessage: isValid
-                  ? ''
-                  : 'Put Specific Gravity values',
+                specificGravityValidateMessage: message,
               });
             }}
             style={STYLES.field}
-            onBlur={() => checkSpecificGravity(state.chemistry.specificGravity)}
             dropdownIconColor={COLORS.GREY_LIGHTER}>
             <Picker.Item label="Select Specific Gravity" value="" />
             <Picker.Item label="1.005" value="1.005" />
@@ -638,7 +625,6 @@ const Urinalysis = ({navigation, route}) => {
         )}
 
         {/* pH Level */}
-        {/* pH Level */}
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>PH Level:</Text>
           <TextInput
@@ -651,12 +637,18 @@ const Urinalysis = ({navigation, route}) => {
                   ...state.chemistry,
                   ph: text,
                 },
-               
+                phValidateMessage: checkPH(text), // Update phValidateMessage directly
               });
             }}
             placeholder="Enter pH level"
             placeholderTextColor={COLORS.GREY}
             keyboardType="numeric"
+            onBlur={() => {
+              setState({
+                ...state,
+                phValidateMessage: checkPH(state.chemistry.ph), // Check pH and update phValidateMessage on blur
+              });
+            }}
           />
         </View>
         {state.phValidateMessage !== '' && (
@@ -966,5 +958,11 @@ const STYLES = StyleSheet.create({
     minHeight: 70,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
