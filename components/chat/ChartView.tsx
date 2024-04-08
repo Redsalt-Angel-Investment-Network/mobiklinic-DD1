@@ -10,6 +10,7 @@ import {
 } from '@pubnub/react-native-chat-components';
 import Constants from 'expo-constants';
 import DataResultsContext from '../contexts/DataResultsContext';
+import {COLORS, DIMENS} from '../constants/styles';
 
 export function ChatView(): JSX.Element {
   const { userLog, userNames } = useContext(DataResultsContext);
@@ -120,14 +121,14 @@ function ChatRoom({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.WHITE,
   },
   userListHeader: {
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: COLORS.PRIMARY,
     paddingVertical: 10,
   },
   scrollViewContent: {
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: COLORS.GREY,
     paddingBottom: 5,
   },
   avatar: {
@@ -149,6 +150,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
+    color:COLORS.BLACK,
   },
   chatRoomContainer: {
     flex: 1,
@@ -158,10 +160,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color:COLORS.BLACK,
   },
   backButton: {
     fontSize: 20,
-    color: '#21618C',
+    color: COLORS.BLACK,
     marginBottom: 10,
     marginTop: 10,
     fontWeight: 'bold',
