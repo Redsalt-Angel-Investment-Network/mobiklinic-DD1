@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
@@ -30,41 +31,71 @@ const PatientData = ({navigation}) => {
   const {dataResults} = useContext(DataResultsContext);
   const {userLog} = useContext(DataResultsContext);
   const {patientId, setPatientId} = useContext(DataResultsContext);
-
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [selectedEthnicity, setSelectedEthnicity] = useState('');
+  const [age, setAge] = useState(0);
 
+  useEffect(() => {
+    Alert.alert(
+      'Instructions',
+      'Have searched for this patient?\n ',
+      [
+        {
+          text: 'YES',
+        },
+        {
+          text: 'No',
+          onPress: () => navigation.navigate('PatientLists'),
+          style: 'cancel',
+        },
+      ],
+      {cancelable: false},
+    );
+  }, []);
   const handleCountryChange = country => {
     setSelectedCountry(country);
-    setSelectedLanguage(''); // Reset language selection when country changes
-    setSelectedDistrict(''); // Reset district selection when country changes
+    setSelectedLanguage('');
+    setSelectedDistrict('');
   };
 
   const handleLanguageChange = language => {
     setSelectedLanguage(language);
-    // setSelectedDistrict(''); // Reset district selection when language changes
   };
 
   const handleDistrictChange = district => {
     setSelectedDistrict(district);
   };
+
+  const handleEthinicityChange = ethnicities => {
+    setSelectedEthnicity(ethnicities);
+  };
   // date
   const currentDate = new Date();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(currentDate);
-  const [ageGroup, setAgeGroup] = useState(''); // Add state for date of vaccination
+  const [dateOfBirth, setDateOfBirth] = useState(null); // Initialize with null
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || ageGroup;
+    const currentDate = selectedDate || dateOfBirth;
     setShowDatePicker(false);
-
-    // Update the respective state based on the selected date
     if (showDatePicker === 'patient') {
-      setAgeGroup(currentDate);
-      setState({...state, ageGroup: currentDate});
-      console.log('Date of birth:', currentDate);
+      setDateOfBirth(currentDate);
+      setState({...state, dateOfBirth: currentDate});
     }
+  };
+  
+
+  const calculateAge = () => {
+    const today = new Date();
+    const dob = new Date(dateOfBirth);
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    setAge(age);
   };
 
   const formatDate = date => {
@@ -83,7 +114,7 @@ const PatientData = ({navigation}) => {
   const [state, setState] = React.useState({
     firstName: '',
     sex: '',
-    ageGroup: '',
+    dateOfBirth: '',
     phoneNumber: '',
     lastName: '',
     weight: '',
@@ -91,65 +122,66 @@ const PatientData = ({navigation}) => {
     district: '',
     country: '',
     primaryLanguage: '',
-    simprintsGui: '',
-    createdAt: '',
-    // registeredById: '',
+    maritalStatus: '',
+    nextOfKin: '',
+    nextOfKinContact: '',
+    ethinicity: '',
+    occupation: '',
+    ethinicity: '',
   });
 
   const handleSubmit = async () => {
     try {
-      console.log('User Id:', userLog);
-
       if (state.isLoading) {
-        // Prevent multiple submissions
         return;
       }
-      setState({...state, isLoading: true}); // Set isLoading state to true
+      setState({...state, isLoading: true});
 
       if (
         state.firstName === '' ||
         state.lastName === '' ||
         state.sex === '' ||
-        ageGroup === ''
+        dateOfBirth === ''
       ) {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
+      const formattedDateOfBirth = formatDate(dateOfBirth);
 
-      const response = await fetch(`${API_URL}/${userLog}/patients`, {
-        method: 'POST',
-        body: JSON.stringify({
+      const response = await axios.post(`${API_URL}/api/patients`, {
+        data: {
           firstName: state.firstName,
           lastName: state.lastName,
           sex: state.sex,
-          ageGroup: ageGroup,
+          dateOfBirth: formattedDateOfBirth,
           phoneNumber: state.phoneNumber,
           weight: state.weight,
           height: state.height,
           district: selectedDistrict,
           country: selectedCountry,
           primaryLanguage: selectedLanguage,
-          simprintsGui: dataResults,
-          createdAt: new Date(),
-          // registeredById: userLog,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-          Accept: 'application/json',
+          maritalStatus: state.maritalStatus,
+          nextOfKin: state.nextOfKin,
+          nextOfKinContact: state.nextOfKinContact,
+          ethinicity: selectedEthnicity,
+          occuptation: state.occupation,
+          users_permissions_user: {
+            id: userLog,
+          },
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        // setId(data.id);
-        // Extract the patient ID from the response data
-        const patientId = data.id; // Access the patient ID from the response data
+      if (response.status === 200) {
+        const data = response.data.data;
+        const patientId = data.id;
         setPatientId(patientId);
-        console.log('Patient ID:', patientId);
+
         Alert.alert('Beneficiary Registered Successfully');
         navigation.navigate('SelectActivity', {
+          firstName: state.firstName,
+          lastName: state.lastName,
           patientId: patientId,
-          paramKey: state,
+          age: age,
         });
       } else {
         console.error('Error posting data:', response.status);
@@ -165,7 +197,7 @@ const PatientData = ({navigation}) => {
         'Failed to register Beneficiary. Please try again later.',
       );
     } finally {
-      setState({...state, isLoading: false}); // Reset isLoading state to false
+      setState({...state, isLoading: false});
     }
   };
 
@@ -184,7 +216,7 @@ const PatientData = ({navigation}) => {
           <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
       }
-      title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK</Text>}
+      title={<Text style={[STYLES.centerHeader, STYLES.subtitle]}>BACK </Text>}
     />
   );
 
@@ -197,9 +229,12 @@ const PatientData = ({navigation}) => {
 
       <ScrollView style={STYLES.body}>
         <Text style={STYLES.title}>Beneficiary Profile</Text>
+
         {/* First Name */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>First Name:</Text>
+          <Text style={STYLES.label}>
+            First Name<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -214,7 +249,9 @@ const PatientData = ({navigation}) => {
 
         {/* Last Name */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Last Name:</Text>
+          <Text style={STYLES.label}>
+            Last Name<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -227,9 +264,11 @@ const PatientData = ({navigation}) => {
           />
         </View>
 
-        {/* Last Name */}
+        {/* Phone Number */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Phone Number:</Text>
+          <Text style={STYLES.label}>
+            Phone Number<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -243,9 +282,11 @@ const PatientData = ({navigation}) => {
           />
         </View>
 
-        {/* Sex */}
+        {/* Gender */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Sex:</Text>
+          <Text style={STYLES.label}>
+            Sex<Text style={STYLES.pointer}>*</Text>:
+          </Text>
 
           <Picker
             placeholder="Sex"
@@ -261,18 +302,38 @@ const PatientData = ({navigation}) => {
           </Picker>
         </View>
 
-        {/* Date for birth */}
-
+        {/* occupation */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Date of Birth:</Text>
+          <Text style={STYLES.label}>Occupation:</Text>
+          <Picker
+            placeholder="Sex"
+            placeholderTextColor={COLORS.GREY}
+            selectedValue={state.occupation}
+            onValueChange={(value, index) =>
+              setState({...state, occupation: value})
+            }
+            style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="" value="" />
+            <Picker.Item label="Employed" value="Employed" />
+            <Picker.Item label="Self-employed" value="Self-employed" />
+            <Picker.Item label="Unemployed" value="Unemployed" />
+          </Picker>
+        </View>
+
+        {/* Date for birth */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>
+            Date of Birth <Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TouchableOpacity
             style={STYLES.datePickerInput}
             onPress={() => setShowDatePicker('patient')}>
-            <Text style={STYLES.datePickerText}>{formatDate(ageGroup)}</Text>
+            <Text style={STYLES.datePickerText}>{formatDate(dateOfBirth)}</Text>
           </TouchableOpacity>
           {showDatePicker === 'patient' && (
             <DateTimePicker
-              value={ageGroup || new Date()} // Use null or fallback to current date
+              value={dateOfBirth || new Date()}
               mode="date"
               display="spinner"
               onChange={handleDateChange}
@@ -280,6 +341,23 @@ const PatientData = ({navigation}) => {
           )}
         </View>
 
+        {/* Marital Status */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Marital Status:</Text>
+          <Picker
+            selectedValue={state.maritalStatus}
+            onValueChange={(value, index) =>
+              setState({...state, maritalStatus: value})
+            }
+            style={[STYLES.field, {color: COLORS.BLACK}]}
+            dropdownIconColor={COLORS.GREY_LIGHTER}>
+            <Picker.Item label="" value="" />
+            <Picker.Item label="Single" value="Single" />
+            <Picker.Item label="Married" value="Married" />
+            <Picker.Item label="Divorced" value="Divorced" />
+            <Picker.Item label="Widowed" value="Widowed" />
+          </Picker>
+        </View>
         <View style={STYLES.wrap}>
           {/* Weight */}
           <View style={STYLES.detail}>
@@ -293,9 +371,9 @@ const PatientData = ({navigation}) => {
               style={STYLES.field}
             />
           </View>
+
           {/* Height */}
           <View style={STYLES.detail}>
-            {/* <Text style={STYLES.label}>Height:</Text> */}
             <TextInput
               keyboardType="numeric"
               placeholderTextColor={COLORS.GREY}
@@ -306,9 +384,43 @@ const PatientData = ({navigation}) => {
             />
           </View>
         </View>
+
+        {/* Next of Kin */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Next of Kin:</Text>
+          <TextInput
+            style={[
+              STYLES.field,
+              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+            ]}
+            placeholderTextColor={COLORS.GREY}
+            value={state.nextOfKin}
+            onChangeText={text => setState({...state, nextOfKin: text})}
+            placeholder="Enter next of kin"
+          />
+        </View>
+
+        {/* Next of Kin Contact */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Next of Kin Contact:</Text>
+          <TextInput
+            style={[
+              STYLES.field,
+              {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+            ]}
+            placeholderTextColor={COLORS.GREY}
+            value={state.nextOfKinContact}
+            onChangeText={text => setState({...state, nextOfKinContact: text})}
+            keyboardType="numeric"
+            placeholder='eg:"0772700900'
+          />
+        </View>
+
         {/* Country */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Country:</Text>
+          <Text style={STYLES.label}>
+            Country<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <Picker
             style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
             selectedValue={selectedCountry}
@@ -326,6 +438,7 @@ const PatientData = ({navigation}) => {
 
         {selectedCountry && (
           <>
+            {/* district */}
             <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
               <Text style={STYLES.label}>District:</Text>
               <Picker
@@ -345,11 +458,12 @@ const PatientData = ({navigation}) => {
               </Picker>
             </View>
 
+            {/* primary language */}
             <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
               <Text style={STYLES.label}>Primary Language:</Text>
               <Picker
                 selectedValue={selectedLanguage}
-                style={[STYLES.field, {color: COLORS.BLACK}]} // Add color style
+                style={[STYLES.field, {color: COLORS.BLACK}]}
                 onValueChange={handleLanguageChange}>
                 <Picker.Item label="Select a language" value="" />
                 {countryData
@@ -359,6 +473,26 @@ const PatientData = ({navigation}) => {
                       key={language}
                       label={language}
                       value={language}
+                    />
+                  ))}
+              </Picker>
+            </View>
+
+            {/* ethinicity */}
+            <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
+              <Text style={STYLES.label}>Ethinicity:</Text>
+              <Picker
+                selectedValue={selectedEthnicity}
+                style={[STYLES.field, {color: COLORS.BLACK}]}
+                onValueChange={handleEthinicityChange}>
+                <Picker.Item label="Select a Ethnicity" value="" />
+                {countryData
+                  .find(country => country.name === selectedCountry)
+                  .ethnicities.map(ethinicity => (
+                    <Picker.Item
+                      key={ethinicity}
+                      label={ethinicity}
+                      value={ethinicity}
                     />
                   ))}
               </Picker>
@@ -387,7 +521,8 @@ const STYLES = StyleSheet.create({
   body: {
     flex: 2,
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    // paddingVertical: 30,
+    marginBottom: 30,
   },
   alert: {
     color: COLORS.GREY,
@@ -396,13 +531,13 @@ const STYLES = StyleSheet.create({
   },
   subtitle: {
     flexDirection: 'row',
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.BLACK,
-    marginVertical: 10,
+    marginVertical: 12,
     fontWeight: 'bold',
   },
   label: {
-    fontWeight: 'medium',
+    fontWeight: 'bold',
     marginLeft: 5,
     marginRight: 5,
     color: COLORS.BLACK,
@@ -482,14 +617,12 @@ const STYLES = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    // paddingVertical: 10,
-    color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 10,
-    borderColor: COLORS.GREY,
-    borderStyle: 'solid',
-    borderWidth: 1,
+    backgroundColor: COLORS.GREY_LIGHTER,
     borderRadius: 10,
+    borderColor: COLORS.GREY,
+    borderWidth: 1,
   },
   field: {
     flex: 1,
@@ -505,11 +638,12 @@ const STYLES = StyleSheet.create({
     display: 'none',
   },
   submit: {
+    alignItems: 'center',
     backgroundColor: COLORS.BLACK,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 20,
     marginTop: 10,
   },
   submitText: {
@@ -564,7 +698,6 @@ const STYLES = StyleSheet.create({
   detail: {
     flex: 1,
     paddingHorizontal: 15,
-    // paddingVertical: 10,
     color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 10,
@@ -578,7 +711,6 @@ const STYLES = StyleSheet.create({
   pickerStyle: {
     flex: 1,
     paddingHorizontal: 15,
-    // paddingVertical: 10,
     color: COLORS.BLACK,
     marginTop: 10,
     marginBottom: 10,
@@ -595,10 +727,10 @@ const STYLES = StyleSheet.create({
     fontSize: 15,
     color: COLORS.BLACK,
   },
-  datePickerText: {
-    paddingVertical: 10,
-    paddingLeft: 30,
-    fontSize: 14,
-    color: COLORS.BLACK,
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

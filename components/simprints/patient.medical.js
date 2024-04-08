@@ -21,12 +21,12 @@ import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {format} from 'date-fns';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 import {API_URL} from '@env';
 
-const PatientMedical = ({navigation}) => {
+const PatientMedical = ({navigation, route}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
-  const {patientId, setPatientId} = useContext(DataResultsContext);
+  const {patientId} = route.params;
   const currentDate = new Date();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const {userNames} = useContext(DataResultsContext);
@@ -45,8 +45,8 @@ const PatientMedical = ({navigation}) => {
   const [customCondition, setCustomCondition] = useState('');
   const [showCustomConditionInput, setShowCustomConditionInput] =
     useState(false);
-  const [dateOfDiagnosis, setDateOfDiagnosis] = useState(''); // Add state for date of vaccination
-  const [followUpDate, setFollowUpDate] = useState(''); // Add state for date for next dose
+  const [dateOfDiagnosis, setDateOfDiagnosis] = useState('');
+  const [followUpDate, setFollowUpDate] = useState('');
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || dateOfDiagnosis;
@@ -88,8 +88,7 @@ const PatientMedical = ({navigation}) => {
     followUpDate: '',
     isPregnant: false,
     labTests: '',
-    sessionId: '',
-    biometricsVerified: isBeneficiaryConfirmed,
+    patientId: patientId,
 
     // registeredById: '',
   });
@@ -113,7 +112,7 @@ const PatientMedical = ({navigation}) => {
       }
       setState({...state, isLoading: true}); // Set isLoading state to true
       if (
-        (selectedCondition === 'Other' && customCondition === '') || // Check if custom condition is empty when "Other" is selected
+        (selectedCondition === 'Other' && customCondition === '') ||
         state.dateOfDiagnosis === '' ||
         state.impression === ''
       ) {
@@ -133,23 +132,24 @@ const PatientMedical = ({navigation}) => {
       const conditionToPost =
         selectedCondition === 'Other' ? customCondition : selectedCondition; // Use custom condition when "Other" is selected
 
-      const response = await fetch(`${API_URL}/${patientId}/diagnosis`, {
+      const response = await fetch(`${API_URL}/api/diagnoses`, {
         method: 'POST',
         body: JSON.stringify({
-          condition: conditionToPost,
-          dateOfDiagnosis: formattedDateOfDiagnosis,
-          impression: state.impression,
-          drugsPrescribed: state.drugsPrescribed,
-          dosage: state.dosage,
-          frequency: state.frequency,
-          duration: state.duration,
-          labTests: state.labTests,
-          followUpDate: formattedFollowUpDate,
-          isPregnant: state.isPregnant,
-          simSessionId: state.sessionId,
-          medicines: medicines, // Use the medicines array as is
-          biometricsVerified: isBeneficiaryConfirmed,
-          diagnosedBy: userNames,
+          data: {
+            condition: conditionToPost,
+            dateOfDiagnosis: formattedDateOfDiagnosis,
+            impression: state.impression,
+            drugsPrescribed: state.drugsPrescribed,
+            dosage: state.dosage,
+            frequency: state.frequency,
+            duration: state.duration,
+            labTests: state.labTests,
+            followUpDate: formattedFollowUpDate,
+            isPregnant: state.isPregnant,
+            medicines: medicines,
+            diagnosedBy: userNames,
+            patient: state.patientId,
+          },
         }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -206,7 +206,7 @@ const PatientMedical = ({navigation}) => {
         <Text style={STYLES.label}>Medicine #{index + 1}:</Text>
 
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Prescriptions/Medicine:</Text>
+          <Text style={STYLES.label}>Medicine:</Text>
           <Picker
             placeholderTextColor={COLORS.BLACK}
             selectedValue={medicine.name}
@@ -236,6 +236,17 @@ const PatientMedical = ({navigation}) => {
 
             <Picker.Item label="Other" value="Other" />
           </Picker>
+          {medicine.name === 'Other' && (
+            <TextInput
+              style={STYLES.field}
+              placeholder="Enter other"
+              placeholderTextColor={COLORS.GREY}
+              value={medicine.description}
+              onChangeText={text =>
+                handleMedicineChange(index, 'description', text)
+              }
+            />
+          )}
         </View>
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Additional Instructions:</Text>
@@ -332,7 +343,9 @@ const PatientMedical = ({navigation}) => {
       <ScrollView style={STYLES.body}>
         {/* condition */}
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Signs and Symptoms:</Text>
+          <Text style={STYLES.label}>
+            Signs and Symptoms<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TextInput
             style={[
               STYLES.field,
@@ -350,7 +363,9 @@ const PatientMedical = ({navigation}) => {
         {/* Date for diagnosis */}
 
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Date for Diagnosis:</Text>
+          <Text style={STYLES.label}>
+            Date for Diagnosis<Text style={STYLES.pointer}>*</Text>:
+          </Text>
           <TouchableOpacity
             style={STYLES.datePickerInput}
             onPress={() => setShowDatePicker('diagnoses')}>
@@ -387,7 +402,9 @@ const PatientMedical = ({navigation}) => {
 
         {/* Condition */}
         <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
-          <Text style={STYLES.label}>Condition:</Text>
+          <Text style={STYLES.label}>
+            Condition<Text style={STYLES.pointer}>*</Text>:
+          </Text>
 
           <Picker
             placeholderTextColor={COLORS.BLACK}
@@ -461,7 +478,6 @@ const PatientMedical = ({navigation}) => {
         {/* Render medicine inputs */}
         {renderMedicineInputs()}
         <TouchableOpacity
-          style={STYLES.addMedicineButton}
           onPress={handleAddMedicine}>
           <Text style={STYLES.addMedicineButtonText}>Add Medicine</Text>
         </TouchableOpacity>
@@ -725,9 +741,9 @@ const STYLES = StyleSheet.create({
     color: COLORS.BLACK,
   },
   medicineRemoveButton: {
-    color: COLORS.RED, // Customize the color as needed
+    color: 'red',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 15,
     textAlign: 'right',
   },
   addMedicineButton: {
@@ -741,8 +757,15 @@ const STYLES = StyleSheet.create({
   },
   addMedicineButtonText: {
     color: COLORS.PRIMARY,
-    fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 16,
+    textAlign: 'left',
+    textDecorationLine: 'underline',
+  },
+  pointer: {
+    color: 'red',
+    fontSize: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

@@ -1,4 +1,5 @@
 import React, {useContext} from 'react';
+
 import {
   View,
   TouchableOpacity,
@@ -17,7 +18,7 @@ import {CustomStatusBar} from '../ui/custom.status.bar';
 import {signOut} from '../helpers/functions';
 import {AuthContext} from '../contexts/auth';
 import DataResultsContext from '../contexts/DataResultsContext';
-import CopyRight from '../simprints/copyright';
+import CopyRight from '../copyright';
 const Dashboard = ({navigation}) => {
   const {setTokens, setUser} = React.useContext(AuthContext);
   const {userNames} = useContext(DataResultsContext);
@@ -54,9 +55,26 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('SelectAction')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="heart" size={40} color={COLORS.PRIMARY} />
+              <Icon name="activity" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Enrol Patient</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={STYLES.card}
+            onPress={() => navigation.navigate('Doctors')}>
+            <View style={STYLES.cardIcon}>
+              <FoIcon name="phone" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Call Doctor</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={STYLES.card}
+            onPress={() => navigation.navigate('Ambulances')}>
+            <View style={STYLES.cardIcon}>
+            <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Find Ambulance </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -67,43 +85,33 @@ const Dashboard = ({navigation}) => {
             </View>
             <Text style={STYLES.cardTitle}>Appointments</Text>
           </TouchableOpacity>
+        </View>
 
+        <View style={STYLES.column}>
           <TouchableOpacity
             style={STYLES.card}
             onPress={() => navigation.navigate('PatientLists')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="users" size={40} color={COLORS.PRIMARY} />
+            <Icon name="users" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Search Patient</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Profile')}>
-            <View style={STYLES.cardIcon}>
-              <Icon name="user" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Profile</Text>
-          </TouchableOpacity>
-        </View>
 
-        <View style={STYLES.column}>
-          <TouchableOpacity
-            style={STYLES.card}
-            onPress={() => navigation.navigate('Ambulance')}>
-            <View style={STYLES.cardIcon}>
-              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Ambulances</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={STYLES.card}
-            onPress={() => navigation.navigate('Doctors')}>
+            onPress={() => navigation.navigate('ChatView')}>
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Doctors</Text>
+            <Text style={STYLES.cardTitle}>Doctor Chat</Text>
+
+            onPress={() => navigation.navigate('Hospital')}>
+            <View style={STYLES.cardIcon}>
+            <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Hospitals</Text>
+
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -193,19 +201,22 @@ const STYLES = StyleSheet.create({
     justifyContent: 'center',
     elevation: 4,
     marginTop: 10,
+    minHeight: 120, 
+    paddingVertical: 20, 
+    paddingHorizontal: 15,
   },
   cardIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
+    aspectRatio: 1, 
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 8, 
+
   },
   cardTitle: {
     marginTop: 10,
     textAlign: 'center',
     color: COLORS.BLACK,
-    fontSize: 16,
+    fontSize: 12,
   },
 });
 

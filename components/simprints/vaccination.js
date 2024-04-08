@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect, startTransition} from 'react';
 import {
   View,
   Alert,
@@ -20,32 +20,32 @@ import Loader from '../ui/loader';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
+import {API_URL} from '@env';
 
-const PatientData = ({navigation, route}) => {
+const Vaccinations = ({navigation, route}) => {
   const diagnosisContext = React.useContext(DiagnosisContext);
-  const {diagnoses} = diagnosisContext;
-  const {dataResults} = useContext(DataResultsContext);
-  const {patientId, setPatientId} = useContext(DataResultsContext);
-  const currentDate = new Date();
+  const {patientId} = route.params;
   const {userNames} = useContext(DataResultsContext);
-
+  const {userLog} = useContext(DataResultsContext);
   const [dateOfVaccination, setDateOfVaccination] = useState('');
   const [dateForNextDose, setDateForNextDose] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || dateOfVaccination;
-    setShowDatePicker(false);
+    setShowDatePicker(false); // Hide the date picker
+
     // Update the respective state based on the selected date
-    if (showDatePicker === 'vaccination') {
-      setDateOfVaccination(currentDate);
-      setState({...state, dateOfVaccination: currentDate}); // Update state
-      console.log('Date for Vaccination:', currentDate);
-    } else if (showDatePicker === 'nextDose') {
-      setDateForNextDose(currentDate);
-      setState({...state, dateForNextDose: currentDate}); // Update state
-      console.log('Date for Next Dose:', currentDate);
+    if (selectedDate !== undefined) {
+      if (showDatePicker === 'vaccination') {
+        setDateOfVaccination(selectedDate);
+        setState({...state, dateOfVaccination: selectedDate}); // Update state for date of vaccination
+        console.log('Date for Vaccination:', selectedDate);
+      } else if (showDatePicker === 'nextDose') {
+        setDateForNextDose(selectedDate);
+        setState({...state, dateForNextDose: selectedDate}); // Update state for date for next dose
+        console.log('Date for Next Dose:', selectedDate);
+      }
     }
   };
 
@@ -70,70 +70,53 @@ const PatientData = ({navigation, route}) => {
     dateForNextDose: '',
     siteAdministered: '',
     facility: '',
-    vaccinatedBy: '',
-
-    // registeredById: '',
+    vaccinatedBy: userNames,
+    isLoading: false,
+    patientId: patientId,
   });
 
   const handleSubmit = async () => {
+    console.log(patientId);
     try {
-      console.log('Patient ID :', patientId);
-      console.log('User Id:', userNames);
-      if (state.isLoading) {
-        // Prevent multiple submissions
-        return;
-      }
-      if (
-        state.vaccineName === '' ||
-        state.dose === '' ||
-        dateOfVaccination === '' || 
-        state.siteAdministered === ''
-      ) {
-        Alert.alert('Error', 'Please fill in all required fields');
-        return;
-      }
-      setState({...state, isLoading: true}); // Set isLoading state to true
-      const response = await fetch(
-        `https://mobiklinic-be2-production.up.railway.app/${patientId}/vaccinations`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            vaccineName: state.vaccineName,
-            dose: state.dose,
-            units: state.units,
+      setState({...state, isLoading: true});
+
+      const response = await fetch(`${API_URL}/api/vaccinations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
             dateOfVaccination: state.dateOfVaccination,
             dateForNextDose: state.dateForNextDose,
+            vaccineName: state.vaccineName,
+            dose: state.dose,
             siteAdministered: state.siteAdministered,
             facility: state.facility,
-            vaccinatedBy: userNames,
-          }),
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-            Accept: 'application/json',
+            vaccinatedBy: state.vaccinatedBy,
+            cardNumber: state.cardNumber,
+            patient: state.patientId,
           },
-        },
-      );
+        }),
+      });
 
-      if (response.ok) {
+      if (response.status === 200) {
         const data = await response.json();
-        // setId(data.id);
-        Alert.alert('Vaccination Registered Successfully');
+        Alert.alert('Success', 'Vaccination data posted successfully.');
         navigation.navigate('Dashboard');
+        console.log('Vaccination data posted successfully.');
+        console.log(data);
       } else {
-        console.error('Error posting data:', response.status);
-        Alert.alert(
-          'Error',
-          'Failed to Register vaccination. Please try again later.',
-        );
+        const error = await response.text();
+        console.log(response.status);
+        console.error('Error posting vaccination data:', error);
+        Alert.alert('Error', 'Failed to post vaccination data.');
       }
     } catch (error) {
-      console.error('Error posting data:', error);
-      Alert.alert(
-        'Error',
-        'Failed to Register vaccination. Please try again later.',
-      );
+      console.error('Error posting vaccination data:', error);
+      Alert.alert('Error', 'Failed to post vaccination data.');
     } finally {
-      setState({...state, isLoading: false}); // Reset isLoading state to false
+      setState({...state, isLoading: false});
     }
   };
 
@@ -216,14 +199,12 @@ const PatientData = ({navigation, route}) => {
           <TextInput
             style={[STYLES.field, {color: COLORS.BLACK}]} // Add color and placeholderTextColor styles
             placeholderTextColor={COLORS.GREY}
-            value={state.units}
-            onChangeText={text => setState({...state, units: text})}
+            value={state.cardNumber}
+            onChangeText={text => setState({...state, cardNumber: text})}
             placeholder="Enter vaccine card number"
           />
         </View>
-        {/* Date for vaccination */}
-        {/* Date for vaccination */}
-        {/* Date for vaccination */}
+
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date for Vaccination:</Text>
           <TouchableOpacity
@@ -322,7 +303,7 @@ const PatientData = ({navigation, route}) => {
             <Picker.Item label="Kawolo Hospital" value="Kawolo Hospital" />
           </Picker>
         </View>
-       
+
         <View style={STYLES.labeled}>
           <Text style={STYLES.label}>Date for Next Dose:</Text>
           <TouchableOpacity
@@ -350,7 +331,7 @@ const PatientData = ({navigation, route}) => {
   );
 };
 
-export default PatientData;
+export default Vaccinations;
 
 const STYLES = StyleSheet.create({
   wrapper: {

@@ -2,132 +2,115 @@ import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  FlatList,
   ActivityIndicator,
   StyleSheet,
-  ScrollView,
   Linking,
+  TouchableOpacity,
 } from 'react-native';
-import Loader from '../ui/loader';
-import {URLS} from '../constants/API';
-import DataResultsContext from '../contexts/DataResultsContext';
 import {API_URL} from '@env';
+import DataResultsContext from '../contexts/DataResultsContext';
+import {COLORS} from '../constants/styles';
+import CopyRight from '../copyright';
+import Loader from '../ui/loader';
 
 const Appointments = () => {
-  const [patientData, setPatientData] = useState(null);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const {userLog, userNames, refusalData, patientId, setPatientId} =
-    useContext(DataResultsContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const {userLog} = useContext(DataResultsContext);
+  const [patients, setPatients] = useState([]);
+  const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
-    // Fetch patient data from the API endpoint
-    fetch(`${API_URL}/${userLog}/patients`)
+    setIsLoading(true);
+    fetch(`${API_URL}/api/all-patients/${userLog}`)
       .then(response => response.json())
       .then(data => {
         // Sort patient data by appointment date (ascending)
-        data.sort((a, b) => {
-          const dateA =
-            a.vaccinations && a.vaccinations.length > 0
-              ? new Date(a.vaccinations[0].dateForNextDose)
-              : null;
-          const dateB =
-            b.vaccinations && b.vaccinations.length > 0
-              ? new Date(b.vaccinations[0].dateForNextDose)
-              : null;
-
-          if (!dateA) return 1;
-          if (!dateB) return -1;
-
-          return dateA - dateB;
-        });
-
-        setPatientData(data);
-        setLoading(false);
+        if (Array.isArray(data) && data.length > 0) {
+          data.sort((a, b) => {
+            const dateA =
+              a.vaccinations && a.vaccinations.length > 0
+                ? new Date(a.vaccinations[0].dateForNextDose)
+                : null;
+            const dateB =
+              b.vaccinations && b.vaccinations.length > 0
+                ? new Date(b.vaccinations[0].dateForNextDose)
+                : null;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateA - dateB;
+          });
+        }
+        setPatients(data && data.patients ? data.patients : []); // Ensure data.patients is an array
+        setIsLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching patient data:', error);
-        setLoading(false);
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
       });
-  }, []);
+  }, [userLog]);
 
-  const formatDate = date => {
-    const options = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      weekday: 'long',
-    };
-    const formattedDate = new Date(date).toLocaleDateString('en-GB', options);
-    return formattedDate;
+  const renderVaccinationDetails = ({item}) => {
+    // Filter out patients with no vaccinations
+    const patientsWithVaccinations =
+      item.vaccinations && item.vaccinations.length > 0;
+
+    // Render vaccination details only if the patient has vaccinations
+    if (patientsWithVaccinations) {
+      return (
+        <View style={styles.dateItem}>
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`tel:${item.phoneNumber}`)}>
+            <Text style={styles.dateText}>
+              Beneficary Name: {item.firstName} {item.lastName}
+            </Text>
+            <FlatList
+              data={item.vaccinations}
+              renderItem={({item: vaccine}) => (
+                <View>
+                  <Text style={styles.vaccinationItem}>
+                    Dose: {vaccine.dose}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Vaccine Name: {vaccine.vaccineName}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Date of Vaccination: {vaccine.dateOfVaccination}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Site Administered: {vaccine.siteAdministered}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Vaccination Facility: {vaccine.facility}
+                  </Text>
+                  <Text style={styles.vaccinationItem}>
+                    Date For Next Dose: {vaccine.dateForNextDose}
+                  </Text>
+                </View>
+              )}
+              keyExtractor={(vaccine, index) => index.toString()}
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return null; // Render nothing if the patient has no vaccinations
+    }
   };
-
-  const isDateValid = date => {
-    return !isNaN(new Date(date).getTime());
-  };
-
-  const isDatePassed = date => {
-    return new Date(date) < new Date();
-  };
-
-  const handleDateClick = (date, patient) => {
-    setSelectedAppointment({
-      date: formatDate(date),
-      dayOfWeek: new Date(date).toLocaleDateString('en-US', {weekday: 'long'}),
-      patientName: `${patient.firstName} ${patient.lastName}`,
-      phoneNumber: patient.phoneNumber,
-    });
-  };
-
-  if (loading) {
-    return <Loader />;
-  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>COVID-19 Next Dose Appointments:</Text>
-      <ScrollView style={styles.dateList}>
-        {patientData &&
-          patientData.map(patient =>
-            patient.vaccinations &&
-            patient.vaccinations.length > 0 &&
-            isDateValid(patient.vaccinations[0].dateForNextDose) &&
-            !isDatePassed(patient.vaccinations[0].dateForNextDose) ? (
-              <TouchableOpacity
-                key={patient.id}
-                onPress={() =>
-                  handleDateClick(
-                    patient.vaccinations[0].dateForNextDose,
-                    patient,
-                  )
-                }
-                style={styles.dateItem}>
-                <Text style={styles.dateText}>
-                  Next Dose:{' '}
-                  {formatDate(patient.vaccinations[0].dateForNextDose)}
-                </Text>
-              </TouchableOpacity>
-            ) : null,
-          )}
-      </ScrollView>
-      {selectedAppointment && (
-        <TouchableOpacity
-          onPress={() =>
-            Linking.openURL(`tel:${selectedAppointment.phoneNumber}`)
-          }>
-          <View style={styles.selectedAppointment}>
-            <Text style={styles.appointmentDate}>
-              Next Dose: {selectedAppointment.date}
-            </Text>
-            <Text style={styles.appointmentDate}>
-              Patient's Name: {selectedAppointment.patientName}
-            </Text>
-            <Text style={styles.appointmentDate}>
-              Phone Number: {selectedAppointment.phoneNumber}
-            </Text>
-          </View>
-        </TouchableOpacity>
+      <Text style={styles.header}>Appointments</Text>
+      {isLoading ? (
+        <Loader size="large" />
+      ) : (
+        <FlatList
+          data={patients}
+          renderItem={renderVaccinationDetails}
+          keyExtractor={(patient, index) => index.toString()}
+        />
       )}
+      <CopyRight />
     </View>
   );
 };
@@ -139,35 +122,30 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   header: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: 'black',
-  },
-  dateList: {
-    marginTop: 10,
+    color: COLORS.PRIMARY,
+    // marginBottom: 20,
+    textAlign: 'center',
+    paddingVertical: 20,
+    textDecorationLine: 'underline',
+    backgroundColor: COLORS.WHITE,
   },
   dateItem: {
     backgroundColor: '#e0e0e0',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 8,
   },
   dateText: {
     fontSize: 16,
     color: 'black',
+    marginBottom: 5,
+    textDecorationLine: 'underline',
   },
-  selectedAppointment: {
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: 'skyblue',
-    borderRadius: 5,
-  },
-  appointmentDate: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  vaccinationItem: {
+    fontSize: 16,
     color: 'black',
-    marginBottom: 10,
   },
 });
 

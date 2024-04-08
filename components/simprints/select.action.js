@@ -30,7 +30,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import {DiagnosisContext} from '../providers/Diagnosis';
 import CustomHeader from '../ui/custom-header';
 import Loader from '../ui/loader';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
 
 const SelectAction = ({navigation, route}) => {
   const _header = () => (
@@ -72,9 +72,9 @@ const SelectAction = ({navigation, route}) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={STYLES.card}
+              style={STYLES.primaryButton}
               onPress={() => navigation.navigate('PatientData')}>
-              <Text style={STYLES.cardTitle}>Register New Patient</Text>
+              <Text style={STYLES.primaryText}>Register New Patient</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -174,29 +174,7 @@ const STYLES = StyleSheet.create({
     flex: 1,
   },
 
-  btn: {
-    backgroundColor: COLORS.BLACK,
-    padding: DIMENS.PADDING,
-    // padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    backgroundColor: COLORS.BLACK,
-    paddingVertical: 18,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  btnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+
   title: {
     color: COLORS.ACCENT_1,
     fontSize: 20,
@@ -236,6 +214,33 @@ const STYLES = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.WHITE,
+    padding: 8,
+  },
+  primaryButton: {
+    backgroundColor: COLORS.WHITE,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginHorizontal: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    marginTop: 10,
+    borderWidth:2,
+
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  primaryText: {
+    alignItems: 'center',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
     padding: 8,
   },
 });

@@ -17,7 +17,7 @@ import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/Feather';
 // import DateTimePicker from '@react-native-community/datetimepicker';
 import {COLORS, DIMENS} from '../constants/styles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {
   _removeStorageItem,
   generateRandomCode,
@@ -30,9 +30,15 @@ import FAIcon from 'react-native-vector-icons/FontAwesome';
 import {DiagnosisContext} from '../providers/Diagnosis';
 import CustomHeader from '../ui/custom-header';
 import Loader from '../ui/loader';
-import CopyRight from './copyright';
+import CopyRight from '../copyright';
+import {useRoute} from '@react-navigation/native';
 
 const SelectActivity = ({navigation, route}) => {
+  const {patientId, firstName, lastName, age, sex} = route.params;
+  console.log('====================================');
+  console.log('Age', age);
+  console.log('====================================');
+
   const _header = () => (
     <CustomHeader
       left={
@@ -65,9 +71,7 @@ const SelectActivity = ({navigation, route}) => {
         <Text style={STYLES.text}>
           Name: {'\t'}
           <Text style={{textDecorationLine: 'underline'}}>
-            {route.params.paramKey.firstName}
-            {'\t'}
-            {route.params.paramKey.lastName}
+            {firstName} {'\t'} {lastName}
           </Text>
         </Text>
 
@@ -76,7 +80,13 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('PatientMedical')}>
+                onPress={() =>
+                  navigation.navigate('PatientMedical', {
+                    patientId: patientId,
+                    firstName: firstName,
+                    lastName: lastName,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <FoIcon
                     name="doctor"
@@ -92,7 +102,13 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('Vaccination')}>
+                onPress={() =>
+                  navigation.navigate('Vaccination', {
+                    patientId: patientId,
+                    firstName: firstName,
+                    lastName: lastName,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <MIcon
                     name="needle"
@@ -110,7 +126,13 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('AntenatalCare')}>
+                onPress={() =>
+                  navigation.navigate('AntenatalCare', {
+                    patientId: patientId,
+                    firstName: firstName,
+                    lastName: lastName,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
                   <MIcon
                     name="human-pregnant"
@@ -126,19 +148,35 @@ const SelectActivity = ({navigation, route}) => {
             <View style={STYLES.row}>
               <TouchableOpacity
                 style={STYLES.card}
-                onPress={() => navigation.navigate('Dashboard')}>
+                onPress={() =>
+                  navigation.navigate('SelectRenalActivity', {
+                    patientId: patientId,
+                    age: age,
+                    sex: sex,
+                  })
+                }>
                 <View style={STYLES.cardIcon}>
-                  <MIcon
-                    name="home"
+                  <FontAwesomeIcon
+                    name="medkit"
                     size={40}
-                    strokeSize={3}
                     color={COLORS.BLACK}
                   />
                 </View>
-                <Text style={STYLES.cardTitle}>Home</Text>
+                <Text style={STYLES.cardTitle}>Renal Health</Text>
               </TouchableOpacity>
             </View>
           </View>
+        </View>
+
+        <View>
+          <TouchableOpacity
+            style={STYLES.buttonSec}
+            onPress={() => navigation.navigate('Dashboard')}>
+            <Text style={STYLES.buttonText}>
+              <Icon name="arrow-left" size={18} color={COLORS.PRIMARY} />
+              Home Page
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <CopyRight />
@@ -307,5 +345,21 @@ const STYLES = StyleSheet.create({
     color: '#888',
     fontSize: 12,
     marginTop: 100,
+  },
+  buttonSec: {
+    backgroundColor: COLORS.WHITE,
+    paddingVertical: 10,
+    // paddingHorizontal: 15,
+    borderRadius: 10,
+    marginVertical: 20,
+    borderWidth: 2,
+    borderColor: COLORS.PRIMARY,
+  },
+  buttonText: {
+    color: COLORS.PRIMARY,
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    paddingHorizontal: 10,
   },
 });

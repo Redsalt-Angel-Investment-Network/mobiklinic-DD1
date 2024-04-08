@@ -104,8 +104,8 @@ android {
         applicationId "com.mobiklinicapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "3.0"
+        versionCode 5
+        versionName "5.0"
     }
 
     splits {

@@ -1,0 +1,169 @@
+import React, { useContext, useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, Image } from 'react-native';
+import PubNub from 'pubnub';
+import { PubNubProvider } from 'pubnub-react';
+import {
+  Chat,
+  MessageList,
+  MessageInput,
+  TypingIndicator
+} from '@pubnub/react-native-chat-components';
+import Constants from 'expo-constants';
+import DataResultsContext from '../contexts/DataResultsContext';
+
+export function ChatView(): JSX.Element {
+  const { userLog, userNames } = useContext(DataResultsContext);
+  const [pubnubInstance, setPubNubInstance] = useState<PubNub | null>(null);
+  const [activeChat, setActiveChat] = useState<string | null>(null); // To keep track of active chat
+
+  useEffect(() => {
+    // Initialize PubNub instance when userLog or userNames changes
+    if (userLog && userNames) {
+      const newPubNubInstance = new PubNub({
+        publishKey: 'pub-c-c9eab6f5-0232-4d25-88f2-8c6de320d091',
+        subscribeKey: 'sub-c-547e7070-2c74-406e-834d-5fcdf72324ab',
+        userId: userNames, // Sender's userId
+      });
+      setPubNubInstance(newPubNubInstance);
+    }
+  }, [userLog, userNames]); // Make sure userLog and userNames are included in the dependency array
+
+  const handleChatSelection = (doctorName: string) => {
+    setActiveChat(`${doctorName}-${userNames}`); // Unique channel for each user-doctor chat
+  };
+
+  const handleSendMessage = () => {
+    // Logic to send message
+  };
+
+  return (
+    <View style={styles.container}>
+      {pubnubInstance && (
+        <PubNubProvider client={pubnubInstance}>
+          {activeChat ? (
+            <ChatRoom
+              key={activeChat}
+              title={activeChat}
+              onSendMessage={handleSendMessage}
+              onCloseChat={() => setActiveChat(null)}
+            />
+          ) : (
+            <DoctorList onSelectChat={handleChatSelection} />
+          )}
+        </PubNubProvider>
+      )}
+    </View>
+  );
+}
+
+function DoctorList({ onSelectChat }: { onSelectChat: (doctorName: string) => void }) {
+  const doctors = [
+    'Dr-Ibrahim',
+    'Dr-John',
+    'Dr-Miiro',
+    'Dr-Fred',
+    'Dr-Rogers',
+    'Dr-Alima',
+    // Add more doctors here
+  ];
+
+  const userAvatars: { [key: string]: any } = {
+    'Dr-Ibrahim': require('../../assets/adaptive-icon.png'),
+    'Dr-John': require('../../assets/adaptive-icon.png'),
+    'Dr-Miiro': require('../../assets/adaptive-icon.png'),
+    'Dr-Fred': require('../../assets/adaptive-icon.png'),
+    'Dr-Rogers': require('../../assets/adaptive-icon.png'),
+    'Dr-Alima': require('../../assets/adaptive-icon.png'),
+    // Add more avatars here
+  };
+  
+
+  return (
+    <View>
+      <Text style={styles.userListHeader}>Welcome to Mobi Doctors</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {doctors.map(doctor => (
+          <TouchableOpacity key={doctor} onPress={() => onSelectChat(doctor)} style={styles.userItem}>
+            <Image source={userAvatars[doctor]} style={styles.avatar} />
+            <Text style={styles.userName}>{doctor}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+function ChatRoom({
+  title,
+  onSendMessage,
+  onCloseChat,
+}: {
+  title: string;
+  onSendMessage: () => void;
+  onCloseChat: () => void;
+}) {
+  return (
+    <View style={styles.chatRoomContainer}>
+      <TouchableOpacity onPress={onCloseChat}>
+        <Text style={styles.backButton}>Back</Text>
+      </TouchableOpacity>
+      <Text style={styles.chatRoomTitle}>{title}</Text>
+      <Chat currentChannel={title} theme={'light'}>
+        <MessageList fetchMessages={10} />
+        <MessageInput fileUpload="image" onSend={onSendMessage} />
+        <TypingIndicator showAsMessage={false} />
+      </Chat>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  userListHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 10,
+  },
+  scrollViewContent: {
+    paddingHorizontal: 10,
+  },
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+    paddingBottom: 5,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  userName: {
+    fontSize: 18,
+  },
+  chatRoomContainer: {
+    flex: 1,
+    paddingHorizontal: 10,
+  },
+  chatRoomTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  backButton: {
+    fontSize: 20,
+    color: '#21618C',
+    marginBottom: 10,
+    marginTop: 10,
+    fontWeight: 'bold',
+  },
+});

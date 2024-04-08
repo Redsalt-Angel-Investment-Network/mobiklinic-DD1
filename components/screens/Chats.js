@@ -11,10 +11,10 @@ import {
 import {openDatabase} from 'react-native-sqlite-storage';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
-import {OPEN_API_KEY} from '@env'
-
+import {OPEN_API_KEY} from '@env';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
+import CopyRight from '../copyright';
 const db = openDatabase({name: 'chatHistory.db'});
 
 const ChatBot = ({navigation}) => {
@@ -88,8 +88,7 @@ const ChatBot = ({navigation}) => {
     baseURL: 'https://api.openai.com/v1/chat/completions',
     headers: {
       'Content-Type': 'application/json',
-      Authorization:
-        `Bearer ${OPEN_API_KEY}`,
+      Authorization: `Bearer ${OPEN_API_KEY}`,
     },
   });
 
@@ -242,6 +241,8 @@ const ChatBot = ({navigation}) => {
           <Icon name="send" size={25} color="black" />
         </TouchableOpacity>
       </View>
+
+      <CopyRight />
     </View>
   );
 };
@@ -258,7 +259,6 @@ const styles = {
     alignItems: 'center',
     marginBottom: 16,
     paddingHorizontal: 16,
-
   },
   heading: {
     fontSize: 24,
@@ -269,15 +269,17 @@ const styles = {
     // alignSelf: 'center',
   },
   chatContainer: {
-    flex: 1,
+    flex: 2,
     marginBottom: 16,
     padding: 16,
-    // backgroundColor: COLORS.WHITE,
     borderRadius: 8,
     paddingVertical: 16,
+    marginBottom: 30,
+
   },
   chatContent: {
     justifyContent: 'flex-end',
+    height: '100%',
   },
   predefinedQuestionsContainer: {
     flexDirection: 'row',
@@ -342,7 +344,7 @@ const styles = {
     borderTopLeftRadius: 0,
     marginLeft: 8,
     marginBottom: 8,
-    padding:12,
+    padding: 12,
   },
   sendButton: {
     padding: 12,

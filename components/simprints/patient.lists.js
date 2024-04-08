@@ -1,553 +1,715 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
-  Text,
   View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TextInput,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
-  RefreshControl,
-  TextInput,
 } from 'react-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {COLORS, DIMENS} from '../constants/styles';
-import Icon from 'react-native-vector-icons/Feather';
-import Loader from '../ui/loader';
-import CustomHeader from '../ui/custom-header';
-import DataResultsContext from '../contexts/DataResultsContext';
 import {API_URL} from '@env';
+import Loader from '../ui/loader';
+import Icon from 'react-native-vector-icons/Feather';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
-const PatientList = ({navigation}) => {
-  const {userLog, refusalData, patientId, setPatientId} =
-    useContext(DataResultsContext);
-  const [users, setUsers] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchSuggestions, setSearchSuggestions] = useState([]);
-  const [isNoUserFound, setIsNoUserFound] = useState(false);
-  const [patientsEnrolledCount, setPatientsEnrolledCount] = useState(0);
-  const [expandedUserId, setExpandedUserId] = useState(null);
-  // const {reason} = refusalData;
+import CustomHeader from '../ui/custom-header';
+import {useNavigation} from '@react-navigation/native';
+import Emoji from 'react-native-emoji';
+import DataResultsContext from '../contexts/DataResultsContext';
+import {ScrollView} from 'react-native-gesture-handler';
+import CopyRight from '../copyright';
 
-  const formatDate = date => {
-    if (date) {
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
+const PatientCard = ({patient}) => {
+  const navigation = useNavigation();
+  const [expanded, setExpanded] = useState(false);
+  const [screeningExpanded, setScreeningExpanded] = useState(false);
+  const [monitoringExpanded, setMonitoringExpanded] = useState(false);
+  const [vaccinationExpanded, setVaccinationExpanded] = useState(false);
+  const [rftExpanded, setRFTExpanded] = useState(false);
+  const [antenantalExpanded, setAntenantalExpanded] = useState(false);
+  const [diagnosisExpanded, setDiagnosisExpanded] = useState(false);
+  const [drugsExpanded, setDrugsExpanded] = useState(false);
 
-      return `${day.toString().padStart(2, '0')}/${month
-        .toString()
-        .padStart(2, '0')}/${year}`;
+  const toggleAccordion = () => {
+    setExpanded(!expanded);
+  };
+  const toggleScreening = () => {
+    setScreeningExpanded(!screeningExpanded);
+  };
+  const toggleMonitoing = () => {
+    setMonitoringExpanded(!monitoringExpanded);
+  };
+  const toggleRFT = () => {
+    setRFTExpanded(!rftExpanded);
+  };
+  const toggleVaccination = () => {
+    setVaccinationExpanded(!vaccinationExpanded);
+  };
+  const toggleAntennal = () => {
+    setAntenantalExpanded(!antenantalExpanded);
+  };
+  const toggleDiagnosis = () => {
+    setDiagnosisExpanded(!diagnosisExpanded);
+  };
+  const toggleDrugs = () => {
+    setDrugsExpanded(!drugsExpanded);
+  };
+  const handleRedirect = () => {
+    console.log('Patient ID:', patient.id);
+    const age = calculateAge(patient.dateOfBirth);
+    navigation.navigate('SelectActivity', {
+      patientId: patient.id,
+      firstName: patient.firstName,
+      lastName: patient.lastName,
+      age: age,
+      sex: patient.sex,
+    });
+  };
+
+  const calculateAge = dateOfBirth => {
+    if (!dateOfBirth) return 'Invalid Date';
+
+    const [day, month, year] = dateOfBirth.split('/');
+
+    const dob = new Date(year, month - 1, day);
+
+    // Check if the parsed date is a valid date
+    if (isNaN(dob.getTime())) return 'Invalid Date';
+
+    // Get today's date
+    const today = new Date();
+
+    // Calculate the age
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+
+    // Adjust the age if the birth month hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
     }
-    return 'Click to add date';
-  };
 
-  const _header = () => (
-    <CustomHeader
-      left={
-        <TouchableOpacity
-          style={{
-            marginHorizontal: 4,
-            width: 35,
-            height: 35,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
-        </TouchableOpacity>
-      }
-      title={<Text style={[styles.centerHeader]}>Back</Text>}
-    />
-  );
-
-  const fetchUsers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/${userLog}/patients`);
-      // const response = await axios.get(`https://mobi-be-production.up.railway.app/patients`);
-
-      if (response.status === 200) {
-        const currentDate = new Date();
-        const lastWeekDate = new Date('2023-07-19');
-
-        const filteredData = response.data.filter(item => {
-          const itemDate = new Date(item.createdAt);
-          return itemDate >= lastWeekDate && itemDate <= currentDate;
-        });
-
-        const sortedData = filteredData.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-
-        const loggedInUserPhone = userLog ? userLog.phoneNumber : '';
-        const filteredDataForUser = sortedData.filter(
-          item => item.phoneNumber === loggedInUserPhone,
-        );
-
-        setUsers(sortedData);
-        await AsyncStorage.setItem('patientList', JSON.stringify(sortedData));
-        setIsNoUserFound(sortedData.length === 0);
-        setPatientsEnrolledCount(sortedData.length);
-      } else {
-        const storedData = await AsyncStorage.getItem('patientList');
-
-        if (storedData) {
-          setUsers(JSON.parse(storedData));
-          setPatientsEnrolledCount(JSON.parse(storedData).length);
-        }
-      }
-    } catch (error) {
-      console.error('An error occurred:', error);
-
-      const storedData = await AsyncStorage.getItem('patientList');
-
-      if (storedData) {
-        setUsers(JSON.parse(storedData));
-        setPatientsEnrolledCount(JSON.parse(storedData).length);
-      }
-    } finally {
-      setIsLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchUsers();
-    };
-
-    fetchData();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchUsers();
-  };
-
-  const handleSearch = async query => {
-    setSearchQuery(query);
-    try {
-      const response = await axios.get(
-        `http://192.168.1.14:3000/search?query=${query}`,
-      );
-      setSearchSuggestions(response.data);
-    } catch (error) {
-      console.error('An error occurred:', error);
-    }
-  };
-
-  const renderUserCard = ({item}) => {
-    const isExpanded = item.id === expandedUserId;
-
-    const toggleExpansion = () => {
-      if (isExpanded) {
-        setExpandedUserId(null);
-      } else {
-        setExpandedUserId(item.id);
-      }
-    };
-
-    const fullName = `${item.firstName} ${item.lastName}`;
-    const fullNameChars = fullName.split('');
-
-    const addData = () => {
-      setPatientId(item.id);
-      console.log('Adding data for patient ID:', item.id);
-
-      navigation.navigate('SelectActivity', {
-        patientId: item.id,
-        paramKey: {firstName: item.firstName, lastName: item.lastName},
-      });
-    };
-
-    return (
-      <View style={styles.userCard}>
-        <TouchableOpacity onPress={toggleExpansion} style={styles.cardHeader}>
-          <Text style={styles.userName}>
-            {fullNameChars.map((char, index) => {
-              const isMatchingChar = searchQuery
-                .toLowerCase()
-                .includes(char.toLowerCase());
-              const highlightStyle = isMatchingChar
-                ? {backgroundColor: COLORS.PRIMARY}
-                : {};
-
-              return (
-                <Text key={index} style={[styles.userName, highlightStyle]}>
-                  {char}
-                </Text>
-              );
-            })}
-          </Text>
-          <Icon
-            name={isExpanded ? 'chevron-up' : 'chevron-down'}
-            size={25}
-            color={COLORS.PRIMARY}
-          />
-        </TouchableOpacity>
-        {isExpanded && (
-          <View style={styles.cardDetails}>
-            <Text style={styles.userDataLabel}>
-              Phone Number:
-              <Text style={styles.userDataValue}>{item.phoneNumber}</Text>
-            </Text>
-            {/* <Text style={styles.userDataLabel}>
-              Reason for not using simprints:{'\t'}
-              <Text style={styles.userDataValue}>{reason}</Text>
-            </Text> */}
-            <Text style={styles.userDataLabel}>
-              Date Of Birth:
-              <Text style={styles.userDataValue}>
-                {formatDate(new Date(item.ageGroup))}
-              </Text>
-            </Text>
-
-            <Text style={styles.userDataLabel}>
-              Primary Language:{' '}
-              <Text style={styles.userDataValue}>{item.primaryLanguage}</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              Simprints GUID:{' '}
-              <Text style={styles.userDataValue}>{item.simprintsGui}</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              Country <Text style={styles.userDataValue}>{item.country}</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              District:{' '}
-              <Text style={styles.userDataValue}>{item.district}</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              Sex: <Text style={styles.userDataValue}>{item.sex}</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              Weight:{' '}
-              <Text style={styles.userDataValue}>{item.weight} kgs</Text>
-            </Text>
-
-            <Text style={styles.userDataLabel}>
-              Height: <Text style={styles.userDataValue}>{item.height} cm</Text>
-            </Text>
-            <Text style={styles.userDataLabel}>
-              Created At:{' '}
-              <Text style={styles.userDataValue}>
-                {' '}
-                {formatDate(new Date(item.createdAt))}
-              </Text>
-            </Text>
-            <View style={styles.line} />
-            {item.vaccinations && item.vaccinations.length > 0 && (
-              <View>
-                <Text style={styles.userDataLabel1}>VACCINATION</Text>
-                {item.vaccinations.map((vaccination, index) => (
-                  <View key={index}>
-                    <Text style={styles.userDataLabel}>
-                      Vaccine Name:{' '}
-                      <Text style={styles.userDataValue}>
-                        {vaccination.vaccineName}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Date of Vaccination:{' '}
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(vaccination.dateOfVaccination))}
-                      </Text>
-                    </Text>
-
-                    {/* <Text style={styles.userDataLabel}>
-                      Dose:
-                      <Text style={styles.userDataValue}>
-                        {vaccination.vaccinatedBy}
-                      </Text>
-                    </Text> */}
-
-                    <Text style={styles.userDataLabel}>
-                      Card Number:{' '}
-                      <Text style={styles.userDataValue}>
-                        {vaccination.units}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Date for Next Dose:{' '}
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(vaccination.dateForNextDose))}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Site Administered:{' '}
-                      <Text style={styles.userDataValue}>
-                        {vaccination.siteAdministered}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Facility:{' '}
-                      <Text style={styles.userDataValue}>
-                        {vaccination.facility}
-                      </Text>
-                    </Text>
-                    <View style={styles.line} />
-
-                    <View style={{height: 20}} />
-                  </View>
-                ))}
-              </View>
-            )}
-            {item.antenantals && item.antenantals.length > 0 && (
-              <View>
-                <Text style={styles.userDataLabel1}>ANTENATAL CARE</Text>
-                {item.antenantals.map((antenantal, index) => (
-                  <View key={index}>
-                    <Text style={styles.userDataLabel}>
-                      Pregnacy Status:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.pregnancyStatus}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Expected Date for Delivery:
-                      <Text style={styles.userDataValue}>
-                        {formatDate(
-                          new Date(antenantal.expectedDateOfDelivery),
-                        )}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Date for routine visit:
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(antenantal.routineVisitDate))}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Blood Group:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.bloodGroup}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Current Weight:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.weight}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Next of Kin:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.nextOfKin}
-                      </Text>
-                    </Text>
-
-                    <Text style={styles.userDataLabel}>
-                      Next of Kin Contact:
-                      <Text style={styles.userDataValue}>
-                        {antenantal.nextOfKinContact}
-                      </Text>
-                    </Text>
-
-                    {antenantal.medicines &&
-                      antenantal.medicines.length > 0 && (
-                        <View>
-                          <Text style={styles.userDataLabel}>MEDICINES</Text>
-                          {antenantal.medicines.map((medicine, index) => (
-                            <View key={index}>
-                              <Text style={styles.userDataLabel}>
-                                Medicine Name:
-                                <Text style={styles.userDataValue}>
-                                  {medicine.name}
-                                </Text>
-                              </Text>
-
-                              <Text style={styles.userDataLabel}>
-                                Additional Notes:
-                                <Text style={styles.userDataValue}>
-                                  {medicine.description}
-                                </Text>
-                              </Text>
-
-                              <Text style={styles.userDataLabel}>
-                                Dosage:
-                                <Text style={styles.userDataValue}>
-                                  {medicine.dosage} X {medicine.frequency} for{' '}
-                                  {medicine.duration} days
-                                </Text>
-                              </Text>
-                            </View>
-                          ))}
-                        </View>
-                      )}
-
-                    <View style={styles.line} />
-                  </View>
-                ))}
-              </View>
-            )}
-            {item.diagnoses && item.diagnoses.length > 0 && (
-              <View>
-                <Text style={styles.userDataLabel1}>DAIGNOSIS</Text>
-                {item.diagnoses.map((diagnosis, index) => (
-                  <View key={index}>
-                    <Text style={styles.userDataLabel}>
-                      Pregnacy Status:{'\t'}
-                      <Text style={styles.userDataValue}>
-                        {diagnosis.condition}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Signs and Symptoms:{'\t'}
-                      <Text style={styles.userDataValue}>
-                        {diagnosis.impression}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Labarotorial Tests:{'\t'}
-                      <Text style={styles.userDataValue}>
-                        {diagnosis.labTests}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Is pregnant?:
-                      <Text style={styles.userDataValue}>
-                        {diagnosis.isPregnant}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Date of Diagnosis: {'\t'}
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(diagnosis.dateOfDiagnosis))}
-                      </Text>
-                    </Text>
-                    <Text style={styles.userDataLabel}>
-                      Date for next visit:{'\t'}
-                      <Text style={styles.userDataValue}>
-                        {formatDate(new Date(diagnosis.followUpDate))}
-                      </Text>
-                    </Text>
-                    {console.log(diagnosis.medicines)}
-                    {diagnosis.medicines && diagnosis.medicines.length > 0 && (
-                      <View>
-                        <Text style={styles.userDataLabel}>MEDICINES</Text>
-                        {diagnosis.medicines.map((medicine, medIndex) => (
-                          <View key={medIndex}>
-                            <Text style={styles.userDataLabel}>
-                              Medicine Name:
-                              <Text style={styles.userDataValue}>
-                                {medicine.name}
-                              </Text>
-                            </Text>
-
-                            <Text style={styles.userDataLabel}>
-                              Additional Notes:
-                              <Text style={styles.userDataValue}>
-                                {medicine.description}
-                              </Text>
-                            </Text>
-
-                            <Text style={styles.userDataLabel}>
-                              Dosage:
-                              <Text style={styles.userDataValue}>
-                                {medicine.dosage} X {medicine.frequency} for{' '}
-                                {medicine.duration} days
-                              </Text>
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    )}
-                    <View style={styles.line} />
-                  </View>
-                ))}
-
-                <TouchableOpacity onPress={addData} style={styles.buttonSec}>
-                  <Text style={styles.buttonText}>Follow Up Patient</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            {/* <TouchableOpacity onPress={addData} style={styles.buttonSec}>
-              <Text style={styles.buttonText}>Follow Up Patient</Text>
-            </TouchableOpacity> */}
-          </View>
-        )}
-      </View>
-    );
-  };
-
-  const formatPhoneNumber = phoneNumber => {
-    return phoneNumber;
+    return age;
   };
 
   return (
-    <View style={styles.wrapper}>
-      {_header()}
-      <View style={styles.container}>
-        <Text style={styles.header}>Beneficiary List</Text>
+    <View style={styles.patientContainer}>
+      <TouchableOpacity onPress={toggleAccordion}>
+        <Text style={styles.patientName}>
+          {patient.firstName} {patient.lastName}
+        </Text>
+        <Text style={styles.patientInfo}>
+          Phone Number: {patient.phoneNumber}
+        </Text>
+      </TouchableOpacity>
+      {expanded && (
+        <View style={styles.details}>
+          <Text style={styles.accordionLabel}>Sex: {patient.sex}</Text>
+          <Text style={styles.accordionLabel}>
+            Date of Birth: {patient.dateOfBirth}
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Age: {calculateAge(patient.dateOfBirth)} years old
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Occupation: {patient.occuptation}
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Marital Status: {patient.maritalStatus}
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Primary Language: {patient.primaryLanguage}
+          </Text>
 
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search patients..."
-            placeholderTextColor={COLORS.BLACK}
-            value={searchQuery}
-            onChangeText={handleSearch}
-          />
-          <TouchableOpacity onPress={fetchUsers}>
-            <Icon
-              name="search"
-              size={20}
-              color={COLORS.BLACK}
-              style={styles.searchIcon}
-            />
+          <Text style={styles.accordionLabel}>
+            Next of Kin: {patient.nextOfKin}
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Next of Kin Contact: {patient.nextOfKinContact}
+          </Text>
+          <Text style={styles.accordionLabel}>
+            Ethnicity: {patient.ethinicity}
+          </Text>
+
+          <Text style={styles.accordionLabel}>Height: {patient.height} cm</Text>
+          <Text style={styles.accordionLabel}>
+            Weight: {patient.weight} kgs
+          </Text>
+          {/* Screening */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleScreening}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>
+                Renal Health Screening
+              </Text>
+              <FontAwesomeIcon
+                name={screeningExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!screeningExpanded && patient.renal_histories.length > 0 ? (
+              <View style={styles.vaccinationContainer}>
+                {patient.renal_histories.map(screening => (
+                  <View key={screening.id} style={styles.vaccinationItem}>
+                    <Text style={styles.sectionHeader}>Urine Macrosopy:</Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Appearance: {screening.appearance.color}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Clarity: {screening.appearance.clarity}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine pH: {screening.chemistry.ph || 'N/A'}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Ketone: {screening.chemistry.ketone}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Glucose: {screening.chemistry.glucose}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Nitrite: {screening.chemistry.nitrite}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Protein: {screening.chemistry.protein}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Bilirubin: {screening.chemistry.bilirubin}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Leokcytes: {screening.chemistry.leokcytes}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Urine Specific Gravity:{' '}
+                      {screening.chemistry.specificGravity}
+                    </Text>
+
+                    <Text style={styles.vaccinationHeader}>
+                      Patient History:
+                    </Text>
+                    {screening.historyData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.historyData).map(
+                          ([key, value]) => (
+                            <Text key={key} style={styles.accordionLabel}>
+                              {key}: {value}
+                            </Text>
+                          ),
+                        )}
+                      </View>
+                    )}
+
+                    <Text style={styles.vaccinationHeader}>
+                      Inspection Data:
+                    </Text>
+                    {screening.inspectionData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.inspectionData).map(
+                          ([key, value]) => (
+                            <View key={key} style={styles.inspectionItem}>
+                              {key === 'bloodPressure' ? (
+                                <>
+                                  <Text style={styles.accordionLabel}>
+                                    Heart Pulse: {value.heartPulse}
+                                  </Text>
+                                  <Text style={styles.accordionLabel}>
+                                    Systolic Pressure: {value.systolicPressure}
+                                  </Text>
+                                  <Text style={styles.accordionLabel}>
+                                    Diastolic Pressure:{' '}
+                                    {value.diastolicPressure}
+                                  </Text>
+                                </>
+                              ) : (
+                                <Text style={styles.accordionLabel}>
+                                  {key}: {value}
+                                </Text>
+                              )}
+                            </View>
+                          ),
+                        )}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            ) : null}
+          </View>
+
+          {/* rfts */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleRFT}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>
+                Renal Functional Tests
+              </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!rftExpanded && patient.rfts.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                {patient.rfts.map(screening => (
+                  <View key={screening.id} style={styles.vaccinationItem}>
+                    {screening.inspectionData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.inspectionData).map(
+                          ([key, value]) => (
+                            <View key={key} style={styles.inspectionItem}>
+                              {key === 'bloodPressure' ? (
+                                <>
+                                  <Text style={styles.accordionLabel}>
+                                    Heart Pulse: {value.heartPulse}
+                                  </Text>
+                                  <Text style={styles.accordionLabel}>
+                                    Systolic Pressure: {value.systolicPressure}
+                                  </Text>
+                                  <Text style={styles.accordionLabel}>
+                                    Diastolic Pressure:{' '}
+                                    {value.diastolicPressure}
+                                  </Text>
+                                </>
+                              ) : (
+                                <Text style={styles.accordionLabel}>
+                                  {key}: {value}
+                                </Text>
+                              )}
+                            </View>
+                          ),
+                        )}
+                      </View>
+                    )}
+
+                    {screening.rftData && (
+                      <View style={styles.vaccinationItem}>
+                        {Object.entries(screening.rftData).map(
+                          ([key, value]) => (
+                            <View key={key} style={styles.inspectionItem}>
+                              <Text style={styles.accordionLabel}>
+                                {key}: {value}
+                              </Text>
+                            </View>
+                          ),
+                        )}
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+          {/* Monitorings */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleMonitoing}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>
+                Renal Health Monitoring
+              </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {patient &&
+              !monitoringExpanded &&
+              patient.monitorings &&
+              patient.monitorings.map(monitoring => (
+                <View key={monitoring.id} style={styles.vaccinationItem}>
+                  {monitoring.monitoringData &&
+                    monitoring.monitoringData.length > 0 && (
+                      <View style={styles.monitoringItem}>
+                        {/* Chemistry */}
+                        <Text style={styles.inspectionItem}>Chemistry:</Text>
+                        <View>
+                          {monitoring.monitoringData[0].chemistry &&
+                            Object.entries(
+                              monitoring.monitoringData[0].chemistry,
+                            ).map(([key, value]) => (
+                              <Text key={key} style={styles.accordionLabel}>
+                                {key}: {value}
+                              </Text>
+                            ))}
+                        </View>
+
+                        {/* Appearance */}
+                        <Text style={styles.inspectionItem}>Appearance:</Text>
+                        <View>
+                          {monitoring.monitoringData[0].appearance &&
+                            Object.entries(
+                              monitoring.monitoringData[0].appearance,
+                            ).map(([key, value]) => (
+                              <Text key={key} style={styles.accordionLabel}>
+                                {key}: {value}
+                              </Text>
+                            ))}
+                        </View>
+
+                        {/* Inspection Data */}
+                        <Text style={styles.inspectionItem}>
+                          Inspection Data:
+                        </Text>
+                        <View>
+                          {monitoring.monitoringData[0].inspectionData &&
+                            Object.entries(
+                              monitoring.monitoringData[0].inspectionData,
+                            ).map(([key, value]) => (
+                              <View key={key}>
+                                {typeof value === 'object' ? (
+                                  Object.entries(value).map(
+                                    ([subKey, subValue]) => (
+                                      <Text
+                                        key={subKey}
+                                        style={styles.accordionLabel}>
+                                        {subKey}: {subValue}
+                                      </Text>
+                                    ),
+                                  )
+                                ) : (
+                                  <Text style={styles.accordionLabel}>
+                                    {key}: {value}
+                                  </Text>
+                                )}
+                              </View>
+                            ))}
+                        </View>
+                      </View>
+                    )}
+                </View>
+              ))}
+          </View>
+
+          {/* drugs for rft */}
+          {/* Drugs */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleDrugs}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Drugs</Text>
+              <FontAwesomeIcon
+                name={drugsExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {patient &&
+              !drugsExpanded &&
+              patient.drugs &&
+              patient.drugs.map(drugGroup => (
+                <View key={drugGroup.id} style={styles.vaccinationItem}>
+                  {drugGroup.drugs &&
+                    drugGroup.drugs.map((drug, index) => (
+                      <View key={index} style={styles.monitoringItem}>
+                        <Text style={styles.inspectionItem}>{drug.name}</Text>
+                        <Text style={styles.accordionLabel}>
+                          Dosage: {drug.dosage} X {drug.frequency}
+                        </Text>
+                        <Text style={styles.accordionLabel}>
+                          Duration: {drug.duration} days
+                        </Text>
+
+                        {drug.description && (
+                          <Text style={styles.accordionLabel}>
+                            Description: {drug.description}
+                          </Text>
+                        )}
+                      </View>
+                    ))}
+                </View>
+              ))}
+          </View>
+
+          {/* vaccinations */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleVaccination}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Vaccinations </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!vaccinationExpanded && patient.vaccinations.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                {patient.vaccinations.map(vaccine => (
+                  <View key={vaccine.id} style={styles.vaccinationItem}>
+                    <Text style={styles.accordionLabel}>
+                      Vaccine Name: {vaccine.vaccineName}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Vaccine Facility: {vaccine.facility}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Dose: {vaccine.dose}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Site Administered: {vaccine.siteAdministered}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Vaccinated By: {vaccine.vaccinatedBy}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Date of Vaccination: {vaccine.dateOfVaccination}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Date For Next Dose: {vaccine.dateForNextDose}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Card Number: {vaccine.cardNumber}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Antenatals */}
+          <View>
+            <TouchableOpacity
+              onPress={toggleAntennal}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Antenatals </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!antenantalExpanded && patient.antenantals.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                {patient.antenantals.map(antenantal => (
+                  <View key={antenantal.id} style={styles.vaccinationItem}>
+                    <Text style={styles.accordionLabel}>
+                      Blood Group: {antenantal.bloodGroup}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Drug Notes: {antenantal.drugNotes}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Expected Date of Delivery:{' '}
+                      {antenantal.expectedDateOfDelivery}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Next of Kin: {antenantal.nextOfKin}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Next of Kin Contact: {antenantal.nextOfKinContact}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Pregnancy Status: {antenantal.pregnancyStatus}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Routine Visit Date: {antenantal.routineVisitDate}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Weight: {antenantal.weight}
+                    </Text>
+
+                    {antenantal.medicines &&
+                      antenantal.medicines.map((medicine, index) => (
+                        <View key={index} style={styles.medicineItem}>
+                          <Text style={styles.accordionLabel}>
+                            Name: {medicine.name}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Dosage: {medicine.dosage}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Duration: {medicine.duration}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Frequency: {medicine.frequency}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Description: {medicine.description}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          <View>
+            <TouchableOpacity
+              onPress={toggleDiagnosis}
+              style={styles.vaccinationHeader}>
+              <Text style={styles.accordionHeaderText}>Diagnoses </Text>
+              <FontAwesomeIcon
+                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            {!diagnosisExpanded && patient.diagnoses.length > 0 && (
+              <View style={styles.vaccinationContainer}>
+                {patient.diagnoses.map(diagnosis => (
+                  <View key={diagnosis.id} style={styles.vaccinationItem}>
+                    <Text style={styles.accordionLabel}>
+                      Condition: {diagnosis.condition}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Date of Diagnosis: {diagnosis.dateOfDiagnosis}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Follow-Up Date: {diagnosis.followUpDate}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Impression: {diagnosis.impression}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}
+                    </Text>
+                    <Text style={styles.accordionLabel}>
+                      Lab Tests: {diagnosis.labTests}
+                    </Text>
+                    {diagnosis.medicines &&
+                      diagnosis.medicines.map((medicine, index) => (
+                        <View key={index} style={styles.medicineItem}>
+                          <Text style={styles.accordionLabel}>
+                            Name: {medicine.name}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Dosage: {medicine.dosage}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Duration: {medicine.duration}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Frequency: {medicine.frequency}
+                          </Text>
+                          <Text style={styles.accordionLabel}>
+                            Description: {medicine.description}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
+            <Text style={styles.buttonText}>Follow Up Patient</Text>
           </TouchableOpacity>
         </View>
-        {searchSuggestions.length > 0 && (
-          <View style={styles.searchSuggestionsContainer}>
-            {searchSuggestions.map((suggestion, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.searchSuggestion}
-                onPress={() => handleSearch(suggestion)}>
-                <Text style={styles.searchSuggestionText}>{suggestion}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-        {!isLoading ? (
-          users.length > 0 ? (
-            <FlatList
-              data={users}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderUserCard}
-              contentContainerStyle={styles.flatListContent}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
-            />
-          ) : (
-            <Text style={styles.noUserFoundText}>No user found</Text>
-          )
-        ) : (
-          <Loader />
-        )}
-      </View>
+      )}
     </View>
   );
 };
 
-export default PatientList;
+const PatientLists = () => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const {userLog} = useContext(DataResultsContext);
+  const navigation = useNavigation();
+
+  // Function to fetch data from the backend
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/all-patients/${userLog}`);
+      const data = await response.json();
+      setUserData(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Function to handle search query
+  const handleSearch = text => {
+    setSearchQuery(text);
+  };
+
+  const filteredPatients =
+    userData && userData.patients
+      ? userData.patients.filter(patient => {
+          const fullName = `${patient.firstName} ${patient.lastName}`;
+          return fullName.toLowerCase().includes(searchQuery.toLowerCase());
+        })
+      : [];
+
+  const reversedPatients = filteredPatients.slice().reverse();
+  const handleRedirect = () => {
+    navigation.navigate('PatientData');
+  };
+
+  return (
+    <View style={styles.container}>
+      <CustomHeader
+        left={
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => navigation.goBack()}>
+            <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
+          </TouchableOpacity>
+        }
+        title={<Text style={styles.centerHeader}>Back</Text>}
+      />
+      <ScrollView style={styles.body}>
+        <Text style={styles.header}>Beneficiary List</Text>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by first or last name..."
+          placeholderTextColor={COLORS.GREY}
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+
+        {loading ? (
+          <Loader />
+        ) : reversedPatients.length === 0 ? (
+          <View>
+            <Text style={styles.buttonText}>
+              Patient Not Yet Registered <Emoji name="disappointed" />
+            </Text>
+            <TouchableOpacity style={styles.buttonSec} onPress={handleRedirect}>
+              <Text style={styles.buttonText}>Register Patient </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          reversedPatients.map(patient => (
+            <PatientCard key={patient.id} patient={patient} />
+          ))
+        )}
+      </ScrollView>
+      <CopyRight />
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
+    flex: 2,
+    backgroundColor: COLORS.WHITE_LOW,
   },
-  wrapper: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND,
+  body: {padding: 12, marginBottom: 40},
+  searchInput: {
+    height: 40,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    color: COLORS.BLACK,
+    fontSize: 16,
+    marginBottom: 20,
+    backgroundColor: COLORS.WHITE,
+    elevation: 1,
   },
   header: {
     fontSize: 22,
@@ -564,114 +726,37 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
     fontWeight: 'bold',
   },
-  flatListContent: {
-    paddingBottom: 20,
-  },
-  userCard: {
+  patientContainer: {
     backgroundColor: COLORS.WHITE,
-    borderRadius: 10,
     padding: 20,
     marginBottom: 20,
-    elevation: 2,
+    elevation: 4,
     shadowColor: COLORS.GRAY,
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.5,
     shadowRadius: 2,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  userName: {
-    fontSize: 16,
+  patientName: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.BLACK,
+    color: '#000',
+    marginBottom: 5,
   },
-  cardDetails: {
+  patientInfo: {
+    fontSize: 16,
+    color: '#000000',
+    marginBottom: 3,
+  },
+  accordionContent: {
     marginTop: 10,
   },
-  label: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: COLORS.BLACK,
-  },
-  userDataValue: {
-    fontWeight: 'normal',
-    fontSize: 16,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderColor: COLORS.BLACK,
-    borderRadius: 5,
-    marginBottom: 20,
-    backgroundColor: COLORS.WHITE,
-    elevation: 3,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginBottom: 15,
-    borderRadius: 10,
-  },
-  searchInput: {
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    color: COLORS.BLACK,
-    fontSize: 16,
-  },
-  searchIcon: {
-    marginHorizontal: 10,
-    fontSize: 20,
-    color: COLORS.PRIMARY,
-  },
-  searchSuggestionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 15,
-  },
-  searchSuggestion: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 10,
-    marginBottom: 10,
-  },
-  searchSuggestionText: {
-    color: COLORS.BLACK,
-    fontSize: 16,
-  },
-  noUserFoundText: {
-    textAlign: 'center',
-    fontSize: 18,
-    color: COLORS.BLACK,
-    marginTop: 20,
-    fontWeight: 'bold',
-  },
-  userDataLabel: {
-    fontWeight: 'bold',
+  accordionLabel: {
     fontSize: 15,
+    color: '#555',
     marginBottom: 5,
-    color: COLORS.BLACK,
-    paddingHorizontal: 10,
-    paddingLeft: 10,
-  },
-  userDataValue: {
-    fontWeight: 'normal',
-    fontSize: 15,
-    paddingRight: 10,
-  },
-  userDataLabel1: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
-    color: COLORS.PRIMARY,
   },
   buttonSec: {
     backgroundColor: COLORS.WHITE,
@@ -688,17 +773,58 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  userDataLabel1: {
-    fontWeight: 'bold',
+  vaccinationContainer: {
+    marginTop: 10,
+  },
+  vaccinationHeader: {
+    // fontSize: 16,
+    // fontWeight: 'bold',
+    // marginBottom: 5,
+    // textTransform: 'uppercase',
+    // borderColor: COLORS.GREY,
+    // borderWidth: 1,
+    // paddingVertical: 8,
+    borderRadius: 10,
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  vaccinationItem: {
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    // borderLeftWidth: 1,
+    fontSize: 16,
+  },
+  details: {
+    padding: 10,
+  },
+  section: {
+    marginBottom: 15,
+  },
+  sectionHeader: {
     fontSize: 16,
     marginBottom: 5,
-    color: COLORS.PRIMARY,
+    textDecorationLine: 'underline',
+    color: COLORS.BLACK,
   },
-  line: {
-    borderBottomColor: 'black',
-    borderBottomWidth: 1,
-    marginVertical: 10,
+  accordionHeaderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+    color: COLORS.BLACK,
+  },
+  icon: {
+    marginLeft: 'auto',
+    color: COLORS.BLACK,
+  },
+  inspectionItem: {
+    fontSize: 15,
+    marginRight: 10,
+    color: COLORS.BLACK,
+    marginBottom: 5,
+    textDecorationLine: 'underline',
   },
 });
 
-// export default PatientList;
+export default PatientLists;

@@ -1,4 +1,6 @@
-import React, {useState} from 'react';
+import {useFormik} from 'formik';
+import * as Yup from 'yup';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,121 +10,102 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Button,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import {CustomStatusBar} from '../ui/custom.status.bar';
 import Loader from '../ui/loader';
-import {COLORS, DIMENS} from '../constants/styles';
-import {Picker} from '@react-native-picker/picker';
-import {validateUgandaPhoneNumber} from '../helpers/validation';
-import {URLS} from '../constants/API';
-import PhoneInput from 'react-native-phone-number-input';
-import {API_URL} from '@env';
 
-const areaCodes = [
-  {label: '+256', value: '+256'},
-  {label: '+257', value: '+257'},
-  {label: '+254', value: '+254'},
-  {label: '+255', value: '+255'},
-];
+import {COLORS, DIMENS} from '../constants/styles';
+import {API_URL} from '@env';
+import axios from 'axios';
+import DataResultsContext from '../contexts/DataResultsContext';
 
 const SignUp = ({navigation}) => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    eMail: '',
-    password: '',
-    cPassword: '',
-  });
+  const {setUserNames} = useContext(DataResultsContext);
   const [isLoading, setIsLoading] = useState(false);
   const [hasRegistered, setRegistered] = useState(false);
   const [process, setProcess] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [phoneError, setPhoneError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const signUp = async () => {
-    setProcess('Registering, please wait!');
-    const formattedPhoneNumber = formData.phoneNumber;
+  const SignUpSchema = Yup.object().shape({
+    firstName: Yup.string().required('First name is required'),
+    lastName: Yup.string().required('Last name is required'),
+    username: Yup.string()
+      .required('Start with Area Code e.g 2567XXXXXX')
+      .min(12, 'Password must be at least 13 characters'),
+    email: Yup.string()
+      .email('Invalid email address')
+      .required('Email is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters'),
+    confirmPassword: Yup.string()
+      .required('Confirm password is required')
+      .oneOf([Yup.ref('password'), null], 'Passwords must match'), // Compare with password field
+  });
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      confirmPassword: '',
+    },
+    validationSchema: SignUpSchema,
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.phoneNumber ||
-      !formData.password ||
-      !formData.cPassword
-    ) {
-      Alert.alert('Error', 'Please fill in the required fields correctly!', [
-        {
-          text: 'OK',
-          onPress: () => setIsLoading(false),
-        },
-      ]);
-      return;
-    }
+    onSubmit: async values => {
+      setIsLoading(true);
+      if (isLoading) {
+        return;
+      }
+      try {
+        const response = await axios.post(
+          `${API_URL}/api/auth/local/register`,
+          {
+            email: values.email,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            password: values.password,
+            username: values.username,
+          },
+        );
 
-    try {
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        body: JSON.stringify({
-          phone: formattedPhoneNumber,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.eMail,
-          password: formData.password,
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-          Accept: 'application.json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (data.message === 'Signup successful') {
-        setRegistered(true);
-      } else if (data.message === 'Phone number already exists') {
-        // Display a specific error message when the phone number already exists
-        Alert.alert(
-          'Sign up failure',
-          'Phone number already exists. Please use a different phone number.',
-          [
+        if (response.status === 200) {
+          setRegistered(true);
+          navigation.navigate('Login');
+        } else {
+          Alert.alert('Sign up failure', [
             {
               text: 'OK',
               onPress: () => setIsLoading(false),
             },
-          ],
-        );
-      } else {
-        Alert.alert('Sign up failure', 'Phone number already exists', [
+          ]);
+        }
+      } catch (error) {
+        console.error(error.response.data);
+        const errorMessage =
+          error.response.data && error.response.data.message
+            ? error.response.data.message.join(', ')
+            : 'Registration failed. Please try again.';
+
+        Alert.alert('Sign up failure', errorMessage, [
           {
             text: 'OK',
             onPress: () => setIsLoading(false),
           },
         ]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.log(err.message);
-      Alert.alert(
-        'Failure',
-        'Something went wrong. Check your internet and try again!',
-        [
-          {
-            text: 'OK',
-            onPress: () => setIsLoading(false),
-          },
-        ],
-      );
-    }
-  };
+    },
+  });
+  const {values, touched, errors, handleChange, handleBlur, handleSubmit} =
+    formik;
 
-  if (isLoading) {
-    return (
-      <Loader>
-        <Text>{process}</Text>
-      </Loader>
-    );
-  }
+  if (isLoading) return <Loader />;
 
   if (hasRegistered) {
     return (
@@ -149,121 +132,117 @@ const SignUp = ({navigation}) => {
       </View>
       <ScrollView style={styles.body}>
         <View style={styles.formContainer}>
-          <View>
-            <Text style={styles.errorMsg}>{phoneError}</Text>
-          </View>
           <View style={styles.labeled}>
             <Text style={styles.label}>First Name:</Text>
             <TextInput
+              placeholder="Enter your first name"
+              value={values.firstName}
+              onChangeText={handleChange('firstName')}
+              onBlur={handleBlur('firstName')}
               style={styles.input}
-              autoCorrect={false}
               placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={firstName => setFormData({...formData, firstName})}
-              value={formData.firstName}
-              placeholder="Enter First name"
             />
           </View>
+          {touched.firstName && errors.firstName && (
+            <Text style={styles.errorText}>{errors.firstName}</Text>
+          )}
+
           <View style={styles.labeled}>
             <Text style={styles.label}>Last Name:</Text>
             <TextInput
+              placeholder="Enter your last name"
+              value={values.lastName}
+              onChangeText={handleChange('lastName')}
+              onBlur={handleBlur('lastName')}
               style={styles.input}
-              autoCorrect={false}
               placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={lastName => setFormData({...formData, lastName})}
-              value={formData.lastName}
-              placeholder="Enter Last name"
             />
           </View>
-          <View style={styles.labeled}>
-            <Text style={styles.label}>Email Address:</Text>
-            <TextInput
-              style={styles.input}
-              autoCorrect={false}
-              placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={eMail => setFormData({...formData, eMail})}
-              value={formData.eMail}
-              keyboardType="email-address"
-              placeholder="Enter Email"
-            />
-          </View>
-          <View>
-            <PhoneInput
-              placeholder="Phone Number"
-              defaultCode="UG"
-              layout="first"
-              containerStyle={[
-                styles.phoneInputContainer,
-                {backgroundColor: COLORS.WHITE_LOW},
-              ]}
-              textInputStyle={{color: 'black', paddingVertical: 10}}
-              placeholderTextColor="grey"
-              style={styles.phoneInput}
-              textContainerStyle={styles.phoneInput}
-              textInputProps={{
-                style: styles.phoneInput,
-                placeholderTextColor: 'grey',
-                height: 40,
-                backgroundColor: 'rgba(255, 255, 255, 0)',
-
-                // placeholderTextColor: 'grey',
-              }}
-              dropdownImageStyle={styles.dropdownImage}
-              onChangeText={text =>
-                setFormData({...formData, phoneNumber: text})
-              }
-            />
-          </View>
-          {phoneError !== '' && (
-            <Text style={[styles.alignError, styles.errorMsg]}>
-              {phoneError}
-            </Text>
+          {touched.lastName && errors.lastName && (
+            <Text style={styles.errorText}>{errors.lastName}</Text>
           )}
+
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Phone Number:</Text>
+            <TextInput
+              placeholder="eg 256785XXXXXX"
+              value={values.username}
+              style={styles.input}
+              onChangeText={handleChange('username')}
+              onBlur={handleBlur('username')}
+              keyboardType="phone-pad"
+              placeholderTextColor="grey"
+            />
+          </View>
+          {touched.username && errors.username && (
+            <Text style={styles.errorText}>{errors.username}</Text>
+          )}
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Email:</Text>
+            <TextInput
+              placeholder="Enter your email address"
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              style={styles.input}
+              placeholderTextColor="grey"
+            />
+          </View>
+          {touched.email && errors.email && (
+            <Text style={styles.errorText}>{errors.email}</Text>
+          )}
+
           <View style={styles.labeled}>
             <Text style={styles.label}>Password:</Text>
             <TextInput
-              style={styles.input}
-              password={true}
-              secureTextEntry={true}
-              autoCorrect={false}
-              placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={password => setFormData({...formData, password})}
-              value={formData.password}
               placeholder="Enter Password"
-            />
-          </View>
-          <View style={styles.labeled}>
-            <Text style={styles.label}>Confirm :</Text>
-            <TextInput
-              style={styles.input}
-              password={true}
-              secureTextEntry={true}
-              autoCorrect={false}
+              value={values.password}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
               placeholderTextColor="grey"
-              selectionColor={COLORS.SECONDARY}
-              onChangeText={cPassword => {
-                setFormData({...formData, cPassword});
-                if (formData.password !== cPassword) {
-                  setPasswordError('Make sure passwords match.');
-                } else {
-                  setPasswordError('');
-                }
-              }}
-              value={formData.cPassword}
-              placeholder="Enter Password again"
+              style={styles.input}
+              secureTextEntry={!showPassword}
+              autoCorrect={false}
             />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Icon
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={COLORS.BLACK}
+              />
+            </TouchableOpacity>
           </View>
-          {passwordError !== '' && (
-            <Text style={[styles.alignError, styles.errorMsg]}>
-              {passwordError}
-            </Text>
+          {touched.password && errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
           )}
+
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Confirm Password:</Text>
+            <TextInput
+              placeholder="Confirm Password"
+              value={values.confirmPassword}
+              onChangeText={handleChange('confirmPassword')}
+              onBlur={handleBlur('confirmPassword')}
+              placeholderTextColor="grey"
+              style={styles.input}
+              secureTextEntry={!showPassword}
+              autoCorrect={false}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Icon
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={COLORS.BLACK}
+              />
+            </TouchableOpacity>
+          </View>
+          {touched.confirmPassword && errors.confirmPassword && (
+            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+          )}
+
           <TouchableOpacity
             style={[styles.btn, styles.btnPrimary]}
-            onPress={() => signUp()}>
+            onPress={handleSubmit}>
             <Text style={styles.whiteText}>Sign Up</Text>
             <Icon
               name="arrow-right"
@@ -283,15 +262,15 @@ const SignUp = ({navigation}) => {
   );
 };
 
+export default SignUp;
+
 const styles = StyleSheet.create({
   container: {
-    flex: 3,
+    flex: 1,
     backgroundColor: COLORS.WHITE,
   },
   body: {
-    // flex: 1,
     paddingTop: 50,
-    // paddingHorizontal: 12,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -301,12 +280,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE_LOW,
     borderRadius: 18,
     paddingHorizontal: 20,
-    marginBottom: 15,
-    marginHorizontal: 15,
-    width: 35,
-    height: 20,
+    // marginBottom: 15,
+    // width: 35,
+    // height: 20,
     flex: 1, // Allow the input to expand and fill the available space
-    height: 50,
+    // height: 50,
   },
   picker: {
     flex: 1,
@@ -321,8 +299,8 @@ const styles = StyleSheet.create({
     padding: DIMENS.FORM.PADDING,
   },
   title: {
-    color: COLORS.BLACK,
-    fontSize: 14,
+    color: COLORS.PRIMARY,
+    fontSize: 17,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     padding: DIMENS.PADDING,
@@ -336,26 +314,24 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE_LOW,
   },
   label: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
     color: COLORS.BLACK,
   },
   labeled: {
     flexDirection: 'row',
     alignItems: 'center',
-    // marginTop: 10,
+    justifyContent: 'center',
     borderColor: COLORS.GREY,
     borderStyle: 'solid',
     borderWidth: 1,
     backgroundColor: COLORS.WHITE_LOW,
     borderRadius: 18,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     marginBottom: 15,
-    fontFamily: 'Roboto',
-    fontSize: 15,
+    // fontFamily: 'Roboto',
     color: COLORS.BLACK,
-    marginHorizontal: 15,
+    // marginHorizontal: 15,
   },
   linkItem: {
     paddingTop: DIMENS.PADDING,
@@ -371,13 +347,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.PRIMARY,
   },
   input: {
-    // borderColor: COLORS.WHITE_LOW,
-    flex: 1,
+    flex: 2,
     justifyContent: 'center',
     color: COLORS.BLACK,
     fontWeight: 'medium',
     paddingLeft: 10,
-    fontSize: 15,
+    fontSize: 16,
   },
   btn: {
     padding: DIMENS.PADDING,
@@ -396,8 +371,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 15,
-    marginVertical: 10,
-    marginHorizontal: 15,
+    marginVertical: 12,
+    // marginHorizontal: 15,
   },
   btnInfo: {
     backgroundColor: COLORS.WHITE_LOW,
@@ -418,9 +393,9 @@ const styles = StyleSheet.create({
   },
   whiteText: {
     color: COLORS.BLACK,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     paddingHorizontal: 15,
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Roboto',
   },
   phoneInput: {
@@ -454,6 +429,8 @@ const styles = StyleSheet.create({
     height: 55,
     width: 338,
   },
+  errorText: {
+    color: 'red',
+    paddingBottom: 5,
+  },
 });
-
-export default SignUp;

@@ -10,7 +10,7 @@ import FollowUp from '../screens/diagnosis.follow.up';
 import Chat from '../screens/Chat';
 import Chats from '../screens/Chats';
 import Profile from '../screens/profile';
-import PatientData from '../simprints/patient.data';
+import PatientData from '../simprints/patient.profile';
 import SimprintsConnect from '../simprints/simprintsID';
 import PatientMedical from '../simprints/patient.medical';
 import Vaccination from '../simprints/vaccination';
@@ -24,7 +24,23 @@ import ReceivedChats from '../screens/Received.Chats';
 import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
+import Urinalysis from '../renal/urinalysis.screening';
+import Monitoring from '../renal/monitoring';
+import History from '../renal/history';
+import Inspection from '../renal/inspection.screening';
+import SelectRenalActivity from '../renal/select.renal';
+import UrinalysisMonitoring from '../renal/urinalysis.monitoring';
+import {introspectionTypes} from 'graphql';
+import InspectionMonitoring from '../renal/inspection.monitoring';
+import RenalFunctionTest from '../renal/renal.function';
+import InsepectionRFT from '../renal/inspection.rft';
 import DrawerLogged from '../navigators/drawer.logged';
+import About from '../screens/about';
+import RenalDrugs from '../renal/renal.drugs';
+import {ChatView} from '../chat/ChartView'
+import UrinalysisCounter from '../renal/urinalysis.counter';
+import Hospital from '../screens/hospitals';
+
 
 const Stack = createStackNavigator();
 
@@ -137,11 +153,85 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Appointments}
       />
+
+      <Stack.Screen
+        name="Urinalysis"
+        options={{headerShown: false}}
+        component={Urinalysis}
+      />
+      <Stack.Screen
+        name="Monitoring"
+        options={{headerShown: false}}
+        component={Monitoring}
+      />
+
+      <Stack.Screen
+        name="History"
+        options={{headerShown: false}}
+        component={History}
+      />
+      <Stack.Screen
+        name="Inspection"
+        options={{headerShown: false}}
+        component={Inspection}
+      />
+      <Stack.Screen
+        name="SelectRenalActivity"
+        options={{headerShown: false}}
+        component={SelectRenalActivity}
+      />
+      <Stack.Screen
+        name="UrinalysisMonitoring"
+        options={{headerShown: false}}
+        component={UrinalysisMonitoring}
+      />
+      <Stack.Screen
+        name="InspectionMonitoring"
+        options={{headerShown: false}}
+        component={InspectionMonitoring}
+      />
+      <Stack.Screen
+        name="RenalFunctionTest"
+        options={{headerShown: false}}
+        component={RenalFunctionTest}
+      />
+      <Stack.Screen
+        name="InsepectionRFT"
+        options={{headerShown: false}}
+        component={InsepectionRFT}
+      />
       <Stack.Screen
         name="DrawerLogged"
         options={{headerShown: false}}
         component={DrawerLogged}
       />
+      <Stack.Screen
+        name="About"
+        options={{headerShown: false}}
+        component={About}
+      />
+      <Stack.Screen
+        name="RenalDrugs"
+        options={{headerShown: false}}
+        component={RenalDrugs}
+      />
+      <Stack.Screen
+        name="ChatView"
+        options={{headerShown: false}}
+        component={ChatView}
+      />
+      
+
+        name="UrinalysisCounter"
+        options={{headerShown: false}}
+        component={UrinalysisCounter}
+      />
+       <Stack.Screen
+        name="Hospital"
+        options={{headerShown: false}}
+        component={Hospital}
+      />
+
     </Stack.Navigator>
   );
 }

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {URLS} from '../constants/API';
-import CopyRight from '../simprints/copyright';
+import CopyRight from '../copyright';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
