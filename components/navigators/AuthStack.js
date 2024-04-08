@@ -37,8 +37,10 @@ import InsepectionRFT from '../renal/inspection.rft';
 import DrawerLogged from '../navigators/drawer.logged';
 import About from '../screens/about';
 import RenalDrugs from '../renal/renal.drugs';
+import {ChatView} from '../chat/ChartView'
 import UrinalysisCounter from '../renal/urinalysis.counter';
 import Hospital from '../screens/hospitals';
+
 
 const Stack = createStackNavigator();
 
@@ -214,6 +216,12 @@ function AuthStack() {
         component={RenalDrugs}
       />
       <Stack.Screen
+        name="ChatView"
+        options={{headerShown: false}}
+        component={ChatView}
+      />
+      
+
         name="UrinalysisCounter"
         options={{headerShown: false}}
         component={UrinalysisCounter}
@@ -223,6 +231,7 @@ function AuthStack() {
         options={{headerShown: false}}
         component={Hospital}
       />
+
     </Stack.Navigator>
   );
 }
