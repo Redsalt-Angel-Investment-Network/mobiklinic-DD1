@@ -98,11 +98,7 @@ const Doctors = ({navigation}) => {
 
     return () => {};
   }, []);
-  // const _getDoctors = async () => {
-  //   let doctorsOnDevice = await AsyncStorage.getItem('@doctors');
-  //   doctorsOnDevice = JSON.parse(doctorsOnDevice);
-  //   setState({doctors: doctorsOnDevice});
-  // };
+ 
 
   const _getDoctors = async () => {
     if (dummyData && dummyData.length > 0) {
