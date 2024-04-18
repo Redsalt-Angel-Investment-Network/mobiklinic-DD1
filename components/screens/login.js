@@ -186,10 +186,10 @@ const Login = ({navigation}) => {
 
       <View style={styles.logoContainer}>
         <Image
-          style={{width: 80, height: 80}}
+          style={{width: 70, height: 70}}
           source={require('../imgs/logo.png')}
         />
-        <Text style={styles.title}>Sign in</Text>
+        <Text style={styles.title}>WELCOME TO MOBIKLINIC CHP TOOL</Text>
       </View>
       <View style={styles.formContainer}>
         <View style={styles.labeled}>
@@ -253,12 +253,12 @@ const Login = ({navigation}) => {
             />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
           <Text style={styles.linkItem}>Forgot Password?</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('signUp')}>
           <Text style={styles.linkItem}>Don't have an Account? Sign up</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
@@ -281,8 +281,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   title: {
-    color: COLORS.ACCENT_1,
-    fontSize: 20,
+    color: COLORS.PRIMARY,
+    fontSize: 18,
     fontWeight: 'bold',
     textTransform: 'uppercase',
     paddingVertical: DIMENS.PADDING,
