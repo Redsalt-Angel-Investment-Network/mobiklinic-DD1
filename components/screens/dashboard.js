@@ -60,20 +60,11 @@ const Dashboard = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Doctors')}>
+            onPress={() => navigation.navigate('Chats')}>
             <View style={STYLES.cardIcon}>
-              <FoIcon name="phone" size={40} color={COLORS.PRIMARY} />
+              <Icon name="message-circle" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Call Doctor</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={STYLES.card}
-            onPress={() => navigation.navigate('Ambulances')}>
-            <View style={STYLES.cardIcon}>
-              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Find Ambulance </Text>
+            <Text style={STYLES.cardTitle}>Ask Moby</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -83,6 +74,14 @@ const Dashboard = ({navigation}) => {
               <MIcon name="calendar" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Appointments</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={STYLES.card}
+            onPress={() => navigation.navigate('Ambulances')}>
+            <View style={STYLES.cardIcon}>
+              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Find Ambulance </Text>
           </TouchableOpacity>
         </View>
 
@@ -102,18 +101,16 @@ const Dashboard = ({navigation}) => {
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Doctor Chat</Text>
-
-           
+            <Text style={STYLES.cardTitle}>Contact Doctors</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Chats')}>
+            onPress={() => navigation.navigate('Hospital')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="message-circle" size={40} color={COLORS.PRIMARY} />
+              <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Ask Moby</Text>
+            <Text style={STYLES.cardTitle}>Facilities</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

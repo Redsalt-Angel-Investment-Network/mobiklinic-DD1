@@ -132,10 +132,10 @@ export function DoctorList({
 
   return (
     <View style={styles.wrapper}>
-      {_header()}
+      {/* {_header()} */}
 
       <Text style={styles.userListHeader}>
-        Contact One The Mobiklinic Doctors
+        Mobiklinic Doctors
       </Text>
       {loading ? (
         <Loader size="large" backgroundColor={COLORS.WHITE} />
@@ -215,13 +215,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
   },
   userListHeader: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
-    backgroundColor: COLORS.PRIMARY,
+    marginVertical: 15,
     paddingVertical: 10,
-    color: COLORS.WHITE,
+    color: COLORS.PRIMARY,
+    textDecorationLine: 'underline',
+
   },
   scrollViewContent: {
     paddingHorizontal: 10,
