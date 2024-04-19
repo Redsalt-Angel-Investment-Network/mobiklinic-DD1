@@ -27,13 +27,12 @@ const Dashboard = ({navigation}) => {
     <View style={STYLES.wrapper}>
       <CustomStatusBar />
       <View style={STYLES.menuColumn}>
-          <TouchableOpacity onPress={() => navigation.navigate('DrawerLogged')}>
-            <Icon name="menu" size={25} color={COLORS.BLACK} />
-          </TouchableOpacity>
-          <Text style={STYLES.menuHeading}>Dashboard</Text>
-        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('DrawerLogged')}>
+          <Icon name="menu" size={25} color={COLORS.BLACK} />
+        </TouchableOpacity>
+        <Text style={STYLES.menuHeading}>Dashboard</Text>
+      </View>
       <View style={STYLES.hero}>
-       
         <View yle={STYLES.heroTextContainer}>
           <Text style={STYLES.heroHeading}>
             Hey{' '}
@@ -61,20 +60,11 @@ const Dashboard = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Doctors')}>
+            onPress={() => navigation.navigate('Chats')}>
             <View style={STYLES.cardIcon}>
-              <FoIcon name="phone" size={40} color={COLORS.PRIMARY} />
+              <Icon name="message-circle" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Call Doctor</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={STYLES.card}
-            onPress={() => navigation.navigate('Ambulances')}>
-            <View style={STYLES.cardIcon}>
-            <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Find Ambulance </Text>
+            <Text style={STYLES.cardTitle}>Ask Moby</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -85,6 +75,14 @@ const Dashboard = ({navigation}) => {
             </View>
             <Text style={STYLES.cardTitle}>Appointments</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={STYLES.card}
+            onPress={() => navigation.navigate('Ambulances')}>
+            <View style={STYLES.cardIcon}>
+              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Find Ambulance </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={STYLES.column}>
@@ -92,35 +90,27 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('PatientLists')}>
             <View style={STYLES.cardIcon}>
-            <Icon name="users" size={40} color={COLORS.PRIMARY} />
+              <Icon name="users" size={40} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Search Patient</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={STYLES.card}
-
             onPress={() => navigation.navigate('ChatView')}>
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Doctor Chat</Text>
-
-            onPress={() => navigation.navigate('Hospital')}>
-            <View style={STYLES.cardIcon}>
-            <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
-            </View>
-            <Text style={STYLES.cardTitle}>Hospitals</Text>
-
+            <Text style={STYLES.cardTitle}>Contact Doctors</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Chats')}>
+            onPress={() => navigation.navigate('Hospital')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="message-circle" size={40} color={COLORS.PRIMARY} />
+              <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Ask Moby</Text>
+            <Text style={STYLES.cardTitle}>Facilities</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -172,13 +162,12 @@ const STYLES = StyleSheet.create({
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
-
   },
   menuHeading: {
     // marginTop: 5,
     fontSize: 18,
-     color: COLORS.BLACK,
-    marginHorizontal:50
+    color: COLORS.BLACK,
+    marginHorizontal: 50,
   },
   heroTextContainer: {
     flex: 1,
@@ -201,16 +190,15 @@ const STYLES = StyleSheet.create({
     justifyContent: 'center',
     elevation: 4,
     marginTop: 10,
-    minHeight: 120, 
-    paddingVertical: 20, 
+    minHeight: 120,
+    paddingVertical: 20,
     paddingHorizontal: 15,
   },
   cardIcon: {
-    aspectRatio: 1, 
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8, 
-
+    marginBottom: 8,
   },
   cardTitle: {
     marginTop: 10,
