@@ -46,6 +46,7 @@
     "react-native-image-crop-picker": "^0.40.3",
     "react-native-image-resizer": "^1.4.5",
     "react-native-loading-spinner-overlay": "^3.0.1",
+    "react-native-maps": "1.15.3",
     "react-native-multiselect-view": "^1.0.5",
     "react-native-paper": "^5.8.0",
     "react-native-phone-number-input": "^2.1.0",
@@ -84,5 +85,6 @@
   },
   "jest": {
     "preset": "react-native"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }
