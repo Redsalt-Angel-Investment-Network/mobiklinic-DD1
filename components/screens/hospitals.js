@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Linking,
@@ -8,11 +8,11 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { ListItem, Button } from 'react-native-elements';
+import MapView, {Marker} from 'react-native-maps';
+import {ListItem} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
-import { COLORS } from '../constants/styles';
+import {COLORS} from '../constants/styles';
 import CopyRight from '../copyright';
 
 const Hospital = () => {
@@ -26,7 +26,7 @@ const Hospital = () => {
   const fetchHospitals = async () => {
     try {
       const response = await fetch(
-        'https://mk-be-strapi-production.up.railway.app/api/facility-locations'
+        'https://mk-be-strapi-production.up.railway.app/api/facility-locations',
       );
       const data = await response.json();
       setHospitals(data.data);
@@ -59,9 +59,8 @@ const Hospital = () => {
           longitude: 33.143, // Default center longitude
           latitudeDelta: 1, // Zoom level
           longitudeDelta: 1,
-        }}
-      >
-        {hospitals.map((hospital) => (
+        }}>
+        {hospitals.map(hospital => (
           <Marker
             key={hospital.id}
             coordinate={{
@@ -72,8 +71,7 @@ const Hospital = () => {
             description={hospital.attributes.location.address}
             onCalloutPress={() =>
               Linking.openURL(`tel:${hospital.attributes.facility_phone}`)
-            }
-          >
+            }>
             <Icon name="map-pin" size={25} color="red" />
           </Marker>
         ))}
@@ -81,7 +79,7 @@ const Hospital = () => {
 
       {/* Scrollable ListView for hospitals */}
       <ScrollView style={styles.container}>
-        {hospitals.map((hospital) => (
+        {hospitals.map(hospital => (
           <View key={hospital.id} style={styles.hospitalItem}>
             <ListItem bottomDivider>
               <Icon name="circle" size={25} color="green" />
@@ -89,27 +87,34 @@ const Hospital = () => {
                 <ListItem.Title style={styles.listTitle}>
                   {hospital.attributes.facility_name}
                 </ListItem.Title>
-                <ListItem.Subtitle style={styles.subtitle}>
-                  <Text style={styles.address}>
+                <View style={styles.subtitle}>
+                  {/* Address */}
+                  <Text style={styles.addressText}>
                     {hospital.attributes.location.address}
                   </Text>
-                  {'\n\n'}
-                  <Text>{hospital.attributes.facility_phone}</Text>
-                </ListItem.Subtitle>
+                  {/* Phone Number */}
+                  <TouchableOpacity
+                    onPress={() =>
+                      Linking.openURL(
+                        `tel:${hospital.attributes.facility_phone}`,
+                      )
+                    }>
+                    <Text style={styles.phoneNumber}>
+                      {hospital.attributes.facility_phone}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </ListItem.Content>
               <TouchableOpacity
                 onPress={() =>
                   getDirections(
                     hospital.attributes.location.coordinates.lat,
-                    hospital.attributes.location.coordinates.lng
+                    hospital.attributes.location.coordinates.lng,
                   )
-                }
-              >
-                <Button
-                  title="Directions"
-                  buttonStyle={styles.directionsButton}
-                  titleStyle={styles.buttonText}
-                />
+                }>
+                <View style={styles.directionsButton}>
+                  <Text style={styles.buttonText}>Directions</Text>
+                </View>
               </TouchableOpacity>
             </ListItem>
           </View>
@@ -143,11 +148,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    fontSize: 15,
-    opacity: 0.7,
+    flexDirection: 'column', // Stack children vertically
+    alignItems: 'flex-start', // Ensure alignment to the left
+    marginTop: 5,
   },
-  address: {
-    marginBottom: 8, // Space between address and phone number
+  addressText: {
+    fontSize: 15,
+    color: 'black',
+    marginBottom: 5, // Space between address and phone number
+    flexWrap: 'wrap', // Wrap long addresses to the next line
   },
   header: {
     fontSize: 22,
@@ -158,11 +167,21 @@ const styles = StyleSheet.create({
   },
   directionsButton: {
     backgroundColor: COLORS.PRIMARY,
-    paddingHorizontal: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
+    color: 'white',
     fontSize: 14,
+    fontWeight: 'bold',
+  },
+  phoneNumber: {
+    color: COLORS.PRIMARY,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
