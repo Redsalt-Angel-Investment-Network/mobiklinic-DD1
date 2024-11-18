@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Linking,
@@ -7,17 +7,19 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
+  Modal,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
-import {ListItem} from 'react-native-elements';
+import MapView, { Marker, Callout } from 'react-native-maps';
+import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
-import {COLORS} from '../constants/styles';
+import { COLORS } from '../constants/styles';
 import CopyRight from '../copyright';
 
 const Hospital = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hospitals, setHospitals] = useState([]);
+  const [selectedHospital, setSelectedHospital] = useState(null);
 
   useEffect(() => {
     fetchHospitals();
@@ -57,8 +59,8 @@ const Hospital = () => {
         initialRegion={{
           latitude: 0.265, // Default center latitude
           longitude: 33.143, // Default center longitude
-          latitudeDelta: 1, // Zoom level
-          longitudeDelta: 1,
+          latitudeDelta: 0.15, // Smaller value for more zoom
+          longitudeDelta: 0.15, // Smaller value for more zoom
         }}>
         {hospitals.map(hospital => (
           <Marker
@@ -67,12 +69,33 @@ const Hospital = () => {
               latitude: hospital.attributes.location.coordinates.lat,
               longitude: hospital.attributes.location.coordinates.lng,
             }}
-            title={hospital.attributes.facility_name}
-            description={hospital.attributes.location.address}
-            onCalloutPress={() =>
-              Linking.openURL(`tel:${hospital.attributes.facility_phone}`)
-            }>
-            <Icon name="map-pin" size={25} color="red" />
+            onPress={() => {
+              setSelectedHospital(hospital);
+            }}>
+            <Icon name="map-pin" size={30} color="red" />
+            <Callout>
+              <View style={styles.calloutContainer}>
+                <Text style={styles.hospitalName}>
+                  {hospital.attributes.facility_name || "No name available"}
+                </Text>
+                <Text style={styles.calloutText}>
+                  {hospital.attributes.location.address || "No address available"}
+                </Text>
+                <Text style={styles.calloutText}>
+                  {hospital.attributes.facility_phone || "No phone number available"}
+                </Text>
+                <TouchableOpacity
+                  style={styles.directionsButton}
+                  onPress={() =>
+                    getDirections(
+                      hospital.attributes.location.coordinates.lat,
+                      hospital.attributes.location.coordinates.lng,
+                    )
+                  }>
+                  <Text style={styles.buttonText}>Get Directions</Text>
+                </TouchableOpacity>
+              </View>
+            </Callout>
           </Marker>
         ))}
       </MapView>
@@ -133,13 +156,13 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '40%', // Adjust height based on preference
+    height: '50%',
   },
   container: {
     flex: 1,
     paddingTop: 10,
     marginHorizontal: 10,
-    marginBottom: -60
+    marginBottom: -60,
   },
   hospitalItem: {
     marginBottom: 10,
@@ -149,15 +172,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    flexDirection: 'column', // Stack children vertically
-    alignItems: 'flex-start', // Ensure alignment to the left
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     marginTop: 5,
   },
   addressText: {
     fontSize: 15,
     color: 'black',
-    marginBottom: 5, // Space between address and phone number
-    flexWrap: 'wrap', // Wrap long addresses to the next line
+    marginBottom: 5,
+    flexWrap: 'wrap',
   },
   header: {
     fontSize: 22,
@@ -183,6 +206,23 @@ const styles = StyleSheet.create({
     color: COLORS.PRIMARY,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  calloutContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: 10,
+    width: 200,
+  },
+  hospitalName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.PRIMARY,
+    textAlign: 'center',
+  },
+  calloutText: {
+    fontSize: 14,
+    color: 'black',
+    textAlign: 'center',
   },
 });
 
