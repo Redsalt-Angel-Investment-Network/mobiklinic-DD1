@@ -133,12 +133,13 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '50%', // Adjust height based on preference
+    height: '40%', // Adjust height based on preference
   },
   container: {
     flex: 1,
     paddingTop: 10,
     marginHorizontal: 10,
+    marginBottom: -60
   },
   hospitalItem: {
     marginBottom: 10,
