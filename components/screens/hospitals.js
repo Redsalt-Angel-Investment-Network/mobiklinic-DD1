@@ -7,9 +7,11 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
-  Modal,
 } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
+import Geolocation from 'react-native-geolocation-service';
+import haversine from 'haversine-distance';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
@@ -19,11 +21,52 @@ import CopyRight from '../copyright';
 const Hospital = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hospitals, setHospitals] = useState([]);
-  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [filteredHospitals, setFilteredHospitals] = useState([]);
+  const [currentLocation, setCurrentLocation] = useState(null);
 
   useEffect(() => {
-    fetchHospitals();
+    requestLocationPermission();
   }, []);
+
+  useEffect(() => {
+    if (currentLocation) {
+      fetchHospitals();
+    }
+  }, [currentLocation]);
+
+  useEffect(() => {
+    if (currentLocation && hospitals.length > 0) {
+      filterHospitalsByDistance();
+    }
+  }, [currentLocation, hospitals]);
+
+  const requestLocationPermission = async () => {
+    const permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+
+    const result = await request(permission);
+
+    if (result === RESULTS.GRANTED) {
+      getCurrentLocation();
+    } else {
+      console.error('Location permission denied');
+    }
+  };
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        setCurrentLocation({ latitude, longitude });
+      },
+      error => {
+        console.error('Error fetching location:', error);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
 
   const fetchHospitals = async () => {
     try {
@@ -39,12 +82,24 @@ const Hospital = () => {
     }
   };
 
+  const filterHospitalsByDistance = () => {
+    const nearbyHospitals = hospitals.filter(hospital => {
+      const hospitalLocation = {
+        latitude: hospital.attributes.location.coordinates.lat,
+        longitude: hospital.attributes.location.coordinates.lng,
+      };
+      const distance = haversine(currentLocation, hospitalLocation) / 1000; // Convert to kilometers
+      return distance <= 20; // 20km radius
+    });
+    setFilteredHospitals(nearbyHospitals);
+  };
+
   const getDirections = (latitude, longitude) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
     Linking.openURL(url);
   };
 
-  if (isLoading) return <Loader />;
+  if (isLoading || !currentLocation) return <Loader />;
 
   return (
     <View style={styles.wrapper}>
@@ -56,44 +111,28 @@ const Hospital = () => {
       {/* MapView to display hospital locations */}
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: 0.265, // Default center latitude
-          longitude: 33.143, // Default center longitude
-          latitudeDelta: 0.15, // Smaller value for more zoom
-          longitudeDelta: 0.15, // Smaller value for more zoom
+        region={{
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          latitudeDelta: 0.15,
+          longitudeDelta: 0.15,
         }}>
-        {hospitals.map(hospital => (
+        {filteredHospitals.map(hospital => (
           <Marker
             key={hospital.id}
             coordinate={{
               latitude: hospital.attributes.location.coordinates.lat,
               longitude: hospital.attributes.location.coordinates.lng,
-            }}
-            onPress={() => {
-              setSelectedHospital(hospital);
             }}>
             <Icon name="map-pin" size={30} color="red" />
             <Callout>
               <View style={styles.calloutContainer}>
                 <Text style={styles.hospitalName}>
-                  {hospital.attributes.facility_name || "No name available"}
+                  {hospital.attributes.facility_name || 'No name available'}
                 </Text>
                 <Text style={styles.calloutText}>
-                  {hospital.attributes.location.address || "No address available"}
+                  {hospital.attributes.location.address || 'No address available'}
                 </Text>
-                <Text style={styles.calloutText}>
-                  {hospital.attributes.facility_phone || "No phone number available"}
-                </Text>
-                <TouchableOpacity
-                  style={styles.directionsButton}
-                  onPress={() =>
-                    getDirections(
-                      hospital.attributes.location.coordinates.lat,
-                      hospital.attributes.location.coordinates.lng,
-                    )
-                  }>
-                  <Text style={styles.buttonText}>Get Directions</Text>
-                </TouchableOpacity>
               </View>
             </Callout>
           </Marker>
@@ -102,7 +141,7 @@ const Hospital = () => {
 
       {/* Scrollable ListView for hospitals */}
       <ScrollView style={styles.container}>
-        {hospitals.map(hospital => (
+        {filteredHospitals.map(hospital => (
           <View key={hospital.id} style={styles.hospitalItem}>
             <ListItem bottomDivider>
               <Icon name="circle" size={25} color="green" />
@@ -111,16 +150,12 @@ const Hospital = () => {
                   {hospital.attributes.facility_name}
                 </ListItem.Title>
                 <View style={styles.subtitle}>
-                  {/* Address */}
                   <Text style={styles.addressText}>
                     {hospital.attributes.location.address}
                   </Text>
-                  {/* Phone Number */}
                   <TouchableOpacity
                     onPress={() =>
-                      Linking.openURL(
-                        `tel:${hospital.attributes.facility_phone}`,
-                      )
+                      Linking.openURL(`tel:${hospital.attributes.facility_phone}`)
                     }>
                     <Text style={styles.phoneNumber}>
                       {hospital.attributes.facility_phone}
