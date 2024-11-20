@@ -10,9 +10,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
-import haversine from 'haversine-distance';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Feather';
 import Loader from '../ui/loader';
 import { COLORS } from '../constants/styles';
@@ -21,7 +19,6 @@ import CopyRight from '../copyright';
 const Hospital = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hospitals, setHospitals] = useState([]);
-  const [filteredHospitals, setFilteredHospitals] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
 
   useEffect(() => {
@@ -33,12 +30,6 @@ const Hospital = () => {
       fetchHospitals();
     }
   }, [currentLocation]);
-
-  useEffect(() => {
-    if (currentLocation && hospitals.length > 0) {
-      filterHospitalsByDistance();
-    }
-  }, [currentLocation, hospitals]);
 
   const requestLocationPermission = async () => {
     const permission =
@@ -70,28 +61,33 @@ const Hospital = () => {
 
   const fetchHospitals = async () => {
     try {
-      const response = await fetch(
-        'https://mk-be-strapi-production.up.railway.app/api/facility-locations',
-      );
+      const API_KEY = 'AIzaSyCg-e2L5EiacXeQ-lwWD6Cqna-ote0mQxg';
+      const radius = 20000; // 20km radius
+      const type = 'hospital'; // Search for hospitals
+
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&key=${API_KEY}`;
+      const response = await fetch(url);
       const data = await response.json();
-      setHospitals(data.data);
+
+      if (data.results) {
+        const formattedHospitals = data.results.map(place => ({
+          id: place.place_id,
+          name: place.name,
+          address: place.vicinity,
+          location: {
+            latitude: place.geometry.location.lat,
+            longitude: place.geometry.location.lng,
+          },
+        }));
+        setHospitals(formattedHospitals);
+      } else {
+        console.error('Error fetching places:', data.error_message);
+      }
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching hospitals:', error);
+      console.error('Error fetching hospitals from Google Places:', error);
       setIsLoading(false);
     }
-  };
-
-  const filterHospitalsByDistance = () => {
-    const nearbyHospitals = hospitals.filter(hospital => {
-      const hospitalLocation = {
-        latitude: hospital.attributes.location.coordinates.lat,
-        longitude: hospital.attributes.location.coordinates.lng,
-      };
-      const distance = haversine(currentLocation, hospitalLocation) / 1000; // Convert to kilometers
-      return distance <= 20; // 20km radius
-    });
-    setFilteredHospitals(nearbyHospitals);
   };
 
   const getDirections = (latitude, longitude) => {
@@ -117,21 +113,21 @@ const Hospital = () => {
           latitudeDelta: 0.15,
           longitudeDelta: 0.15,
         }}>
-        {filteredHospitals.map(hospital => (
+        {hospitals.map(hospital => (
           <Marker
             key={hospital.id}
             coordinate={{
-              latitude: hospital.attributes.location.coordinates.lat,
-              longitude: hospital.attributes.location.coordinates.lng,
+              latitude: hospital.location.latitude,
+              longitude: hospital.location.longitude,
             }}>
             <Icon name="map-pin" size={30} color="red" />
             <Callout>
               <View style={styles.calloutContainer}>
                 <Text style={styles.hospitalName}>
-                  {hospital.attributes.facility_name || 'No name available'}
+                  {hospital.name || 'No name available'}
                 </Text>
                 <Text style={styles.calloutText}>
-                  {hospital.attributes.location.address || 'No address available'}
+                  {hospital.address || 'No address available'}
                 </Text>
               </View>
             </Callout>
@@ -141,40 +137,22 @@ const Hospital = () => {
 
       {/* Scrollable ListView for hospitals */}
       <ScrollView style={styles.container}>
-        {filteredHospitals.map(hospital => (
+        {hospitals.map(hospital => (
           <View key={hospital.id} style={styles.hospitalItem}>
-            <ListItem bottomDivider>
-              <Icon name="circle" size={25} color="green" />
-              <ListItem.Content>
-                <ListItem.Title style={styles.listTitle}>
-                  {hospital.attributes.facility_name}
-                </ListItem.Title>
-                <View style={styles.subtitle}>
-                  <Text style={styles.addressText}>
-                    {hospital.attributes.location.address}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      Linking.openURL(`tel:${hospital.attributes.facility_phone}`)
-                    }>
-                    <Text style={styles.phoneNumber}>
-                      {hospital.attributes.facility_phone}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </ListItem.Content>
-              <TouchableOpacity
-                onPress={() =>
-                  getDirections(
-                    hospital.attributes.location.coordinates.lat,
-                    hospital.attributes.location.coordinates.lng,
-                  )
-                }>
-                <View style={styles.directionsButton}>
-                  <Text style={styles.buttonText}>Directions</Text>
-                </View>
-              </TouchableOpacity>
-            </ListItem>
+            <Icon name="circle" size={25} color="green" />
+            <Text style={styles.listTitle}>{hospital.name}</Text>
+            <Text style={styles.addressText}>{hospital.address}</Text>
+            <TouchableOpacity
+              onPress={() =>
+                getDirections(
+                  hospital.location.latitude,
+                  hospital.location.longitude,
+                )
+              }>
+              <View style={styles.directionsButton}>
+                <Text style={styles.buttonText}>Directions</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
@@ -206,11 +184,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  subtitle: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    marginTop: 5,
-  },
   addressText: {
     fontSize: 15,
     color: 'black',
@@ -235,11 +208,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 14,
-    fontWeight: 'bold',
-  },
-  phoneNumber: {
-    color: COLORS.PRIMARY,
-    fontSize: 16,
     fontWeight: 'bold',
   },
   calloutContainer: {
