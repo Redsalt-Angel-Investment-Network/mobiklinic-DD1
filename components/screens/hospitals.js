@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Linking,
@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, {Marker, Callout} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import Icon from 'react-native-vector-icons/Feather';
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Loader from '../ui/loader';
-import { COLORS } from '../constants/styles';
+import {COLORS} from '../constants/styles';
 import CopyRight from '../copyright';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Hospital = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -49,36 +49,51 @@ const Hospital = () => {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation({ latitude, longitude });
+        const {latitude, longitude} = position.coords;
+        setCurrentLocation({latitude, longitude});
       },
       error => {
         console.error('Error fetching location:', error);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
     );
   };
 
   const fetchHospitals = async () => {
     try {
       const API_KEY = 'AIzaSyCg-e2L5EiacXeQ-lwWD6Cqna-ote0mQxg';
-      const radius = 20000; // 20km radius
+      const radius = 10000; // 20km radius
       const type = 'hospital'; // Search for hospitals
+      const keyword =
+        'general Hospital Clinic Healthcare NATIONAL Referral Health center ';
 
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&key=${API_KEY}`;
+      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&keyword=${keyword}&key=${API_KEY}`;
       const response = await fetch(url);
       const data = await response.json();
 
       if (data.results) {
-        const formattedHospitals = data.results.map(place => ({
-          id: place.place_id,
-          name: place.name,
-          address: place.vicinity,
-          location: {
-            latitude: place.geometry.location.lat,
-            longitude: place.geometry.location.lng,
-          },
-        }));
+        const filteredResults = data.results.filter(place =>
+          ['hospital', 'clinic', 'health center', 'healthcare'].some(keyword =>
+            place.name.toLowerCase().includes(keyword),
+          ),
+        );
+
+        const formattedHospitals = await Promise.all(
+          filteredResults.map(async place => {
+            const details = await fetchPlaceDetails(place.place_id, API_KEY);
+            return {
+              id: place.place_id,
+              name: place.name,
+              address: place.vicinity,
+              phone: details?.formatted_phone_number || 'No contact available',
+              location: {
+                latitude: place.geometry.location.lat,
+                longitude: place.geometry.location.lng,
+              },
+            };
+          }),
+        );
+
         setHospitals(formattedHospitals);
       } else {
         console.error('Error fetching places:', data.error_message);
@@ -90,9 +105,28 @@ const Hospital = () => {
     }
   };
 
+  const fetchPlaceDetails = async (placeId, apiKey) => {
+    try {
+      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_phone_number&key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.result;
+    } catch (error) {
+      console.error('Error fetching place details:', error);
+      return null;
+    }
+  };
+
   const getDirections = (latitude, longitude) => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
     Linking.openURL(url);
+  };
+
+  const dialPhoneNumber = phoneNumber => {
+    if (phoneNumber !== 'No contact available') {
+      const url = `tel:${phoneNumber}`;
+      Linking.openURL(url);
+    }
   };
 
   if (isLoading || !currentLocation) return <Loader />;
@@ -120,7 +154,12 @@ const Hospital = () => {
               latitude: hospital.location.latitude,
               longitude: hospital.location.longitude,
             }}>
-            <Icon name="map-pin" size={30} color="red" />
+            <MaterialCommunityIcons
+              name="hospital-building"
+              size={30}
+              color="red"
+            />
+
             <Callout>
               <View style={styles.calloutContainer}>
                 <Text style={styles.hospitalName}>
@@ -137,22 +176,39 @@ const Hospital = () => {
 
       {/* Scrollable ListView for hospitals */}
       <ScrollView style={styles.container}>
-        {hospitals.map(hospital => (
-          <View key={hospital.id} style={styles.hospitalItem}>
-            <Icon name="circle" size={25} color="green" />
-            <Text style={styles.listTitle}>{hospital.name}</Text>
-            <Text style={styles.addressText}>{hospital.address}</Text>
-            <TouchableOpacity
-              onPress={() =>
-                getDirections(
-                  hospital.location.latitude,
-                  hospital.location.longitude,
-                )
-              }>
-              <View style={styles.directionsButton}>
-                <Text style={styles.buttonText}>Directions</Text>
+        {hospitals.map((hospital, index) => (
+          <View key={hospital.id}>
+            <View style={styles.hospitalItem}>
+              <View style={styles.hospitalInfo}>
+                {/* Hospital Name and Description */}
+                <View style={styles.hospitalDetails}>
+                  <Text style={styles.listTitle}>{hospital.name}</Text>
+                  <Text style={styles.addressText}>{hospital.address}</Text>
+                  <TouchableOpacity
+                    onPress={() => dialPhoneNumber(hospital.phone)}>
+                    <Text style={styles.phoneText}>{hospital.phone}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Directions Button */}
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      getDirections(
+                        hospital.location.latitude,
+                        hospital.location.longitude,
+                      )
+                    }>
+                    <View style={styles.directionsButton}>
+                      <Text style={styles.buttonText}>Directions</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </TouchableOpacity>
+            </View>
+
+            {/* Grey Divider */}
+            {index < hospitals.length - 1 && <View style={styles.divider} />}
           </View>
         ))}
       </ScrollView>
@@ -207,7 +263,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   calloutContainer: {
@@ -226,6 +282,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'black',
     textAlign: 'center',
+  },
+  hospitalItem: {
+    marginBottom: 19,
+  },
+  hospitalInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flex: 1,
+  },
+  listTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.PRIMARY,
+  },
+  addressText: {
+    fontSize: 15,
+    color: 'black',
+    flexWrap: 'wrap',
+  },
+  phoneText: {
+    fontSize: 16,
+    color: COLORS.PRIMARY,
+    marginTop: 5,
+    fontWeight: 'bold',
+  },
+  hospitalDetails: {
+    flex: 3,
+  },
+  buttonContainer: {
+    flex: 1, // Ensures the button aligns to the right
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ccc', // Grey color for the divider
+    marginVertical: 10, // Space above and below the divider
   },
 });
 
