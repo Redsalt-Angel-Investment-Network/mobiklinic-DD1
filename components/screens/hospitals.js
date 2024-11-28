@@ -62,7 +62,7 @@ const Hospital = () => {
   const fetchHospitals = async () => {
     try {
       const API_KEY = 'AIzaSyCg-e2L5EiacXeQ-lwWD6Cqna-ote0mQxg';
-      const radius = 10000; // 20km radius
+      const radius = 10000; // 10km radius
       const type = 'hospital'; // Search for hospitals
       const keyword =
         'general Hospital Clinic Healthcare NATIONAL Referral Health center ';
