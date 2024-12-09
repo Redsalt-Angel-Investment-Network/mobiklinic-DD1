@@ -223,7 +223,7 @@ const Ambulance = () => {
             }}>
             <MaterialCommunityIcons
               name={getIconName(ambulance.transport_mode)}
-              size={ambulance.transport_mode === 'boda-boda' ? 45 : 35}
+              size={ambulance.transport_mode === 'boda-boda' ? 45 : 38}
               color={
                 ambulance.transport_mode === 'ambulance'
                   ? 'red'
