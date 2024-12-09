@@ -64,8 +64,13 @@ const Ambulance = () => {
     try {
       const API_KEY = 'AIzaSyCg-e2L5EiacXeQ-lwWD6Cqna-ote0mQxg';
       const radius = 10000; // 10km radius
-      const type = 'ambulances';
-      const keyword = 'Ambulance';
+      const categoryMapping = {
+        ambulance: {type: 'ambulances', keyword: 'Ambulance'},
+        'boda-boda': {type: 'motorcycle', keyword: 'Boda Boda'},
+        'special-hire': {type: 'car', keyword: 'Special Hire'},
+      };
+
+      const {type, keyword} = categoryMapping[selectedCategory];
   
       const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&keyword=${keyword}&key=${API_KEY}`;
       const response = await fetch(url);
@@ -263,7 +268,7 @@ const Ambulance = () => {
                   <Text style={styles.addressText}>{ambulance.address}</Text>
                   <TouchableOpacity
                     onPress={() => dialPhoneNumber(ambulance.phone)}>
-                    <Text style={styles.phoneText}>{ambulance.phone}</Text>
+                    <Text style={styles.phoneText}>Call: {ambulance.phone}</Text>
                   </TouchableOpacity>
                 </View>
 
