@@ -20,6 +20,7 @@ const Ambulance = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [ambulances, setAmbulances] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('ambulance');
 
   useEffect(() => {
     requestLocationPermission();
@@ -176,12 +177,34 @@ const Ambulance = () => {
 
   if (isLoading || !currentLocation) return <Loader />;
 
+  const filteredAmbulances = ambulances.filter(
+    ambulance => ambulance.transport_mode === selectedCategory
+  );
+
   return (
     <View style={styles.wrapper}>
       <StatusBar />
       <View>
         <Text style={styles.header}>AMBULANCES NEAR ME</Text>
+        <View style={styles.tabs}>
+          <TouchableOpacity
+            onPress={() => setSelectedCategory('ambulance')}
+            style={styles.tab}>
+            <Text style={styles.tabText}>Ambulances</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedCategory('boda-boda')}
+            style={styles.tab}>
+            <Text style={styles.tabText}>Boda Boda</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedCategory('special-hire')}
+            style={styles.tab}>
+            <Text style={styles.tabText}>Special Hire</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
       {/* MapView to display ambulance locations */}
       <MapView
         style={styles.map}
@@ -191,49 +214,46 @@ const Ambulance = () => {
           latitudeDelta: 0.15,
           longitudeDelta: 0.15,
         }}>
-       {ambulances.map(ambulance => (
-  <Marker
-    key={ambulance.id}
-    coordinate={{
-      latitude: ambulance.location.latitude,
-      longitude: ambulance.location.longitude,
-    }}>
-    <MaterialCommunityIcons
-      name={getIconName(ambulance.transport_mode)}
-      size={
-        ambulance.transport_mode === 'boda-boda' ? 45 : 35 
-      }
-      color={
-        ambulance.transport_mode === 'ambulance'
-          ? 'red' // Ambulances will be red
-          : ambulance.transport_mode === 'boda-boda'
-          ? 'green' // Motorbikes will be green
-          : 'blue' // Special hires will be blue
-      }
-    />
-    <Callout>
-      <View style={styles.calloutContainer}>
-        <Text style={styles.ambulanceName}>
-          {ambulance.name || 'No name available'}
-        </Text>
-        <Text style={styles.calloutText}>
-          {ambulance.address || 'No address available'}
-        </Text>
-        <TouchableOpacity
-          onPress={() => dialPhoneNumber(ambulance.phone)}>
-          <Text style={styles.calloutText}>
-            Call: {ambulance.phone}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </Callout>
-  </Marker>
-))}
-
+        {filteredAmbulances.map(ambulance => (
+          <Marker
+            key={ambulance.id}
+            coordinate={{
+              latitude: ambulance.location.latitude,
+              longitude: ambulance.location.longitude,
+            }}>
+            <MaterialCommunityIcons
+              name={getIconName(ambulance.transport_mode)}
+              size={ambulance.transport_mode === 'boda-boda' ? 45 : 35}
+              color={
+                ambulance.transport_mode === 'ambulance'
+                  ? 'red'
+                  : ambulance.transport_mode === 'boda-boda'
+                  ? 'green'
+                  : 'blue'
+              }
+            />
+            <Callout>
+              <View style={styles.calloutContainer}>
+                <Text style={styles.ambulanceName}>
+                  {ambulance.name || 'No name available'}
+                </Text>
+                <Text style={styles.calloutText}>
+                  {ambulance.address || 'No address available'}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => dialPhoneNumber(ambulance.phone)}>
+                  <Text style={styles.calloutText}>
+                    Call: {ambulance.phone}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
       {/* Scrollable ListView for ambulances */}
       <ScrollView style={styles.container}>
-        {ambulances.map((ambulance, index) => (
+        {filteredAmbulances.map((ambulance, index) => (
           <View key={ambulance.id}>
             <View style={styles.ambulanceItem}>
               <View style={styles.ambulanceInfo}>
@@ -376,6 +396,20 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ccc', // Grey color for the divider
     marginVertical: 10, // Space above and below the divider
+  },
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  tab: {
+    padding: 10,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 5,
+  },
+  tabText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
