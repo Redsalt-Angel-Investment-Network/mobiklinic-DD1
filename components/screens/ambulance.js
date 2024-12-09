@@ -63,21 +63,21 @@ const Ambulance = () => {
     try {
       const API_KEY = 'AIzaSyCg-e2L5EiacXeQ-lwWD6Cqna-ote0mQxg';
       const radius = 10000; // 10km radius
-      const type = 'ambulances'; 
-      const keyword =
-        'Ambulance';
-
+      const type = 'ambulances';
+      const keyword = 'Ambulance';
+  
       const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&keyword=${keyword}&key=${API_KEY}`;
       const response = await fetch(url);
       const data = await response.json();
-
+      const backendAmbulances = await fetchBackendAmbulances();
+  
       if (data.results) {
         const filteredResults = data.results.filter(place =>
           ['ambulance'].some(keyword =>
             place.name.toLowerCase().includes(keyword),
           ),
         );
-
+  
         const formattedAmbulances = await Promise.all(
           filteredResults.map(async place => {
             const details = await fetchPlaceDetails(place.place_id, API_KEY);
@@ -86,6 +86,7 @@ const Ambulance = () => {
               name: place.name,
               address: place.vicinity,
               phone: details?.formatted_phone_number || 'No contact available',
+              transport_mode: 'ambulance', // Explicitly set to 'ambulance'
               location: {
                 latitude: place.geometry.location.lat,
                 longitude: place.geometry.location.lng,
@@ -93,8 +94,8 @@ const Ambulance = () => {
             };
           }),
         );
-
-        setAmbulances(formattedAmbulances);
+  
+        setAmbulances([...formattedAmbulances, ...backendAmbulances]);
       } else {
         console.error('Error fetching places:', data.error_message);
       }
@@ -102,6 +103,38 @@ const Ambulance = () => {
     } catch (error) {
       console.error('Error fetching ambulances from Google Places:', error);
       setIsLoading(false);
+    }
+  };
+  
+
+  const fetchBackendAmbulances = async () => {
+    try {
+      const response = await fetch(
+        'https://mk-be-strapi-production.up.railway.app/api/ambulance-locations',
+      );
+      const data = await response.json();
+
+      if (data && data.data) {
+        const formattedData = data.data.map(item => ({
+          id: item.id,
+          name: item.attributes.name,
+          phone: item.attributes.phone || 'No contact available',
+          address: item.attributes.location.address,
+          location: {
+            latitude: item.attributes.location.coordinates.lat,
+            longitude: item.attributes.location.coordinates.lng,
+          },
+          transport_mode: item.attributes.transport_mode,
+        }));
+
+        return formattedData;
+      } else {
+        console.error('Error fetching backend ambulances:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching backend ambulances:', error);
+      return [];
     }
   };
 
@@ -129,6 +162,18 @@ const Ambulance = () => {
     }
   };
 
+  const getIconName = transportMode => {
+    switch (transportMode) {
+      case 'boda-boda':
+        return 'motorbike';
+      case 'special-hire':
+        return 'car';
+      case 'ambulance':
+      default:
+        return 'ambulance';
+    }
+  };
+
   if (isLoading || !currentLocation) return <Loader />;
 
   return (
@@ -137,7 +182,6 @@ const Ambulance = () => {
       <View>
         <Text style={styles.header}>AMBULANCES NEAR ME</Text>
       </View>
-
       {/* MapView to display ambulance locations */}
       <MapView
         style={styles.map}
@@ -147,33 +191,46 @@ const Ambulance = () => {
           latitudeDelta: 0.15,
           longitudeDelta: 0.15,
         }}>
-        {ambulances.map(ambulance => (
-          <Marker
-            key={ambulance.id}
-            coordinate={{
-              latitude: ambulance.location.latitude,
-              longitude: ambulance.location.longitude,
-            }}>
-            <MaterialCommunityIcons
-              name="ambulance"
-              size={30}
-              color="red"
-            />
+       {ambulances.map(ambulance => (
+  <Marker
+    key={ambulance.id}
+    coordinate={{
+      latitude: ambulance.location.latitude,
+      longitude: ambulance.location.longitude,
+    }}>
+    <MaterialCommunityIcons
+      name={getIconName(ambulance.transport_mode)}
+      size={
+        ambulance.transport_mode === 'boda-boda' ? 45 : 35 // Increase size for boda-boda
+      }
+      color={
+        ambulance.transport_mode === 'ambulance'
+          ? 'red' // Ambulances will be red
+          : ambulance.transport_mode === 'boda-boda'
+          ? 'green' // Motorbikes will be green
+          : 'blue' // Special hires will be blue
+      }
+    />
+    <Callout>
+      <View style={styles.calloutContainer}>
+        <Text style={styles.ambulanceName}>
+          {ambulance.name || 'No name available'}
+        </Text>
+        <Text style={styles.calloutText}>
+          {ambulance.address || 'No address available'}
+        </Text>
+        <TouchableOpacity
+          onPress={() => dialPhoneNumber(ambulance.phone)}>
+          <Text style={styles.calloutText}>
+            Call: {ambulance.phone}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </Callout>
+  </Marker>
+))}
 
-            <Callout>
-              <View style={styles.calloutContainer}>
-                <Text style={styles.ambulanceName}>
-                  {ambulance.name || 'No name available'}
-                </Text>
-                <Text style={styles.calloutText}>
-                  {ambulance.address || 'No address available'}
-                </Text>
-              </View>
-            </Callout>
-          </Marker>
-        ))}
       </MapView>
-
       {/* Scrollable ListView for ambulances */}
       <ScrollView style={styles.container}>
         {ambulances.map((ambulance, index) => (
@@ -212,7 +269,6 @@ const Ambulance = () => {
           </View>
         ))}
       </ScrollView>
-
       <CopyRight />
     </View>
   );
