@@ -111,29 +111,54 @@ const Ambulance = () => {
       setIsLoading(false);
     }
   };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth's radius in kilometers
+    const toRad = deg => (deg * Math.PI) / 180;
+  
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in kilometers
+  };
+  
   
 
   const fetchBackendAmbulances = async () => {
     try {
       const response = await fetch(
-        'https://mk-be-strapi-production.up.railway.app/api/ambulance-locations',
+        'https://mk-be-strapi-production.up.railway.app/api/ambulance-locations'
       );
       const data = await response.json();
-
+  
       if (data && data.data) {
-        const formattedData = data.data.map(item => ({
-          id: item.id,
-          name: item.attributes.name,
-          phone: item.attributes.phone || 'No contact available',
-          address: item.attributes.location.address,
-          location: {
-            latitude: item.attributes.location.coordinates.lat,
-            longitude: item.attributes.location.coordinates.lng,
-          },
-          transport_mode: item.attributes.transport_mode,
-        }));
-
-        return formattedData;
+        const filteredData = data.data
+          .map(item => ({
+            id: item.id,
+            name: item.attributes.name,
+            phone: item.attributes.phone || 'No contact available',
+            address: item.attributes.location.address,
+            location: {
+              latitude: item.attributes.location.coordinates.lat,
+              longitude: item.attributes.location.coordinates.lng,
+            },
+            transport_mode: item.attributes.transport_mode,
+          }))
+          .filter(item => {
+            const distance = calculateDistance(
+              currentLocation.latitude,
+              currentLocation.longitude,
+              item.location.latitude,
+              item.location.longitude
+            );
+            return distance <= 10; // Filter ambulances within 10km radius
+          });
+  
+        return filteredData;
       } else {
         console.error('Error fetching backend ambulances:', data);
         return [];
@@ -143,6 +168,7 @@ const Ambulance = () => {
       return [];
     }
   };
+  
 
   const fetchPlaceDetails = async (placeId, apiKey) => {
     try {
