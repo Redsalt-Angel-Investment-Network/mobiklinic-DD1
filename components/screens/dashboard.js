@@ -81,7 +81,7 @@ const Dashboard = ({navigation}) => {
             <View style={STYLES.cardIcon}>
               <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Find Ambulance </Text>
+            <Text style={STYLES.cardTitle}>Find Ambulances </Text>
           </TouchableOpacity>
         </View>
 
@@ -101,7 +101,7 @@ const Dashboard = ({navigation}) => {
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Contact Doctors</Text>
+            <Text style={STYLES.cardTitle}>Contact Our Doctors</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -110,7 +110,7 @@ const Dashboard = ({navigation}) => {
             <View style={STYLES.cardIcon}>
               <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Facilities</Text>
+            <Text style={STYLES.cardTitle}>Find Facilities</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
