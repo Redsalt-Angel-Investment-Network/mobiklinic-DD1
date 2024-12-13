@@ -145,7 +145,7 @@ const ChatBot = ({ navigation }) => {
           style={styles.input}
           value={userInput}
           onChangeText={setUserInput}
-          placeholder="Type a message..."
+          placeholder="How can i help you?"
           placeholderTextColor="#888"
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
