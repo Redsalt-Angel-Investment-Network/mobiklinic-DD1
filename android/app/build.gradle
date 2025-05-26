@@ -104,8 +104,8 @@ android {
         applicationId "com.mobiklinicapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "5.0"
+        versionCode 12
+        versionName "12.0"
         multiDexEnabled true
     }
 
