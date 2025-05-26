@@ -1,0 +1,29 @@
+// This file helps configure expo module dependencies
+// Add version numbers for dependencies to avoid version conflicts
+
+rootProject.ext {
+    // React Native version
+    set('reactNativeVersion', '0.71.7')
+    
+    // Versions for various dependencies used by Expo modules
+    set('kotlinVersion', '1.7.22')
+    set('kotlinCoroutinesVersion', '1.6.4')
+    
+    // Versions for AndroidX dependencies
+    set('androidXCore', '1.7.0')
+    set('androidXAppCompat', '1.4.1')
+    set('androidXAnnotation', '1.3.0')
+    set('androidXLegacySupport', '1.0.0')
+    set('androidXExifInterface', '1.3.3')
+    
+    // Reanimated needs this
+    set('follyVersion', '2021.07.22.00')
+    
+    // Other dependencies
+    set('fresco', '2.6.0')
+    set('okhttp', '4.9.2')
+    set('glide', '4.12.0')
+    
+    // Expo modules core version
+    set('expoModulesCoreVersion', '1.2.7')
+}

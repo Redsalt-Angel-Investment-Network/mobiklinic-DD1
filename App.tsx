@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // import {AppRegistry} from 'react-native'
 import Entry from './components/entry';
 import {UserProvider} from './components/providers/User';
@@ -7,8 +7,14 @@ import {DoctorsProvider} from './components/providers/Doctors';
 // import {name as appName} from './app.json'
 import SignUp from './components/screens/signup';
 import AppStack from './components/navigators/AppStack';
+import { preventMetroInRelease } from './components/constants/environment';
 
 export const App = () => {
+  useEffect(() => {
+    // This ensures Metro doesn't try to connect in release builds
+    preventMetroInRelease();
+  }, []);
+  
   return (
     <UserProvider>
       <DiagnosisProvider>

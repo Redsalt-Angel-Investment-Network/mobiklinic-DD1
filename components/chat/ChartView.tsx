@@ -16,7 +16,6 @@ import {
   MessageInput,
   TypingIndicator,
 } from '@pubnub/react-native-chat-components';
-import Constants from 'expo-constants';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {COLORS, DIMENS} from '../constants/styles';
 import CopyRight from '../copyright';
