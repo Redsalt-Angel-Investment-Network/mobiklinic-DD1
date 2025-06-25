@@ -62,7 +62,8 @@ const Ambulance = () => {
 
   const fetchAmbulances = async () => {
     try {
-      const API_KEY = 'AIzaSyBJcBN4gqHPTVBmJRtumzgMh8HfllKBjz0';
+      
+      const API_KEY = 'AIzaSyDCvUkojTus7OjaK5iOvCHGs90RkvseNDs';
       const radius = 10000; // 10km radius
       const categoryMapping = {
         ambulance: {type: 'ambulances', keyword: 'Ambulance'},
