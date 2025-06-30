@@ -97,7 +97,7 @@ const Dashboard = ({navigation}) => {
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('ChatView')}>
+            onPress={() => navigation.navigate('DoctorListScreen')}>
             <View style={STYLES.cardIcon}>
               <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
             </View>

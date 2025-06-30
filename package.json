@@ -1,7 +1,8 @@
 {
   "name": "mobiklinic",
   "version": "3.0",
-  "private": true,  "scripts": {
+  "private": true,
+  "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
@@ -22,7 +23,8 @@
     "@react-native-community/netinfo": "^11.3.1",
     "@react-native-picker/picker": "^2.4.10",
     "@react-navigation/drawer": "^6.6.6",
-    "@react-navigation/native": "^6.1.6",    "@react-navigation/stack": "^6.3.16",
+    "@react-navigation/native": "^6.1.6",
+    "@react-navigation/stack": "^6.3.16",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "formik": "^2.3.2",
@@ -41,6 +43,7 @@
     "react-native-document-picker": "^9.1.1",
     "react-native-elements": "^3.4.3",
     "react-native-emoji": "^1.8.0",
+    "react-native-flash-message": "^0.4.2",
     "react-native-fs": "^2.20.0",
     "react-native-geolocation-service": "^5.3.1",
     "react-native-gesture-handler": "^2.21.1",
@@ -65,7 +68,7 @@
     "react-native-video": "^5.2.1",
     "react-native-web": "^0.19.4",
     "rn-openapp": "^2.1.2",
-    "socket.io-client": "^4.7.4",
+    "socket.io-client": "^4.8.1",
     "yup": "^1.2.0"
   },
   "devDependencies": {

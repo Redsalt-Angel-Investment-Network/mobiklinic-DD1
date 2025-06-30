@@ -40,6 +40,12 @@ import RenalDrugs from '../renal/renal.drugs';
 import {ChatView} from '../chat/ChartView';
 import UrinalysisCounter from '../renal/urinalysis.counter';
 import Hospital from '../screens/hospitals';
+import DoctorListScreen from '../screens/DoctorListScreen';
+import ChatScreen from '../screens/ChatScreen';
+import DoctorLogin from '../screens/DoctorLogin';
+import DoctorDashboard from '../screens/DoctorDashboard';
+import DoctorChatScreen from '../screens/DoctorChatScreen';
+import RoleSelection from '../screens/RoleSelection';
 
 const Stack = createStackNavigator();
 
@@ -229,6 +235,36 @@ function AuthStack() {
         name="UrinalysisCounter"
         options={{headerShown: false}}
         component={UrinalysisCounter}
+      />
+      <Stack.Screen
+        name="DoctorListScreen"
+        options={{headerShown: false}}
+        component={DoctorListScreen}
+      />
+      <Stack.Screen
+        name="ChatScreen"
+        options={{headerShown: false}}
+        component={ChatScreen}
+      />
+      <Stack.Screen
+        name="DoctorLogin"
+        options={{headerShown: false}}
+        component={DoctorLogin}
+      />
+      <Stack.Screen
+        name="DoctorDashboard"
+        options={{headerShown: false}}
+        component={DoctorDashboard}
+      />
+      <Stack.Screen
+        name="DoctorChatScreen"
+        options={{headerShown: false}}
+        component={DoctorChatScreen}
+      />
+      <Stack.Screen
+        name="RoleSelection"
+        options={{headerShown: false}}
+        component={RoleSelection}
       />
     </Stack.Navigator>
   );
