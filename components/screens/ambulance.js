@@ -132,7 +132,7 @@ const Ambulance = () => {
   const fetchBackendAmbulances = async () => {
     try {
       const response = await fetch(
-        'https://mk-be-strapi-production.up.railway.app/api/ambulance-locations'
+        'http://192.168.100.9:1337/api/ambulance-locations'
       );
       const data = await response.json();
   

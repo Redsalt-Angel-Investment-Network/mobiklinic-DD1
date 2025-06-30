@@ -1,5 +1,5 @@
 export const URLS = {
-  BASE: 'https://mk-be-strapi-production.up.railway.app',
+  BASE: 'http://192.168.100.9:1337',
   // BASE:'https://staging.mobiklinic.com/graphql',
-  LOCAL: 'http://192.168.100.6:4600',
+  LOCAL: 'http://192.168.100.9:1337',
 };

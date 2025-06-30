@@ -80,7 +80,7 @@ export function DoctorList({
 }: {
   onSelectChat: (doctorName: string) => void;
 }) {
-  const [doctors, setDoctors] = useState<string[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   useEffect(() => {
@@ -90,7 +90,7 @@ export function DoctorList({
   const fetchDoctors = async () => {
     try {
       const response = await fetch(
-        'https://mk-be-strapi-production.up.railway.app/api/doctors',
+        'http://192.168.100.9:1337/api/doctors',
       );
       const data = await response.json();
       const doctorInfo = data.data.map((doctor: any) => ({

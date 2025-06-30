@@ -18,6 +18,37 @@ import ChatService from '../services/ChatService';
 import SocketService from '../services/SocketService';
 import FlashMessage, {showMessage} from 'react-native-flash-message';
 
+// Test data for local development
+const TEST_DOCTORS = [
+  {
+    id: 1,
+    name: 'Dr. John Smith',
+    specialization: 'General Practitioner',
+    hospital: 'Local Test Hospital',
+    contact: '256701234567',
+    phoneNumber: '256701234567',
+    isOnline: true,
+  },
+  {
+    id: 2,
+    name: 'Dr. Sarah Johnson',
+    specialization: 'Pediatrician',
+    hospital: "Children's Test Clinic",
+    contact: '256707654321',
+    phoneNumber: '256707654321',
+    isOnline: false,
+  },
+  {
+    id: 3,
+    name: 'Dr. Michael Brown',
+    specialization: 'Cardiologist',
+    hospital: 'Heart Care Center',
+    contact: '256709876543',
+    phoneNumber: '256709876543',
+    isOnline: true,
+  },
+];
+
 const DoctorListScreen = () => {
   const navigation = useNavigation();
   const {userLog, userNames} = useContext(DataResultsContext);
@@ -26,14 +57,14 @@ const DoctorListScreen = () => {
 
   useEffect(() => {
     fetchDoctors();
-    
+
     // Initialize socket connection
     SocketService.connect();
-    
+
     // Listen for doctor status updates
     SocketService.onDoctorStatusUpdate((statusUpdate) => {
-      setDoctors(prevDoctors => 
-        prevDoctors.map(doctor => 
+      setDoctors((prevDoctors) =>
+        prevDoctors.map((doctor) =>
           doctor.phoneNumber === statusUpdate.phoneNumber
             ? {...doctor, isOnline: statusUpdate.isOnline}
             : doctor
@@ -49,13 +80,32 @@ const DoctorListScreen = () => {
   const fetchDoctors = async () => {
     try {
       const doctorsData = await ChatService.getDoctors();
-      setDoctors(doctorsData);
+      if (doctorsData && doctorsData.length > 0) {
+        // Transform the data to match expected format
+        const formattedDoctors = doctorsData.map(doctor => ({
+          id: doctor.id,
+          name: doctor.attributes?.name || doctor.name,
+          specialization: doctor.attributes?.specialization || doctor.specialization || 'General Practitioner',
+          hospital: doctor.attributes?.hospital || doctor.hospital || 'MobiKlinic',
+          contact: doctor.attributes?.contact || doctor.attributes?.phoneNumber || doctor.contact || doctor.phoneNumber,
+          phoneNumber: doctor.attributes?.phoneNumber || doctor.attributes?.contact || doctor.phoneNumber || doctor.contact,
+          isOnline: doctor.attributes?.isOnline || doctor.isOnline || false
+        }));
+        setDoctors(formattedDoctors);
+      } else {
+        // Use test data if no doctors found or API returns empty
+        console.log('Using test data for local development');
+        setDoctors(TEST_DOCTORS);
+      }
     } catch (error) {
+      console.log('API call failed, using test data for local development:', error);
       showMessage({
-        message: 'Error',
-        description: 'Failed to load doctors',
-        type: 'danger',
+        message: 'Info',
+        description: 'Using test data for local development',
+        type: 'info',
       });
+      // Use test data when API fails
+      setDoctors(TEST_DOCTORS);
     } finally {
       setLoading(false);
     }
@@ -91,7 +141,7 @@ const DoctorListScreen = () => {
             </Text>
           </View>
         </View>
-        
+
         <Text style={styles.doctorSpecialization}>
           {item.specialization || 'General Practitioner'}
         </Text>
@@ -102,7 +152,7 @@ const DoctorListScreen = () => {
           Contact: {item.contact || item.phoneNumber}
         </Text>
       </View>
-      
+
       <View style={styles.actionButtons}>
         <TouchableOpacity
           style={styles.chatButton}
@@ -110,7 +160,7 @@ const DoctorListScreen = () => {
           <Icon name="message-circle" size={24} color={COLORS.WHITE} />
           <Text style={styles.buttonText}>Chat</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={styles.callButton}
           onPress={() => handleCallDoctor(item.contact || item.phoneNumber)}>
@@ -146,7 +196,7 @@ const DoctorListScreen = () => {
   return (
     <View style={styles.container}>
       {_header()}
-      
+
       <View style={styles.headerInfo}>
         <Text style={styles.headerInfoText}>
           Choose a doctor to start a conversation
@@ -160,7 +210,7 @@ const DoctorListScreen = () => {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-      
+
       <FlashMessage position="top" />
     </View>
   );
