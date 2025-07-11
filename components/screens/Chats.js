@@ -65,34 +65,53 @@ const ChatBot = ({ navigation }) => {
 
   const generateResponse = async message => {
     setIsTyping(true);
-    try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-3.5-turbo',
-          messages: [
-            { role: 'system', content: 'You are a helpful medical assistant.' },
-            { role: 'user', content: message },
-          ],
-          max_tokens: 3000,
-          temperature: 0.7,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${OPEN_API_KEY}`,
-          },
-        }
-      );
+    let retryCount = 0;
+    const maxRetries = 3;
+    const baseDelay = 1000; // Start with 1 second delay
 
-      const botMessage = response.data.choices[0].message.content;
-      setIsTyping(false);
-      return botMessage;
-    } catch (error) {
-      setIsTyping(false);
-      console.error('Error generating response:', error);
-      return 'An error occurred while generating a response.';
-    }
+    const attemptRequest = async attempt => {
+      try {
+        const response = await axios.post(
+          'https://api.openai.com/v1/chat/completions',
+          {
+            model: 'gpt-3.5-turbo',
+            messages: [
+              { role: 'system', content: 'You are a helpful medical assistant.' },
+              { role: 'user', content: message },
+            ],
+            max_tokens: 3000,
+            temperature: 0.7,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${OPEN_API_KEY}`,
+            },
+          }
+        );
+
+        const botMessage = response.data.choices[0].message.content;
+        setIsTyping(false);
+        return botMessage;
+      } catch (error) {
+        if (error.response?.status === 429 && attempt < maxRetries) {
+          // Calculate exponential backoff delay
+          const delay = baseDelay * Math.pow(2, attempt);
+          console.log(`Rate limited. Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return attemptRequest(attempt + 1);
+        }
+
+        setIsTyping(false);
+        if (error.response?.status === 429) {
+          return 'I\'m currently handling too many requests. Please try again in a few moments.';
+        }
+        console.error('Error generating response:', error);
+        return 'I apologize, but I encountered an error while processing your request. Please try again.';
+      }
+    };
+
+    return attemptRequest(0);
   };
 
   const sendMessage = async () => {
