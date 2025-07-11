@@ -22,7 +22,69 @@ import DataResultsContext from '../contexts/DataResultsContext';
 import {ScrollView} from 'react-native-gesture-handler';
 import CopyRight from '../copyright';
 
-const PatientCard = ({patient}) => {
+const LabelValuePair = ({ label, value }) => (
+  <View style={styles.labelContainer}>
+    <Text style={styles.labelText}>{label}:</Text>
+    <Text style={styles.valueText}>{value || 'Not specified'}</Text>
+  </View>
+);
+
+const DiagnosisCard = ({ diagnosis }) => (
+  <View style={styles.diagnosisItem}>
+    <Text style={[styles.accordionLabel, styles.diagnosisDate]}>
+      Diagnosis Date: <Text style={styles.accordionValue}>{diagnosis.dateOfDiagnosis}</Text>
+    </Text>
+    
+    <Text style={styles.accordionLabel}>
+      Condition: <Text style={styles.accordionValue}>{diagnosis.condition}</Text>
+    </Text>
+    
+    <Text style={styles.accordionLabel}>
+      Signs and Symptoms: <Text style={styles.accordionValue}>{diagnosis.impression}</Text>
+    </Text>
+    
+    <Text style={styles.accordionLabel}>
+      Lab Tests: <Text style={styles.accordionValue}>{diagnosis.labTests || 'None'}</Text>
+    </Text>
+    
+    <Text style={styles.accordionLabel}>
+      Follow-up Date: <Text style={styles.accordionValue}>{diagnosis.followUpDate}</Text>
+    </Text>
+    
+    <Text style={styles.accordionLabel}>
+      Pregnancy Status: <Text style={styles.accordionValue}>{diagnosis.isPregnant ? 'Yes' : 'No'}</Text>
+    </Text>
+    
+    {diagnosis.medicines && diagnosis.medicines.length > 0 && (
+      <View style={styles.medicineList}>
+        <Text style={[styles.accordionLabel, { marginTop: 10 }]}>Prescribed Medicines:</Text>
+        {diagnosis.medicines.map((medicine, index) => (
+          <View key={index} style={styles.medicineItem}>
+            <Text style={styles.accordionLabel}>
+              Medicine Name: <Text style={styles.accordionValue}>{medicine.name}</Text>
+            </Text>
+            <Text style={styles.accordionLabel}>
+              Dosage: <Text style={styles.accordionValue}>{medicine.dosage}</Text>
+            </Text>
+            <Text style={styles.accordionLabel}>
+              Frequency: <Text style={styles.accordionValue}>{medicine.frequency}</Text>
+            </Text>
+            <Text style={styles.accordionLabel}>
+              Duration: <Text style={styles.accordionValue}>{medicine.duration} days</Text>
+            </Text>
+            {medicine.description && (
+              <Text style={styles.accordionLabel}>
+                Notes: <Text style={styles.accordionValue}>{medicine.description}</Text>
+              </Text>
+            )}
+          </View>
+        ))}
+      </View>
+    )}
+  </View>
+);
+
+const PatientCard = ({ patient }) => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(false);
   const [screeningExpanded, setScreeningExpanded] = useState(false);
@@ -94,6 +156,25 @@ const PatientCard = ({patient}) => {
     return age;
   };
 
+  const MedicalRecordSection = ({ title, isExpanded, onToggle, children }) => (
+    <>
+      <Text style={styles.sectionHeader}>{title}</Text>
+      <TouchableOpacity onPress={onToggle} style={styles.vaccinationHeader}>
+        <Text style={styles.accordionHeaderText}>View Details</Text>
+        <FontAwesomeIcon
+          name={isExpanded ? 'chevron-up' : 'chevron-down'}
+          size={15}
+          style={styles.icon}
+        />
+      </TouchableOpacity>
+      {!isExpanded && (
+        <View style={styles.vaccinationContainer}>
+          {children}
+        </View>
+      )}
+    </>
+  );
+
   return (
     <View style={styles.patientContainer}>
       <TouchableOpacity onPress={toggleAccordion}>
@@ -101,144 +182,126 @@ const PatientCard = ({patient}) => {
           {patient.firstName} {patient.lastName}
         </Text>
         <Text style={styles.patientInfo}>
-          Phone Number: {patient.phoneNumber}
+          📱 {patient.phoneNumber}
         </Text>
       </TouchableOpacity>
+
       {expanded && (
         <View style={styles.details}>
-          <Text style={styles.accordionLabel}>Sex: {patient.sex}</Text>
-          <Text style={styles.accordionLabel}>
-            Date of Birth: {patient.dateOfBirth}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            Age: {calculateAge(patient.dateOfBirth)} years old
-          </Text>
-          <Text style={styles.accordionLabel}>
-            Occupation: {patient.occuptation}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            Marital Status: {patient.maritalStatus}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            Primary Language: {patient.primaryLanguage}
-          </Text>
+          <Text style={styles.sectionHeader}>Personal Information</Text>
+          <LabelValuePair label="Sex" value={patient.sex} />
+          <LabelValuePair label="Date of Birth" value={patient.dateOfBirth} />
+          <LabelValuePair label="Age" value={`${calculateAge(patient.dateOfBirth)} years`} />
+          <LabelValuePair label="Occupation" value={patient.occuptation || 'Not specified'} />
+          <LabelValuePair label="Marital Status" value={patient.maritalStatus || 'Not specified'} />
+          <LabelValuePair label="Primary Language" value={patient.primaryLanguage || 'Not specified'} />
+          
+          <Text style={styles.sectionHeader}>Emergency Contact</Text>
+          <LabelValuePair label="Next of Kin" value={patient.nextOfKin || 'Not specified'} />
+          <LabelValuePair label="Next of Kin Contact" value={patient.nextOfKinContact || 'Not specified'} />
+          
+          <Text style={styles.sectionHeader}>Physical Characteristics</Text>
+          <LabelValuePair label="Height" value={`${patient.height || 'N/A'} cm`} />
+          <LabelValuePair label="Weight" value={`${patient.weight || 'N/A'} kg`} />
+          <LabelValuePair label="Ethnicity" value={patient.ethinicity || 'Not specified'} />
 
-          <Text style={styles.accordionLabel}>
-            Next of Kin: {patient.nextOfKin}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            Next of Kin Contact: {patient.nextOfKinContact}
-          </Text>
-          <Text style={styles.accordionLabel}>
-            Ethnicity: {patient.ethinicity}
-          </Text>
+          {/* Screening Section */}
+          {patient.renal_histories && patient.renal_histories.length > 0 && (
+            <>
+              <Text style={styles.sectionHeader}>Renal Health Screening</Text>
+              <TouchableOpacity onPress={toggleScreening} style={styles.vaccinationHeader}>
+                <Text style={styles.accordionHeaderText}>Screening History</Text>
+                <FontAwesomeIcon
+                  name={screeningExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={15}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              {!screeningExpanded && (
+                <View style={styles.vaccinationContainer}>
+                  {patient.renal_histories.map(screening => (
+                    <View key={screening.id} style={styles.vaccinationItem}>
+                      {/* Urine Macroscopy */}
+                      <Text style={styles.sectionSubHeader}>Urine Macroscopy:</Text>
+                      <Text style={styles.accordionLabel}>
+                        Color: <Text style={styles.accordionValue}>{screening.appearance.color}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Clarity: <Text style={styles.accordionValue}>{screening.appearance.clarity}</Text>
+                      </Text>
 
-          <Text style={styles.accordionLabel}>Height: {patient.height} cm</Text>
-          <Text style={styles.accordionLabel}>
-            Weight: {patient.weight} kgs
-          </Text>
-          {/* Screening */}
-          <View>
-            <TouchableOpacity
-              onPress={toggleScreening}
-              style={styles.vaccinationHeader}>
-              <Text style={styles.accordionHeaderText}>
-                Renal Health Screening
-              </Text>
-              <FontAwesomeIcon
-                name={screeningExpanded ? 'chevron-up' : 'chevron-down'}
-                size={15}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            {!screeningExpanded && patient.renal_histories.length > 0 ? (
-              <View style={styles.vaccinationContainer}>
-                {patient.renal_histories.map(screening => (
-                  <View key={screening.id} style={styles.vaccinationItem}>
-                    <Text style={styles.sectionHeader}>Urine Macrosopy:</Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Appearance: {screening.appearance.color}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Clarity: {screening.appearance.clarity}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine pH: {screening.chemistry.ph || 'N/A'}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Ketone: {screening.chemistry.ketone}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Glucose: {screening.chemistry.glucose}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Nitrite: {screening.chemistry.nitrite}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Protein: {screening.chemistry.protein}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Bilirubin: {screening.chemistry.bilirubin}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Leokcytes: {screening.chemistry.leokcytes}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Urine Specific Gravity:{' '}
-                      {screening.chemistry.specificGravity}
-                    </Text>
+                      {/* Chemistry */}
+                      <Text style={styles.sectionSubHeader}>Chemistry:</Text>
+                      <Text style={styles.accordionLabel}>
+                        pH: <Text style={styles.accordionValue}>{screening.chemistry.ph || 'N/A'}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Ketone: <Text style={styles.accordionValue}>{screening.chemistry.ketone}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Glucose: <Text style={styles.accordionValue}>{screening.chemistry.glucose}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Nitrite: <Text style={styles.accordionValue}>{screening.chemistry.nitrite}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Protein: <Text style={styles.accordionValue}>{screening.chemistry.protein}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Bilirubin: <Text style={styles.accordionValue}>{screening.chemistry.bilirubin}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Leukocytes: <Text style={styles.accordionValue}>{screening.chemistry.leokcytes}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Specific Gravity: <Text style={styles.accordionValue}>{screening.chemistry.specificGravity}</Text>
+                      </Text>
 
-                    <Text style={styles.vaccinationHeader}>
-                      Patient History:
-                    </Text>
-                    {screening.historyData && (
-                      <View style={styles.vaccinationItem}>
-                        {Object.entries(screening.historyData).map(
-                          ([key, value]) => (
+                      {/* Patient History */}
+                      {screening.historyData && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>Patient History:</Text>
+                          {Object.entries(screening.historyData).map(([key, value]) => (
                             <Text key={key} style={styles.accordionLabel}>
-                              {key}: {value}
+                              {key}: <Text style={styles.accordionValue}>{value}</Text>
                             </Text>
-                          ),
-                        )}
-                      </View>
-                    )}
+                          ))}
+                        </>
+                      )}
 
-                    <Text style={styles.vaccinationHeader}>
-                      Inspection Data:
-                    </Text>
-                    {screening.inspectionData && (
-                      <View style={styles.vaccinationItem}>
-                        {Object.entries(screening.inspectionData).map(
-                          ([key, value]) => (
-                            <View key={key} style={styles.inspectionItem}>
+                      {/* Inspection Data */}
+                      {screening.inspectionData && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>Inspection Data:</Text>
+                          {Object.entries(screening.inspectionData).map(([key, value]) => (
+                            <View key={key}>
                               {key === 'bloodPressure' ? (
                                 <>
                                   <Text style={styles.accordionLabel}>
-                                    Heart Pulse: {value.heartPulse}
+                                    Heart Pulse: <Text style={styles.accordionValue}>{value.heartPulse}</Text>
                                   </Text>
                                   <Text style={styles.accordionLabel}>
-                                    Systolic Pressure: {value.systolicPressure}
+                                    Systolic Pressure: <Text style={styles.accordionValue}>{value.systolicPressure}</Text>
                                   </Text>
                                   <Text style={styles.accordionLabel}>
-                                    Diastolic Pressure:{' '}
-                                    {value.diastolicPressure}
+                                    Diastolic Pressure: <Text style={styles.accordionValue}>{value.diastolicPressure}</Text>
                                   </Text>
                                 </>
                               ) : (
                                 <Text style={styles.accordionLabel}>
-                                  {key}: {value}
+                                  {key}: <Text style={styles.accordionValue}>{value}</Text>
                                 </Text>
                               )}
                             </View>
-                          ),
-                        )}
-                      </View>
-                    )}
-                  </View>
-                ))}
-              </View>
-            ) : null}
-          </View>
+                          ))}
+                        </>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
 
           {/* rfts */}
           <View>
@@ -428,50 +491,26 @@ const PatientCard = ({patient}) => {
           </View>
 
           {/* vaccinations */}
-          <View>
-            <TouchableOpacity
-              onPress={toggleVaccination}
-              style={styles.vaccinationHeader}>
-              <Text style={styles.accordionHeaderText}>Vaccinations </Text>
-              <FontAwesomeIcon
-                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
-                size={15}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            {!vaccinationExpanded && patient.vaccinations.length > 0 && (
-              <View style={styles.vaccinationContainer}>
-                {patient.vaccinations.map(vaccine => (
-                  <View key={vaccine.id} style={styles.vaccinationItem}>
-                    <Text style={styles.accordionLabel}>
-                      Vaccine Name: {vaccine.vaccineName}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Vaccine Facility: {vaccine.facility}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Dose: {vaccine.dose}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Site Administered: {vaccine.siteAdministered}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Vaccinated By: {vaccine.vaccinatedBy}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Date of Vaccination: {vaccine.dateOfVaccination}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Date For Next Dose: {vaccine.dateForNextDose}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Card Number: {vaccine.cardNumber}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
+          {patient.vaccinations && patient.vaccinations.length > 0 && (
+            <MedicalRecordSection 
+              title="Vaccination History" 
+              isExpanded={vaccinationExpanded}
+              onToggle={toggleVaccination}
+            >
+              {patient.vaccinations.map(vaccine => (
+                <View key={vaccine.id} style={styles.vaccinationItem}>
+                  <LabelValuePair label="Vaccine Name" value={vaccine.vaccineName} />
+                  <LabelValuePair label="Facility" value={vaccine.facility} />
+                  <LabelValuePair label="Dose" value={vaccine.dose} />
+                  <LabelValuePair label="Site Administered" value={vaccine.siteAdministered} />
+                  <LabelValuePair label="Vaccinated By" value={vaccine.vaccinatedBy} />
+                  <LabelValuePair label="Date of Vaccination" value={vaccine.dateOfVaccination} />
+                  <LabelValuePair label="Next Dose Date" value={vaccine.dateForNextDose} />
+                  <LabelValuePair label="Card Number" value={vaccine.cardNumber} />
+                </View>
+              ))}
+            </MedicalRecordSection>
+          )}
 
           {/* Antenatals */}
           <View>
@@ -541,64 +580,29 @@ const PatientCard = ({patient}) => {
             )}
           </View>
 
-          <View>
-            <TouchableOpacity
-              onPress={toggleDiagnosis}
-              style={styles.vaccinationHeader}>
-              <Text style={styles.accordionHeaderText}>Diagnoses </Text>
-              <FontAwesomeIcon
-                name={monitoringExpanded ? 'chevron-up' : 'chevron-down'}
-                size={15}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            {!diagnosisExpanded && patient.diagnoses.length > 0 && (
-              <View style={styles.vaccinationContainer}>
-                {patient.diagnoses.map(diagnosis => (
-                  <View key={diagnosis.id} style={styles.vaccinationItem}>
-                    <Text style={styles.accordionLabel}>
-                      Condition: {diagnosis.condition}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Date of Diagnosis: {diagnosis.dateOfDiagnosis}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Follow-Up Date: {diagnosis.followUpDate}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Impression: {diagnosis.impression}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Is Pregnant: {diagnosis.isPregnant ? 'Yes' : 'No'}
-                    </Text>
-                    <Text style={styles.accordionLabel}>
-                      Lab Tests: {diagnosis.labTests}
-                    </Text>
-                    {diagnosis.medicines &&
-                      diagnosis.medicines.map((medicine, index) => (
-                        <View key={index} style={styles.medicineItem}>
-                          <Text style={styles.accordionLabel}>
-                            Name: {medicine.name}
-                          </Text>
-                          <Text style={styles.accordionLabel}>
-                            Dosage: {medicine.dosage}
-                          </Text>
-                          <Text style={styles.accordionLabel}>
-                            Duration: {medicine.duration}
-                          </Text>
-                          <Text style={styles.accordionLabel}>
-                            Frequency: {medicine.frequency}
-                          </Text>
-                          <Text style={styles.accordionLabel}>
-                            Description: {medicine.description}
-                          </Text>
-                        </View>
-                      ))}
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
+          {/* Diagnoses Section */}
+          {patient.diagnoses && patient.diagnoses.length > 0 && (
+            <>
+              <Text style={styles.sectionHeader}>Medical History</Text>
+              <TouchableOpacity onPress={toggleDiagnosis} style={styles.vaccinationHeader}>
+                <Text style={styles.accordionHeaderText}>
+                  Diagnoses ({patient.diagnoses.length})
+                </Text>
+                <FontAwesomeIcon
+                  name={diagnosisExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={15}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              {!diagnosisExpanded && (
+                <View style={styles.vaccinationContainer}>
+                  {patient.diagnoses.map(diagnosis => (
+                    <DiagnosisCard key={diagnosis.id} diagnosis={diagnosis} />
+                  ))}
+                </View>
+              )}
+            </>
+          )}
 
           <TouchableOpacity onPress={handleRedirect} style={styles.buttonSec}>
             <Text style={styles.buttonText}>Follow Up Patient</Text>
@@ -793,103 +797,154 @@ const styles = StyleSheet.create({
   },
   patientContainer: {
     backgroundColor: COLORS.WHITE,
-    padding: 20,
-    marginBottom: 20,
-    elevation: 4,
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 10,
+    elevation: 3,
     shadowColor: COLORS.GRAY,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   patientName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 5,
+    color: COLORS.PRIMARY,
+    marginBottom: 8,
   },
   patientInfo: {
     fontSize: 16,
-    color: '#000000',
-    marginBottom: 3,
+    color: COLORS.BLACK,
+    marginBottom: 5,
   },
   accordionContent: {
     marginTop: 10,
   },
   accordionLabel: {
     fontSize: 15,
-    color: '#555',
-    marginBottom: 5,
-  },
-  buttonSec: {
-    backgroundColor: COLORS.WHITE,
-    paddingVertical: 10,
-    // paddingHorizontal: 15,
-    borderRadius: 10,
-    marginVertical: 20,
-    borderWidth: 2,
-    borderColor: COLORS.PRIMARY,
-  },
-  buttonText: {
     color: COLORS.PRIMARY,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    marginBottom: 8,
   },
-  vaccinationContainer: {
+  accordionValue: {
+    fontSize: 15,
+    color: COLORS.BLACK,
+    fontWeight: 'normal',
+  },
+  sectionHeader: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: COLORS.PRIMARY,
+    marginTop: 15,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.PRIMARY,
+    paddingBottom: 5,
+  },
+  details: {
+    backgroundColor: '#f8f9fa',
+    padding: 12,
+    borderRadius: 8,
     marginTop: 10,
   },
   vaccinationHeader: {
-    // fontSize: 16,
-    // fontWeight: 'bold',
-    // marginBottom: 5,
-    // textTransform: 'uppercase',
-    // borderColor: COLORS.GREY,
-    // borderWidth: 1,
-    // paddingVertical: 8,
-    borderRadius: 10,
-    marginVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  vaccinationItem: {
-    borderColor: '#ccc',
+    backgroundColor: '#f1f3f5',
     padding: 10,
-    marginBottom: 10,
-    // borderLeftWidth: 1,
-    fontSize: 16,
-  },
-  details: {
-    padding: 10,
-  },
-  section: {
-    marginBottom: 15,
-  },
-  sectionHeader: {
-    fontSize: 16,
-    marginBottom: 5,
-    textDecorationLine: 'underline',
-    color: COLORS.BLACK,
+    borderRadius: 8,
+    marginVertical: 8,
   },
   accordionHeaderText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 'bold',
-    marginRight: 10,
-    color: COLORS.BLACK,
+    color: COLORS.PRIMARY,
+    flex: 1,
+  },
+  vaccinationItem: {
+    backgroundColor: COLORS.WHITE,
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.PRIMARY,
+  },
+  buttonSec: {
+    backgroundColor: COLORS.PRIMARY,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginVertical: 15,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: COLORS.WHITE,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   icon: {
-    marginLeft: 'auto',
-    color: COLORS.BLACK,
+    color: COLORS.PRIMARY,
   },
-  inspectionItem: {
+  medicineItem: {
+    backgroundColor: '#f8f9fa',
+    padding: 10,
+    borderRadius: 6,
+    marginTop: 8,
+    borderLeftWidth: 2,
+    borderLeftColor: COLORS.SUCCESS,
+  },
+  diagnosisItem: {
+    backgroundColor: COLORS.WHITE,
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.PRIMARY,
+  },
+  diagnosisHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#e74c3c',
+    marginBottom: 8,
+  },
+  medicineList: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 6,
+  },
+  labelText: {
     fontSize: 15,
-    marginRight: 10,
-    color: COLORS.BLACK,
-    marginBottom: 5,
-    textDecorationLine: 'underline',
+    color: COLORS.PRIMARY,
+    fontWeight: '500',
+    flex: 1,
   },
+  valueText: {
+    fontSize: 15,
+    color: COLORS.BLACK,
+    flex: 2,
+    textAlign: 'right',
+  },
+  diagnosisDate: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 12,
+  },
+  sectionSubHeader: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.PRIMARY,
+    marginTop: 12,
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 4,
+  }
 });
 
 export default PatientLists;
