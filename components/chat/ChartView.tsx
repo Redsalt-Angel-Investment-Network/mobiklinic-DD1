@@ -90,7 +90,7 @@ export function DoctorList({
   const fetchDoctors = async () => {
     try {
       const response = await fetch(
-        'http://192.168.100.9:1337/api/doctors',
+        'https://mk-be-strapi-production.up.railway.app/api/doctors',
       );
       const data = await response.json();
       const doctorInfo = data.data.map((doctor: any) => ({

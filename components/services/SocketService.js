@@ -5,7 +5,7 @@ class SocketService {
   socket = null;
   
   connect() {
-    this.socket = io('http://192.168.100.9:1337', {
+    this.socket = io('https://mk-be-strapi-production.up.railway.app', {
       transports: ['websocket']
     });
 

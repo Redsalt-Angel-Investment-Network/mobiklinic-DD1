@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import {COLORS, DIMENS} from '../constants/styles';
 import {API_URL} from '@env';
@@ -612,18 +613,59 @@ const PatientLists = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const {userLog} = useContext(DataResultsContext);
   const navigation = useNavigation();
 
   // Function to fetch data from the backend
   const fetchData = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/all-patients/${userLog}`);
+      console.log('Fetching beneficiaries with userLog:', userLog);
+      const url = `${API_URL}/api/all-patients/${userLog}`;
+      console.log('Fetching from URL:', url);
+
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        console.error('Response status:', response.status);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log('Server response data:', JSON.stringify(data, null, 2));
+
+      if (!data || !data.patients) {
+        console.error('Invalid data format received:', data);
+        Alert.alert(
+          'Error',
+          'The server returned an unexpected data format. Please try again.'
+        );
+        setLoading(false);
+        return;
+      }
+
       setUserData(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching beneficiaries:', error.message);
+      if (error.message.includes('Network request failed')) {
+        Alert.alert(
+          'Network Error',
+          'Please check your internet connection and try again.'
+        );
+      } else {
+        Alert.alert(
+          'Error',
+          'Failed to load beneficiaries. Please try again later.'
+        );
+      }
       setLoading(false);
     }
   };
@@ -650,6 +692,11 @@ const PatientLists = () => {
     navigation.navigate('PatientData');
   };
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchData().then(() => setRefreshing(false));
+  }, []);
+
   return (
     <View style={styles.container}>
       <CustomHeader
@@ -662,7 +709,16 @@ const PatientLists = () => {
         }
         title={<Text style={styles.centerHeader}>Back</Text>}
       />
-      <ScrollView style={styles.body}>
+      <ScrollView 
+        style={styles.body}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.PRIMARY]} // Android
+            tintColor={COLORS.PRIMARY} // iOS
+          />
+        }>
         <Text style={styles.header}>Beneficiary List</Text>
         <TextInput
           style={styles.searchInput}
@@ -674,10 +730,19 @@ const PatientLists = () => {
 
         {loading ? (
           <Loader />
+        ) : !userData || !userData.patients ? (
+          <View>
+            <Text style={styles.buttonText}>
+              Unable to load patients. Please check your connection and try again.
+            </Text>
+            <TouchableOpacity style={styles.buttonSec} onPress={fetchData}>
+              <Text style={styles.buttonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
         ) : reversedPatients.length === 0 ? (
           <View>
             <Text style={styles.buttonText}>
-              Patient Not Yet Registered <Emoji name="disappointed" />
+              No patients registered yet <Emoji name="disappointed" />
             </Text>
             <TouchableOpacity style={styles.buttonSec} onPress={handleRedirect}>
               <Text style={styles.buttonText}>Register Patient </Text>

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.100.9:1337/api';
+const API_URL = 'https://mk-be-strapi-production.up.railway.app/api';
 
 class ChatService {
   // Fetch all doctors

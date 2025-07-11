@@ -84,25 +84,38 @@ const Login = ({navigation}) => {
 
     try {
       console.log('Starting network request');
-      let response = await fetch(`${API_URL}/api/auth/local?populate=*`, {
+      let response = await fetch(`${API_URL}/api/auth/local`, {
         method: 'POST',
         body: JSON.stringify({
-          identifier: identifier,
-          password: password,
+          identifier: user.identifier,
+          password: user.password,
         }),
         headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Origin': '*'
         },
       });
 
-      let json_data = await response.json();
+      const responseText = await response.text();
+      let json_data;
+      try {
+        json_data = JSON.parse(responseText);
+      } catch (error) {
+        console.error('Response:', responseText);
+        Alert.alert('Login Failed', 'Invalid server response. Please try again.');
+        setIsLoading(false);
+        return;
+      }
 
-      console.log('Response Status:', response.status);
-      console.log('Response Headers:', response.headers);
-      console.log('Response JSON:', json_data);
+      if (!response.ok) {
+        const errorMessage = json_data.error?.message || json_data.message || 'Invalid credentials. Please try again.';
+        Alert.alert('Login Failed', errorMessage);
+        setIsLoading(false);
+        return;
+      }
 
-      if (response.status === 200) {
+      if (json_data.jwt) {
         updateUserLog(json_data.user.id);
         const name = json_data.user.firstName + ' ' + json_data.user.lastName;
         updateUserNames(name);
