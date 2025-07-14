@@ -14,6 +14,7 @@ import {
   Keyboard,
   Dimensions,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {COLORS} from '../constants/styles';
@@ -24,7 +25,27 @@ import FlashMessage, {showMessage} from 'react-native-flash-message';
 const ChatScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {doctorPhone, doctorName, userPhone, userName} = route.params;
+  const {doctorPhone, doctorName, userPhone, userName} = route.params || {};
+  
+  // Validate required parameters
+  if (!doctorPhone || !userPhone) {
+    console.error('Missing required route parameters:', {doctorPhone, userPhone, doctorName, userName});
+    return (
+      <View style={styles.container}>
+        <Text>Error: Missing chat parameters</Text>
+      </View>
+    );
+  }
+
+  console.log('All route params:', route.params);
+  console.log('Route params validation:', {
+    doctorPhone: doctorPhone,
+    doctorName: doctorName,
+    userPhone: userPhone,
+    userName: userName,
+    userPhoneLength: userPhone?.length,
+    doctorPhoneLength: doctorPhone?.length
+  });
   
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -37,9 +58,91 @@ const ChatScreen = () => {
   const typingTimeoutRef = useRef(null);
   
   const chatRoomId = ChatService.generateChatRoomId(userPhone, doctorPhone);
+  console.log('Chat room ID:', chatRoomId);
+  console.log('User phone:', userPhone);
+  console.log('Doctor phone:', doctorPhone);
+
+  // Create additional storage keys for fallback
+  const alternativeStorageKeys = [
+    `chat_messages_${chatRoomId}`,
+    `chat_messages_${doctorPhone}-${userPhone}`,
+    `chat_messages_${userPhone}-${doctorPhone}`,
+    `chat_messages_${doctorPhone}`,
+    // In case userPhone was different before
+    `chat_messages_+256785796401-+256${userPhone}`,
+    `chat_messages_+256${userPhone}-+256785796401`
+  ];
+  console.log('Will try storage keys:', alternativeStorageKeys);
+
+  // ===== LOCAL STORAGE HELPERS =====
+  // These functions handle message persistence to AsyncStorage for offline access
+  // Messages are stored per chat room and automatically synced with server data
+  
+  // Local storage helpers
+  const getStorageKey = () => {
+    const key = `chat_messages_${chatRoomId}`;
+    console.log('Storage key:', key);
+    return key;
+  };
+  
+  const saveMessagesToStorage = async (messagesToSave) => {
+    try {
+      const storageKey = getStorageKey();
+      console.log('Saving messages to storage:', messagesToSave.length, 'key:', storageKey);
+      await AsyncStorage.setItem(storageKey, JSON.stringify(messagesToSave));
+      console.log('Messages saved successfully');
+    } catch (error) {
+      console.error('Error saving messages to storage:', error);
+    }
+  };
+
+  const loadMessagesFromStorage = async () => {
+    try {
+      const storageKey = getStorageKey();
+      console.log('Loading messages from storage, key:', storageKey);
+      const storedMessages = await AsyncStorage.getItem(storageKey);
+      const messages = storedMessages ? JSON.parse(storedMessages) : [];
+      console.log('Loaded messages from storage:', messages.length);
+      return messages;
+    } catch (error) {
+      console.error('Error loading messages from storage:', error);
+      return [];
+    }
+  };
+
+  const clearStoredMessages = async () => {
+    try {
+      const storageKey = getStorageKey();
+      await AsyncStorage.removeItem(storageKey);
+    } catch (error) {
+      console.error('Error clearing stored messages:', error);
+    }
+  };
+
+  // Debug function to check all stored data
+  const debugStorage = async () => {
+    try {
+      const allKeys = await AsyncStorage.getAllKeys();
+      console.log('All AsyncStorage keys:', allKeys);
+      
+      const chatKeys = allKeys.filter(key => key.startsWith('chat_messages_'));
+      console.log('Chat message keys:', chatKeys);
+      
+      for (const key of chatKeys) {
+        const data = await AsyncStorage.getItem(key);
+        const messages = data ? JSON.parse(data) : [];
+        console.log(`Messages in ${key}:`, messages.length);
+      }
+    } catch (error) {
+      console.error('Error debugging storage:', error);
+    }
+  };
 
   useEffect(() => {
-    fetchMessages();
+    // Debug storage on mount
+    debugStorage();
+    
+    initializeChat();
     setupSocketListeners();
     
     // Join the chat room
@@ -77,15 +180,245 @@ const ChatScreen = () => {
     };
   }, []);
 
+  // Clear stored messages (optional feature for privacy/storage management)
+  const clearChatHistory = async () => {
+    try {
+      setLoading(true);
+      console.log('Clearing chat history for:', chatRoomId);
+      await clearStoredMessages();
+      setMessages([]); // Clear messages from UI
+      showMessage({
+        message: 'Messages cleared',
+        description: 'Chat history has been cleared from local storage',
+        type: 'success',
+      });
+    } catch (error) {
+      console.error('Error clearing messages:', error);
+      showMessage({
+        message: 'Error',
+        description: 'Failed to clear chat history',
+        type: 'danger',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initialize chat by loading from storage first, then syncing with server
+  const initializeChat = async () => {
+    try {
+      // Load messages from local storage first for instant display
+      const cachedMessages = await loadMessagesFromStorage();
+      console.log('Loaded cached messages:', cachedMessages.length);
+      
+      // If no messages found with current key, try alternative keys
+      let alternativeMessages = [];
+      if (cachedMessages.length === 0) {
+        console.log('No cached messages found, trying alternative storage keys...');
+        alternativeMessages = await tryAlternativeStorageKeys();
+        if (alternativeMessages.length > 0) {
+          console.log('Found messages in alternative storage:', alternativeMessages.length);
+          setMessages(alternativeMessages);
+          // Save to current storage key for future use
+          await saveMessagesToStorage(alternativeMessages);
+          setTimeout(() => scrollToBottom(), 100);
+        }
+      } else {
+        setMessages(cachedMessages);
+        setTimeout(() => scrollToBottom(), 100);
+      }
+      
+      // Then fetch fresh messages from server and merge with cached
+      await fetchAndMergeMessages(cachedMessages.length > 0 ? cachedMessages : alternativeMessages);
+    } catch (error) {
+      console.error('Error initializing chat:', error);
+      // Fallback to server-only fetch
+      await fetchMessages();
+    }
+  };
+
+  // Try alternative storage keys in case the chatRoomId generation changed
+  const tryAlternativeStorageKeys = async () => {
+    try {
+      const allKeys = await AsyncStorage.getAllKeys();
+      console.log('All storage keys:', allKeys);
+      
+      // First try our predefined alternative keys
+      for (const alternativeKey of alternativeStorageKeys) {
+        if (allKeys.includes(alternativeKey)) {
+          try {
+            const data = await AsyncStorage.getItem(alternativeKey);
+            const messages = data ? JSON.parse(data) : [];
+            if (messages.length > 0) {
+              console.log(`Found ${messages.length} messages in predefined key: ${alternativeKey}`);
+              console.log('Sample message:', messages[0]);
+              return messages;
+            }
+          } catch (error) {
+            console.error(`Error reading predefined key ${alternativeKey}:`, error);
+          }
+        }
+      }
+      
+      // If predefined keys don't work, search all chat keys
+      const chatKeys = allKeys.filter(key => 
+        key.startsWith('chat_messages_') && 
+        (key.includes(userPhone) || key.includes(doctorPhone) || 
+         key.includes('256785796401') || key.includes('88'))
+      );
+      
+      console.log('Found alternative chat keys:', chatKeys);
+      console.log('Looking for keys containing:', {userPhone, doctorPhone});
+      
+      for (const key of chatKeys) {
+        try {
+          const data = await AsyncStorage.getItem(key);
+          const messages = data ? JSON.parse(data) : [];
+          console.log(`Key: ${key} has ${messages.length} messages`);
+          if (messages.length > 0) {
+            console.log(`Found ${messages.length} messages in key: ${key}`);
+            console.log('Sample message:', messages[0]);
+            return messages;
+          }
+        } catch (error) {
+          console.error(`Error reading key ${key}:`, error);
+        }
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error trying alternative storage keys:', error);
+      return [];
+    }
+  };
+
+  // Fetch messages from server and merge with existing cached messages
+  const fetchAndMergeMessages = async (cachedMessages = []) => {
+    try {
+      console.log('Calling ChatService.getMessages with:', {userPhone, doctorPhone});
+      const messagesData = await ChatService.getMessages(userPhone, doctorPhone);
+      console.log('Raw server response:', messagesData);
+      
+      // Check if the response indicates an error
+      if (!messagesData) {
+        console.warn('Server returned null/undefined for messages');
+      }
+      
+      const serverMessages = (messagesData || []);
+      console.log('Server messages:', serverMessages.length);
+      console.log('Cached messages:', cachedMessages.length);
+      
+      // If server returns no messages but we have cached messages, prefer cached
+      if (serverMessages.length === 0 && cachedMessages.length > 0) {
+        console.log('Server has no messages, keeping cached messages');
+        setMessages(cachedMessages);
+        await saveMessagesToStorage(cachedMessages);
+        return;
+      }
+      
+      // Create a map of existing cached messages by ID for faster lookup
+      const cachedMessageMap = new Map();
+      cachedMessages.forEach(msg => {
+        if (msg.id) {
+          cachedMessageMap.set(msg.id.toString(), msg);
+        }
+      });
+      
+      // Merge server messages with cached messages, preserving local-only messages
+      const mergedMessages = [...cachedMessages];
+      
+      serverMessages.forEach(serverMsg => {
+        const existingIndex = mergedMessages.findIndex(cachedMsg => {
+          // Try to match by ID first
+          if (cachedMsg.id && serverMsg.id && cachedMsg.id.toString() === serverMsg.id.toString()) {
+            return true;
+          }
+          
+          // If no ID match, try to match by message content and timestamp (for temp messages)
+          if (cachedMsg.message === serverMsg.message && 
+              cachedMsg.senderPhone === serverMsg.senderPhone) {
+            const timeDiff = Math.abs(new Date(cachedMsg.createdAt) - new Date(serverMsg.createdAt));
+            return timeDiff < 10000; // 10 second tolerance
+          }
+          
+          return false;
+        });
+        
+        if (existingIndex >= 0) {
+          // Update existing message with server data but preserve the structure
+          mergedMessages[existingIndex] = {
+            ...mergedMessages[existingIndex], // Keep cached message structure
+            ...serverMsg, // Apply server updates
+            sending: false,
+            sent: true,
+            failed: false
+          };
+        } else {
+          // Add new message from server if it doesn't exist in cache
+          mergedMessages.push({
+            ...serverMsg,
+            sending: false,
+            sent: true,
+            failed: false
+          });
+        }
+      });
+      
+      // Sort by creation date
+      const sortedMessages = mergedMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      
+      // Remove any potential duplicates based on content and timestamp
+      const deduplicatedMessages = [];
+      const seenMessages = new Set();
+      
+      sortedMessages.forEach(msg => {
+        const messageKey = `${msg.message}_${msg.senderPhone}_${new Date(msg.createdAt).getTime()}`;
+        if (!seenMessages.has(messageKey)) {
+          seenMessages.add(messageKey);
+          deduplicatedMessages.push(msg);
+        }
+      });
+      
+      console.log('Final merged messages:', deduplicatedMessages.length);
+      setMessages(deduplicatedMessages);
+      
+      // Save merged messages to local storage
+      await saveMessagesToStorage(deduplicatedMessages);
+      
+      // Mark messages as read
+      await ChatService.markAsRead(chatRoomId, correctedUserPhone);
+    } catch (error) {
+      console.error('Error fetching and merging messages:', error);
+      showMessage({
+        message: 'Error',
+        description: 'Failed to sync messages',
+        type: 'warning',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch messages from server (fallback method)
   const fetchMessages = async () => {
     try {
-      const messagesData = await ChatService.getMessages(userPhone, doctorPhone);
+      // Check for invalid userPhone and try to fix it
+      let correctedUserPhone = userPhone;
+      if (userPhone && userPhone.length < 5) {
+        correctedUserPhone = `+256${userPhone}`;
+        console.warn(`UserPhone "${userPhone}" seems invalid for fallback API call, trying "${correctedUserPhone}"`);
+      }
+
+      const messagesData = await ChatService.getMessages(correctedUserPhone, doctorPhone);
       // Add null check before sorting
       const sortedMessages = (messagesData || []).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
       setMessages(sortedMessages);
       
+      // Save to local storage for future use
+      await saveMessagesToStorage(sortedMessages);
+      
       // Mark messages as read
-      await ChatService.markAsRead(chatRoomId, userPhone);
+      await ChatService.markAsRead(chatRoomId, correctedUserPhone);
     } catch (error) {
       console.error('Error fetching messages:', error);
       showMessage({
@@ -100,9 +433,14 @@ const ChatScreen = () => {
 
   const setupSocketListeners = () => {
     // Listen for new messages
-    SocketService.onNewMessage((newMessage) => {
+    SocketService.onNewMessage(async (newMessage) => {
       if (newMessage && newMessage.chatRoomId === chatRoomId) {
-        setMessages(prevMessages => [...(prevMessages || []), newMessage]);
+        setMessages(prevMessages => {
+          const updatedMessages = [...(prevMessages || []), newMessage];
+          // Save to local storage with updated messages
+          saveMessagesToStorage(updatedMessages).catch(console.error);
+          return updatedMessages;
+        });
         scrollToBottom();
       }
     });
@@ -124,13 +462,23 @@ const ChatScreen = () => {
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
+    // Check for invalid userPhone and try to fix it
+    let correctedUserPhone = userPhone;
+    if (userPhone && userPhone.length < 5) {
+      // If userPhone is too short (like "88"), try to construct a proper number
+      correctedUserPhone = `+256${userPhone}`;
+      console.warn(`UserPhone "${userPhone}" seems invalid, trying "${correctedUserPhone}"`);
+    }
+
     const messageData = {
       message: inputText.trim(),
-      senderPhone: userPhone,
+      senderPhone: correctedUserPhone,
       receiverPhone: doctorPhone,
       senderType: 'user',
       chatRoomId,
     };
+
+    console.log('Sending message with data:', messageData);
 
     // Optimistically add message to UI
     const tempMessage = {
@@ -140,29 +488,46 @@ const ChatScreen = () => {
       sending: true,
     };
 
-    setMessages(prevMessages => [...(prevMessages || []), tempMessage]);
+    console.log('Adding temp message:', tempMessage);
+    const updatedMessages = [...(messages || []), tempMessage];
+    setMessages(updatedMessages);
     setInputText('');
     scrollToBottom();
 
     try {
       // Send message to server
       const sentMessage = await ChatService.sendMessage(messageData);
+      console.log('Server response:', sentMessage);
       
-      // Update the temp message with server response
-      setMessages(prevMessages =>
-        (prevMessages || []).map(msg =>
-          msg.id === tempMessage.id ? {...sentMessage, sending: false, sent: true} : msg
-        )
+      // Update the temp message with server response, preserving our structure
+      const finalMessages = updatedMessages.map(msg =>
+        msg.id === tempMessage.id ? {
+          ...msg, // Keep our temporary message structure
+          ...sentMessage, // Merge server response
+          id: msg.id, // Keep our temporary ID
+          message: msg.message, // Keep our message text
+          sending: false, 
+          sent: true,
+          failed: false
+        } : msg
       );
+      console.log('Final messages after send:', finalMessages);
+      setMessages(finalMessages);
+      
+      // Save updated messages to local storage
+      await saveMessagesToStorage(finalMessages);
+      
     } catch (error) {
       console.error('Error sending message:', error);
       
       // Mark message as failed
-      setMessages(prevMessages =>
-        (prevMessages || []).map(msg =>
-          msg.id === tempMessage.id ? {...msg, sending: false, failed: true} : msg
-        )
+      const failedMessages = updatedMessages.map(msg =>
+        msg.id === tempMessage.id ? {...msg, sending: false, failed: true} : msg
       );
+      setMessages(failedMessages);
+      
+      // Save even failed messages to local storage for retry
+      await saveMessagesToStorage(failedMessages);
       
       // Store message locally for retry
       await ChatService.storeMessageLocally(messageData);
@@ -227,6 +592,24 @@ const ChatScreen = () => {
     }
   };
 
+  const handleLongPress = () => {
+    Alert.alert(
+      'Chat Options',
+      'Would you like to clear this chat history from local storage?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear History',
+          style: 'destructive',
+          onPress: clearChatHistory,
+        },
+      ]
+    );
+  };
+
   const renderMessage = ({item, index}) => {
     if (!item || !item.message) {
       return null;
@@ -247,10 +630,14 @@ const ChatScreen = () => {
           styles.messageContainer,
           isFromUser ? styles.userMessage : styles.doctorMessage
         ]}>
-          <View style={[
-            styles.messageBubble,
-            isFromUser ? styles.userBubble : styles.doctorBubble
-          ]}>
+          <TouchableOpacity 
+            onLongPress={handleLongPress}
+            activeOpacity={0.8}
+            style={[
+              styles.messageBubble,
+              isFromUser ? styles.userBubble : styles.doctorBubble
+            ]}
+          >
             <Text style={[
               styles.messageText,
               isFromUser ? styles.userMessageText : styles.doctorMessageText
@@ -269,10 +656,10 @@ const ChatScreen = () => {
               {isFromUser && (
                 <View style={styles.messageStatus}>
                   {item.sending && (
-                    <Icon name="clock" size={12} color="rgba(255,255,255,0.7)" />
+                    <Icon name="clock" size={12} color="#999" />
                   )}
                   {item.sent && !item.sending && (
-                    <Icon name="check" size={12} color="rgba(255,255,255,0.7)" />
+                    <Icon name="check" size={12} color="#666" />
                   )}
                   {item.failed && (
                     <Icon name="alert-circle" size={12} color="#FF5252" />
@@ -280,7 +667,7 @@ const ChatScreen = () => {
                 </View>
               )}
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     );

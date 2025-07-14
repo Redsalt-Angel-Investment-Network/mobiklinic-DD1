@@ -84,7 +84,7 @@ const DoctorListScreen = () => {
         // Transform the data to match expected format
         const formattedDoctors = doctorsData.map(doctor => ({
           id: doctor.id,
-          name: doctor.attributes?.name || doctor.name,
+         name: `Dr. ${doctor.attributes?.name || doctor.name}`.replace(/^Dr\.?\s*/i, 'Dr. '),
           specialization: doctor.attributes?.specialization || doctor.specialization || 'General Practitioner',
           hospital: doctor.attributes?.hospital || doctor.hospital || 'MobiKlinic',
           contact: doctor.attributes?.contact || doctor.attributes?.phoneNumber || doctor.contact || doctor.phoneNumber,
