@@ -52,7 +52,9 @@ const ChatScreen = () => {
   const fetchMessages = async () => {
     try {
       const messagesData = await ChatService.getMessages(userPhone, doctorPhone);
-      setMessages(messagesData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+      // Add null check before sorting
+      const sortedMessages = (messagesData || []).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      setMessages(sortedMessages);
       
       // Mark messages as read
       await ChatService.markAsRead(chatRoomId, userPhone);
@@ -71,21 +73,21 @@ const ChatScreen = () => {
   const setupSocketListeners = () => {
     // Listen for new messages
     SocketService.onNewMessage((newMessage) => {
-      if (newMessage.chatRoomId === chatRoomId) {
-        setMessages(prevMessages => [...prevMessages, newMessage]);
+      if (newMessage && newMessage.chatRoomId === chatRoomId) {
+        setMessages(prevMessages => [...(prevMessages || []), newMessage]);
         scrollToBottom();
       }
     });
 
     // Listen for typing indicators
     SocketService.onTyping((data) => {
-      if (data.roomId === chatRoomId && data.userPhone === doctorPhone) {
+      if (data && data.roomId === chatRoomId && data.userPhone === doctorPhone) {
         setDoctorTyping(true);
       }
     });
 
     SocketService.onStopTyping((data) => {
-      if (data.roomId === chatRoomId && data.userPhone === doctorPhone) {
+      if (data && data.roomId === chatRoomId && data.userPhone === doctorPhone) {
         setDoctorTyping(false);
       }
     });
@@ -110,7 +112,7 @@ const ChatScreen = () => {
       sending: true,
     };
 
-    setMessages(prevMessages => [...prevMessages, tempMessage]);
+    setMessages(prevMessages => [...(prevMessages || []), tempMessage]);
     setInputText('');
     scrollToBottom();
 
@@ -120,7 +122,7 @@ const ChatScreen = () => {
       
       // Update the temp message with server response
       setMessages(prevMessages =>
-        prevMessages.map(msg =>
+        (prevMessages || []).map(msg =>
           msg.id === tempMessage.id ? {...sentMessage, sending: false, sent: true} : msg
         )
       );
@@ -129,7 +131,7 @@ const ChatScreen = () => {
       
       // Mark message as failed
       setMessages(prevMessages =>
-        prevMessages.map(msg =>
+        (prevMessages || []).map(msg =>
           msg.id === tempMessage.id ? {...msg, sending: false, failed: true} : msg
         )
       );
@@ -147,7 +149,13 @@ const ChatScreen = () => {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      flatListRef.current?.scrollToEnd({animated: true});
+      try {
+        if (flatListRef.current && messages.length > 0) {
+          flatListRef.current.scrollToEnd({animated: true});
+        }
+      } catch (error) {
+        console.log('Scroll error (non-critical):', error);
+      }
     }, 100);
   };
 
@@ -192,6 +200,10 @@ const ChatScreen = () => {
   };
 
   const renderMessage = ({item, index}) => {
+    if (!item || !item.message) {
+      return null;
+    }
+    
     const isFromUser = item.senderPhone === userPhone;
     const showDate = index === 0 || formatDate(item.createdAt) !== formatDate(messages[index - 1]?.createdAt);
     
@@ -288,14 +300,19 @@ const ChatScreen = () => {
       {/* Messages */}
       <FlatList
         ref={flatListRef}
-        data={messages}
+        data={messages || []}
         renderItem={renderMessage}
-        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
         style={styles.messagesList}
         contentContainerStyle={styles.messagesContainer}
         onContentSizeChange={scrollToBottom}
         showsVerticalScrollIndicator={false}
         ListFooterComponent={renderTypingIndicator()}
+        removeClippedSubviews={false}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        getItemLayout={null}
       />
 
       {/* Input */}
