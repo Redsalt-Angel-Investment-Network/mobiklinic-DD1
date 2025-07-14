@@ -11,6 +11,8 @@ import {
   Alert,
   Linking,
   StatusBar,
+  Keyboard,
+  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -29,6 +31,8 @@ const ChatScreen = () => {
   const [loading, setLoading] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [doctorTyping, setDoctorTyping] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [screenHeight, setScreenHeight] = useState(Dimensions.get('window').height);
   const flatListRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   
@@ -41,11 +45,35 @@ const ChatScreen = () => {
     // Join the chat room
     SocketService.joinRoom(chatRoomId);
     
+    // Keyboard listeners - Simple approach
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        setTimeout(() => scrollToBottom(), 200);
+      }
+    );
+    
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    // Screen dimension listener
+    const subscription = Dimensions.addEventListener('change', ({window}) => {
+      setScreenHeight(window.height);
+    });
+    
     return () => {
       SocketService.leaveRoom(chatRoomId);
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+      subscription?.remove();
     };
   }, []);
 
@@ -271,10 +299,7 @@ const ChatScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      
+    <View style={styles.container}>
       <StatusBar backgroundColor={COLORS.PRIMARY} barStyle="light-content" />
       
       {/* Header */}
@@ -297,71 +322,87 @@ const ChatScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Messages */}
-      <FlatList
-        ref={flatListRef}
-        data={messages || []}
-        renderItem={renderMessage}
-        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-        style={styles.messagesList}
-        contentContainerStyle={styles.messagesContainer}
-        onContentSizeChange={scrollToBottom}
-        showsVerticalScrollIndicator={false}
-        ListFooterComponent={renderTypingIndicator()}
-        removeClippedSubviews={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-        getItemLayout={null}
-      />
-
-      {/* Input */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          value={inputText}
-          onChangeText={handleInputChange}
-          placeholder="Type a message..."
-          placeholderTextColor={COLORS.GREY}
-          multiline
-          maxLength={1000}
+      {/* Messages Area */}
+      <View style={styles.messagesWrapper}>
+        <FlatList
+          ref={flatListRef}
+          data={messages || []}
+          renderItem={renderMessage}
+          keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+          style={styles.messagesList}
+          contentContainerStyle={styles.messagesContentContainer}
+          onContentSizeChange={scrollToBottom}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={renderTypingIndicator()}
+          removeClippedSubviews={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         />
-        
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            {backgroundColor: inputText.trim() ? COLORS.PRIMARY : COLORS.GREY}
-          ]}
-          onPress={sendMessage}
-          disabled={!inputText.trim()}>
-          <Icon name="send" size={20} color={COLORS.WHITE} />
-        </TouchableOpacity>
       </View>
+
+      {/* Bottom Input Area */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.inputWrapper}>
+        <View style={styles.inputContainer}>
+          <View style={styles.textInputWrapper}>
+            <TextInput
+              ref={input => { this.textInput = input; }}
+              style={styles.textInput}
+              value={inputText}
+              onChangeText={handleInputChange}
+              placeholder="Type a message"
+              placeholderTextColor="#999"
+              multiline
+              maxLength={1000}
+              onFocus={() => {
+                setTimeout(() => scrollToBottom(), 100);
+              }}
+              textAlignVertical="center"
+            />
+          </View>
+          
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              {backgroundColor: inputText.trim() ? COLORS.PRIMARY : '#BDC3C7'}
+            ]}
+            onPress={sendMessage}
+            disabled={!inputText.trim()}>
+            <Icon name="send" size={18} color={COLORS.WHITE} />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
       
       <FlashMessage position="top" />
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E5DDD5', // WhatsApp background color
+    backgroundColor: '#ECE5DD', // WhatsApp chat background
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.PRIMARY,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    zIndex: 1000,
   },
   backButton: {
     marginRight: 16,
+    padding: 4,
   },
   headerInfo: {
     flex: 1,
@@ -372,34 +413,41 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
   },
   doctorStatus: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
-    marginTop: 2,
+    marginTop: 1,
   },
   callButton: {
     marginLeft: 16,
+    padding: 4,
+  },
+  messagesWrapper: {
+    flex: 1,
+    paddingHorizontal: 8,
   },
   messagesList: {
     flex: 1,
   },
-  messagesContainer: {
-    paddingVertical: 16,
+  messagesContentContainer: {
+    paddingVertical: 8,
+    paddingBottom: 16,
   },
   dateContainer: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 12,
   },
   dateText: {
     backgroundColor: 'rgba(0,0,0,0.1)',
-    color: COLORS.BLACK,
-    fontSize: 12,
+    color: '#666',
+    fontSize: 13,
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 6,
     borderRadius: 12,
+    overflow: 'hidden',
   },
   messageContainer: {
-    marginVertical: 2,
-    marginHorizontal: 16,
+    marginVertical: 1,
+    marginHorizontal: 4,
   },
   userMessage: {
     alignItems: 'flex-end',
@@ -408,31 +456,38 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   messageBubble: {
-    maxWidth: '80%',
+    maxWidth: '85%',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
   },
   userBubble: {
-    backgroundColor: '#DCF8C6', // WhatsApp user message color
+    backgroundColor: '#DCF8C6', // WhatsApp green
     borderBottomRightRadius: 4,
   },
   doctorBubble: {
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 4,
   },
   typingBubble: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: '#FFFFFF',
+    opacity: 0.9,
   },
   messageText: {
     fontSize: 16,
     lineHeight: 20,
+    color: '#000',
   },
   userMessageText: {
-    color: COLORS.BLACK,
+    color: '#000',
   },
   doctorMessageText: {
-    color: COLORS.BLACK,
+    color: '#000',
   },
   messageFooter: {
     flexDirection: 'row',
@@ -441,14 +496,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   timeText: {
-    fontSize: 11,
+    fontSize: 12,
     marginRight: 4,
   },
   userTimeText: {
-    color: 'rgba(0,0,0,0.6)',
+    color: 'rgba(0,0,0,0.5)',
   },
   doctorTimeText: {
-    color: 'rgba(0,0,0,0.5)',
+    color: 'rgba(0,0,0,0.4)',
   },
   messageStatus: {
     marginLeft: 4,
@@ -456,39 +511,52 @@ const styles = StyleSheet.create({
   typingText: {
     fontSize: 14,
     fontStyle: 'italic',
-    color: COLORS.GREY,
+    color: '#666',
+  },
+  inputWrapper: {
+    backgroundColor: '#F0F0F0',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: '#F0F0F0',
+  },
+  textInputWrapper: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 25,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    elevation: 8,
+    marginRight: 8,
+    minHeight: 40,
+    justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: -2},
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 2,
+    elevation: 2,
   },
   textInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: COLORS.GREY_LIGHTER,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
     fontSize: 16,
+    color: '#000',
     maxHeight: 100,
-    backgroundColor: COLORS.WHITE,
-    color: COLORS.BLACK,
+    minHeight: 24,
+    textAlignVertical: 'center',
+    paddingVertical: 0,
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
 });
 
