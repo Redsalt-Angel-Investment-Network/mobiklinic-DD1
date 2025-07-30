@@ -32,6 +32,7 @@ const Payment = ({navigation}) => {
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [showPhoneInput, setShowPhoneInput] = useState(false);
   const [pendingTransactionRef, setPendingTransactionRef] = useState(null);
   
@@ -49,6 +50,8 @@ const Payment = ({navigation}) => {
 
   const verifyPaymentStatus = async (transactionRef) => {
     try {
+      // Show verification loader with specific message
+      setIsVerifyingPayment(true);
       console.log('Verifying payment status for:', transactionRef);
       
       // In production, you would call your backend to verify payment with Flutterwave
@@ -72,12 +75,12 @@ const Payment = ({navigation}) => {
         await handlePaymentSuccess(verificationResult);
       } else {
         Alert.alert('Payment Verification Failed', 'Could not verify payment status. Please contact support.');
-        setIsLoading(false);
+        setIsVerifyingPayment(false);
       }
     } catch (error) {
       console.error('Payment verification error:', error);
       Alert.alert('Verification Error', 'Unable to verify payment status. Please contact support if you completed the payment.');
-      setIsLoading(false);
+      setIsVerifyingPayment(false);
     }
   };
 
@@ -112,6 +115,7 @@ const Payment = ({navigation}) => {
       Alert.alert('Payment Completed', 'Payment was successful but there was an issue recording the transaction. Please contact support.');
     } finally {
       setIsLoading(false);
+      setIsVerifyingPayment(false);
     }
   };
 
@@ -507,6 +511,14 @@ const Payment = ({navigation}) => {
   };
 
   if (isLoading) return <Loader />;
+  
+  if (isVerifyingPayment) {
+    return (
+      <Loader>
+        <Text style={styles.loaderText}>System is Confirming your payment</Text>
+      </Loader>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -837,6 +849,13 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     marginRight: 4,
+  },
+  loaderText: {
+    color: COLORS.WHITE,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center',
   },
 });
 
