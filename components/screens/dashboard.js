@@ -6,6 +6,7 @@ import {
   Text,
   StyleSheet,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -48,40 +49,44 @@ const Dashboard = ({navigation}) => {
         </View>
       </View>
 
-      <View style={STYLES.container}>
+      <ScrollView 
+        style={{flex: 1}} 
+        contentContainerStyle={{flexGrow: 1, paddingBottom: 20}}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={STYLES.container}>
         <View style={STYLES.column}>
           <TouchableOpacity
             style={STYLES.card}
             onPress={() => navigation.navigate('SelectAction')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="activity" size={40} color={COLORS.PRIMARY} />
+              <Icon name="activity" size={35} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Enrol Patient</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Chats')}>
+            onPress={() => navigation.navigate('Payment')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="message-circle" size={40} color={COLORS.PRIMARY} />
+              <MIcon name="credit-card" size={35} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Ask Moby</Text>
+            <Text style={STYLES.cardTitle}>Payment</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Appointments')}>
+            onPress={() => navigation.navigate('Chats')}>
             <View style={STYLES.cardIcon}>
-              <MIcon name="calendar" size={40} color={COLORS.PRIMARY} />
+              <Icon name="message-circle" size={35} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Appointments</Text>
+            <Text style={STYLES.cardTitle}>Ask Moby</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={STYLES.card}
             onPress={() => navigation.navigate('Ambulances')}>
             <View style={STYLES.cardIcon}>
-              <MIcon name="ambulance" size={40} color={COLORS.PRIMARY} />
+              <MIcon name="ambulance" size={35} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Find Ambulances </Text>
+            <Text style={STYLES.cardTitle}>Find Ambulances</Text>
           </TouchableOpacity>
         </View>
 
@@ -90,7 +95,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('PatientLists')}>
             <View style={STYLES.cardIcon}>
-              <Icon name="users" size={40} color={COLORS.PRIMARY} />
+              <Icon name="users" size={35} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Search Patient</Text>
           </TouchableOpacity>
@@ -99,22 +104,34 @@ const Dashboard = ({navigation}) => {
             style={STYLES.card}
             onPress={() => navigation.navigate('DoctorListScreen')}>
             <View style={STYLES.cardIcon}>
-              <FoIcon name="doctor" size={40} color={COLORS.PRIMARY} />
+              <FoIcon name="doctor" size={35} color={COLORS.PRIMARY} />
             </View>
             <Text style={STYLES.cardTitle}>Contact Our Doctors</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={STYLES.card}
-            onPress={() => navigation.navigate('Hospital')}>
+            onPress={() => navigation.navigate('Appointments')}>
             <View style={STYLES.cardIcon}>
-              <FAIcon name="building" size={40} color={COLORS.PRIMARY} />
+              <MIcon name="calendar" size={35} color={COLORS.PRIMARY} />
             </View>
-            <Text style={STYLES.cardTitle}>Find Facilities</Text>
+            <Text style={STYLES.cardTitle}>Appointments</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={STYLES.card}
+            onPress={() => navigation.navigate('Hospital')}>
+            <View style={STYLES.cardIcon}>
+              <FAIcon name="building" size={35} color={COLORS.PRIMARY} />
+            </View>
+            <Text style={STYLES.cardTitle}>Find Facilities</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+        <View style={STYLES.logoutContainer}>
+          <TouchableOpacity
+            style={STYLES.logoutCard}
             onPress={() => {
               setTokens(null);
               signOut(setUser);
@@ -122,7 +139,7 @@ const Dashboard = ({navigation}) => {
             <View style={STYLES.cardIcon}>
               <MIcon
                 name="logout"
-                size={40}
+                size={35}
                 strokeSize={3}
                 color={COLORS.PRIMARY}
               />
@@ -130,8 +147,8 @@ const Dashboard = ({navigation}) => {
             <Text style={STYLES.cardTitle}>Logout</Text>
           </TouchableOpacity>
         </View>
-      </View>
-      <CopyRight />
+        <CopyRight />
+      </ScrollView>
     </View>
   );
 };
@@ -174,37 +191,55 @@ const STYLES = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
-    flex: 1,
     paddingHorizontal: 10,
+    minHeight: 400,
   },
   column: {
     flex: 1,
     padding: 10,
   },
+  logoutContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    paddingTop: 25,
+    alignItems: 'center',
+  },
+  logoutCard: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 10,
+    width: '50%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    minHeight: 80,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+  },
   card: {
     backgroundColor: COLORS.WHITE,
     flex: 1,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 8,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
-    marginTop: 10,
-    minHeight: 120,
-    paddingVertical: 20,
-    paddingHorizontal: 15,
+    marginTop: 8,
+    minHeight: 90,
+    paddingVertical: 15,
+    paddingHorizontal: 12,
   },
   cardIcon: {
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   cardTitle: {
-    marginTop: 10,
+    marginTop: 5,
     textAlign: 'center',
     color: COLORS.BLACK,
-    fontSize: 12,
+    fontSize: 11,
+    lineHeight: 14,
   },
 });
 

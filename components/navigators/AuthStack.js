@@ -24,6 +24,8 @@ import ReceivedChats from '../screens/Received.Chats';
 import ForgotPassword from '../screens/password.forgot';
 import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
+import Payment from '../screens/payment';
+import PaymentHistory from '../screens/payment-history';
 import Urinalysis from '../renal/urinalysis.screening';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
@@ -157,6 +159,16 @@ function AuthStack() {
         name="Appointments"
         options={{headerShown: false}}
         component={Appointments}
+      />
+      <Stack.Screen
+        name="Payment"
+        options={{headerShown: false}}
+        component={Payment}
+      />
+      <Stack.Screen
+        name="PaymentHistory"
+        options={{headerShown: false}}
+        component={PaymentHistory}
       />
 
       <Stack.Screen

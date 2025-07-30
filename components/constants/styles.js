@@ -6,6 +6,10 @@ export const COLORS = {
   ACCENT_1: '#7cd2ff',
   ERRORS: '#f00',
   GREY: '#ccc',
+  GRAY: '#666',
+  LIGHT_GRAY: '#e0e0e0',
+  BACKGROUND: '#f5f5f5',
+  SECONDARY: '#fff',
   GREY_LIGHTER: 'rgba(0,0,0,0.06)',
 };
 
