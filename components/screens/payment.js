@@ -208,31 +208,34 @@ const Payment = ({navigation}) => {
               await Linking.openURL(data);
               console.log('Successfully opened payment URL');
               
-              // Show instructions to user
-              Alert.alert(
-                'Payment in Progress',
-                'You have been redirected to complete your payment. Please return to the app after completing the payment.',
-                [
-                  {
-                    text: 'I Completed Payment',
-                    onPress: () => {
-                      // Store transaction reference for verification
-                      setPendingTransactionRef(txRef);
-                      // For now, we'll simulate successful payment
-                      // In production, verify payment status with Flutterwave API
-                      verifyPaymentStatus(txRef);
+              // Add a small delay to ensure the browser opens, then show the alert
+              setTimeout(() => {
+                // Show instructions to user
+                Alert.alert(
+                  'Payment in Progress',
+                  'You have been redirected to complete your payment. Please return to the app after completing the payment.',
+                  [
+                    {
+                      text: 'I Completed Payment',
+                      onPress: () => {
+                        // Store transaction reference for verification
+                        setPendingTransactionRef(txRef);
+                        // For now, we'll simulate successful payment
+                        // In production, verify payment status with Flutterwave API
+                        verifyPaymentStatus(txRef);
+                      },
                     },
-                  },
-                  {
-                    text: 'Payment Failed/Cancelled',
-                    onPress: () => {
-                      Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
-                      setIsLoading(false);
+                    {
+                      text: 'Payment Failed/Cancelled',
+                      onPress: () => {
+                        Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
+                        setIsLoading(false);
+                      },
+                      style: 'cancel',
                     },
-                    style: 'cancel',
-                  },
-                ]
-              );
+                  ]
+                );
+              }, 500); // 500ms delay to ensure browser opens first
             } catch (openError) {
               console.error('Direct URL opening failed:', openError);
               
