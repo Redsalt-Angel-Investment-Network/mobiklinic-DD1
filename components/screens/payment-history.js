@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants/styles';
 import Loader from '../ui/loader';
 import DataResultsContext from '../contexts/DataResultsContext';
+import {API_ENDPOINTS} from '../config/api';
 
 const PaymentHistory = ({navigation}) => {
   const [payments, setPayments] = useState([]);
@@ -26,7 +27,7 @@ const PaymentHistory = ({navigation}) => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        `https://mk-be-strapi-production.up.railway.app/api/payments?filters[user_name][$eq]=${encodeURIComponent(userNames)}&sort=payment_date:desc`
+        API_ENDPOINTS.PAYMENT_HISTORY(userNames)
       );
       
       const data = await response.json();

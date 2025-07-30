@@ -16,6 +16,7 @@ import {COLORS} from '../constants/styles';
 import Loader from '../ui/loader';
 import {AuthContext} from '../contexts/auth';
 import DataResultsContext from '../contexts/DataResultsContext';
+import {API_ENDPOINTS} from '../config/api';
 
 const Payment = ({navigation}) => {
   const [selectedService, setSelectedService] = useState('');
@@ -23,6 +24,9 @@ const Payment = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPhoneInput, setShowPhoneInput] = useState(false);
+  
+  // Configuration - Set to false to enable real Flutterwave payments
+  const USE_PAYMENT_SIMULATION = true;
   
   const {user} = useContext(AuthContext);
   const {userNames} = useContext(DataResultsContext);
@@ -63,7 +67,7 @@ const Payment = ({navigation}) => {
       // Configure Flutterwave payment
       const paymentData = {
         tx_ref: txRef,
-        authorization: 'FLWPUBK_TEST-XXXXXXXXXXXXX-X', // Replace with your Flutterwave public key
+        authorization: 'FLWPUBK-4e096dbc78b9aed4cfaebd2c17916ddd-X', // Your real Flutterwave public key
         amount: parseFloat(amount),
         currency: 'UGX',
         payment_options: 'mobilemoney',
@@ -108,48 +112,57 @@ const Payment = ({navigation}) => {
         setIsLoading(false);
       };
 
-      // For development/testing, we'll simulate the payment process
-      // In production, uncomment the FlutterwaveInit call below
-      
-      // FlutterwaveInit(paymentData)
-      //   .then(handleOnRedirect)
-      //   .catch((error) => {
-      //     console.error('Flutterwave error:', error);
-      //     Alert.alert('Payment Error', 'Unable to initialize payment. Please try again.');
-      //     setIsLoading(false);
-      //   });
+      // Choose between real Flutterwave payment or simulation
+      if (USE_PAYMENT_SIMULATION) {
+        // SIMULATION MODE - For development/testing
+        if (!showPhoneInput) {
+          setShowPhoneInput(true);
+          setIsLoading(false);
+          return;
+        }
 
-      // Simulate payment for demo purposes
-      if (!showPhoneInput) {
-        setShowPhoneInput(true);
-        setIsLoading(false);
-        return;
+        // Show loading for 2 seconds to simulate payment processing
+        console.log('Simulating payment processing...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Simulate successful payment response
+        const simulatedResponse = {
+          status: 'successful',
+          transaction_id: txRef,
+          tx_ref: txRef,
+          amount: amount,
+          currency: 'UGX',
+        };
+
+        await recordTransaction(simulatedResponse);
+        
+        Alert.alert(
+          'Payment Simulation Successful',
+          `Demo payment of UGX ${amount} for ${getServiceLabel(selectedService)} has been simulated successfully. In production, this will process real payments via Flutterwave.`,
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+      } else {
+        // REAL FLUTTERWAVE PAYMENT MODE - For production
+        if (!showPhoneInput) {
+          setShowPhoneInput(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Initialize real Flutterwave payment
+        FlutterwaveInit(paymentData)
+          .then(handleOnRedirect)
+          .catch((error) => {
+            console.error('Flutterwave error:', error);
+            Alert.alert('Payment Error', 'Unable to initialize payment. Please try again.');
+            setIsLoading(false);
+          });
       }
-
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Simulate successful payment response
-      const simulatedResponse = {
-        status: 'successful',
-        transaction_id: txRef,
-        tx_ref: txRef,
-        amount: amount,
-        currency: 'UGX',
-      };
-
-      await recordTransaction(simulatedResponse);
-      
-      Alert.alert(
-        'Payment Successful',
-        `Payment of UGX ${amount} for ${getServiceLabel(selectedService)} has been processed successfully.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack(),
-          },
-        ]
-      );
     } catch (error) {
       console.error('Payment error:', error);
       Alert.alert('Payment Failed', 'Unable to process payment. Please try again.');
@@ -176,8 +189,10 @@ const Payment = ({navigation}) => {
         }
       };
 
+      console.log('Recording transaction:', transactionData);
+
       const response = await fetch(
-        'https://mk-be-strapi-production.up.railway.app/api/payments',
+        API_ENDPOINTS.PAYMENTS,
         {
           method: 'POST',
           headers: {
@@ -187,17 +202,25 @@ const Payment = ({navigation}) => {
         }
       );
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to record transaction');
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to record transaction: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
-      console.log('Transaction recorded:', result);
+      console.log('Transaction recorded successfully:', result);
       return result;
     } catch (error) {
-      console.error('Error recording transaction:', error);
-      // Don't throw error here as payment was successful
-      // Just log it for debugging
+      console.error('Error recording transaction:', error.message);
+      // Show user-friendly error message
+      Alert.alert(
+        'Transaction Recording Failed', 
+        'Payment was processed but failed to save transaction record. Please contact support if needed.',
+        [{text: 'OK'}]
+      );
     }
   };
 
