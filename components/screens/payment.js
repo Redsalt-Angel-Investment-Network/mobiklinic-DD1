@@ -322,9 +322,9 @@ const Payment = ({navigation}) => {
             onPress={initiatePayment}
             disabled={!selectedService || !amount}
           >
-            <Icon name="credit-card" size={20} color="white" style={styles.buttonIcon} />
-            <Text style={styles.payButtonText}>
-              {showPhoneInput ? 'Pay Now' : 'Continue to Payment'}
+            <Icon name="credit-card" size={18} color="white" style={styles.buttonIcon} />
+            <Text style={styles.payButtonText} numberOfLines={1} adjustsFontSizeToFit>
+              {showPhoneInput ? 'Pay Now' : 'Continue Payment'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -476,8 +476,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 15,
+    paddingHorizontal: 10,
     borderRadius: 8,
     elevation: 2,
+    minHeight: 50,
   },
   resetButton: {
     backgroundColor: COLORS.WHITE,
@@ -494,16 +496,18 @@ const styles = StyleSheet.create({
   },
   payButtonText: {
     color: COLORS.WHITE,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginLeft: 8,
+    marginLeft: 6,
+    flex: 1,
+    textAlign: 'center',
   },
   disabledButton: {
     backgroundColor: COLORS.LIGHT_GRAY,
     opacity: 0.6,
   },
   buttonIcon: {
-    marginRight: 5,
+    marginRight: 4,
   },
 });
 
