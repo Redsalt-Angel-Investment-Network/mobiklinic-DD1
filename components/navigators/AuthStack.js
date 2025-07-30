@@ -26,6 +26,7 @@ import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
 import Payment from '../screens/payment';
 import PaymentHistory from '../screens/payment-history';
+import PaymentWebView from '../screens/PaymentWebView';
 import Urinalysis from '../renal/urinalysis.screening';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
@@ -169,6 +170,11 @@ function AuthStack() {
         name="PaymentHistory"
         options={{headerShown: false}}
         component={PaymentHistory}
+      />
+      <Stack.Screen
+        name="PaymentWebView"
+        options={{headerShown: false}}
+        component={PaymentWebView}
       />
 
       <Stack.Screen

@@ -8,15 +8,24 @@ import {
   TextInput,
   ScrollView,
   Platform,
+  Linking,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {FlutterwaveInit} from 'flutterwave-react-native';
 import {COLORS} from '../constants/styles';
 import Loader from '../ui/loader';
 import {AuthContext} from '../contexts/auth';
 import DataResultsContext from '../contexts/DataResultsContext';
 import {API_ENDPOINTS} from '../config/api';
+
+// Optional Flutterwave import with fallback
+let FlutterwaveInit = null;
+try {
+  const FlutterwaveModule = require('flutterwave-react-native');
+  FlutterwaveInit = FlutterwaveModule.FlutterwaveInit;
+} catch (error) {
+  console.log('Flutterwave module not available:', error.message);
+}
 
 const Payment = ({navigation}) => {
   const [selectedService, setSelectedService] = useState('');
@@ -24,9 +33,7 @@ const Payment = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPhoneInput, setShowPhoneInput] = useState(false);
-  
-  // Configuration - Set to false to enable real Flutterwave payments
-  const USE_PAYMENT_SIMULATION = true;
+  const [pendingTransactionRef, setPendingTransactionRef] = useState(null);
   
   const {user} = useContext(AuthContext);
   const {userNames} = useContext(DataResultsContext);
@@ -40,6 +47,85 @@ const Payment = ({navigation}) => {
     {label: 'Mental Health Services', value: 'mental_health_services'},
   ];
 
+  const verifyPaymentStatus = async (transactionRef) => {
+    try {
+      console.log('Verifying payment status for:', transactionRef);
+      
+      // In production, you would call your backend to verify payment with Flutterwave
+      // For now, we'll simulate a successful verification
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // For demonstration, we'll assume payment was successful
+      // In production, your backend would call Flutterwave's verify transaction API
+      const verificationResult = {
+        status: 'successful',
+        transaction_id: transactionRef,
+        tx_ref: transactionRef,
+        amount: amount,
+        currency: 'UGX',
+        verified: true,
+      };
+      
+      if (verificationResult.status === 'successful') {
+        await handlePaymentSuccess(verificationResult);
+      } else {
+        Alert.alert('Payment Verification Failed', 'Could not verify payment status. Please contact support.');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      Alert.alert('Verification Error', 'Unable to verify payment status. Please contact support if you completed the payment.');
+      setIsLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentData = null) => {
+    try {
+      // Record transaction in backend
+      const transactionData = paymentData || {
+        status: 'successful',
+        transaction_id: `MK_${Date.now()}`,
+        tx_ref: pendingTransactionRef || `MK_${Date.now()}`,
+        amount: amount,
+        currency: 'UGX',
+      };
+      
+      await recordTransaction(transactionData);
+      
+      // Clear pending transaction
+      setPendingTransactionRef(null);
+      
+      Alert.alert(
+        'Payment Successful',
+        `Payment of UGX ${amount} for ${getServiceLabel(selectedService)} has been processed successfully.`,
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error handling payment success:', error);
+      Alert.alert('Payment Completed', 'Payment was successful but there was an issue recording the transaction. Please contact support.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return '';
+    let formatted = phone.replace(/\s+/g, ''); // Remove spaces
+    if (formatted.startsWith('0')) {
+      formatted = '256' + formatted.slice(1); // Convert Uganda format
+    } else if (!formatted.startsWith('256')) {
+      formatted = '256' + formatted; // Add Uganda country code
+    }
+    return formatted;
+  };
+
   const validateInputs = () => {
     if (!selectedService) {
       Alert.alert('Error', 'Please select a service');
@@ -50,7 +136,12 @@ const Payment = ({navigation}) => {
       return false;
     }
     if (showPhoneInput && (!phoneNumber || phoneNumber.length < 10)) {
-      Alert.alert('Error', 'Please enter a valid phone number');
+      Alert.alert('Error', 'Please enter a valid phone number (at least 10 digits)');
+      return false;
+    }
+    // Validate minimum amount for Flutterwave
+    if (parseFloat(amount) < 100) {
+      Alert.alert('Error', 'Minimum payment amount is UGX 100');
       return false;
     }
     return true;
@@ -61,10 +152,18 @@ const Payment = ({navigation}) => {
 
     setIsLoading(true);
     try {
+      // Test Flutterwave availability
+      console.log('Testing Flutterwave initialization...');
+      
       // Generate unique transaction reference
       const txRef = `MK_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Configure Flutterwave payment
+      // Format phone number for Flutterwave
+      const formattedPhone = formatPhoneNumber(phoneNumber);
+      
+      console.log('Processing payment with formatted phone:', formattedPhone);
+      
+      // Configure Flutterwave payment with all required parameters
       const paymentData = {
         tx_ref: txRef,
         authorization: 'FLWPUBK-4e096dbc78b9aed4cfaebd2c17916ddd-X', // Your real Flutterwave public key
@@ -72,19 +171,23 @@ const Payment = ({navigation}) => {
         currency: 'UGX',
         payment_options: 'mobilemoney',
         customer: {
-          email: 'patient@mobiklinic.com', // You can get this from user context if available
-          phone_number: phoneNumber,
+          email: user?.email || 'patient@mobiklinic.com',
+          phone_number: formattedPhone,
           name: userNames || 'MobiKlinic Patient',
         },
         customizations: {
           title: 'MobiKlinic Payment',
           description: `Payment for ${getServiceLabel(selectedService)}`,
-          logo: 'https://your-logo-url.com/logo.png',
+          logo: 'https://mobiklinic.com/logo.png',
         },
-        redirect_url: '',
+        redirect_url: 'https://mobiklinic.com/payment-success',
         meta: {
           service_type: selectedService,
           user_name: userNames,
+          patient_id: user?.id || 'unknown',
+        },
+        onRedirect: (data) => {
+          console.log('Payment redirect data:', data);
         },
       };
 
@@ -92,80 +195,243 @@ const Payment = ({navigation}) => {
       const handleOnRedirect = async (data) => {
         console.log('Payment response:', data);
         
-        if (data.status === 'successful') {
-          // Record transaction in backend
-          await recordTransaction(data);
+        // Check if data is a URL (hosted payment page)
+        if (typeof data === 'string' && data.includes('checkout.flutterwave.com')) {
+          console.log('Opening Flutterwave checkout URL:', data);
           
-          Alert.alert(
-            'Payment Successful',
-            `Payment of UGX ${amount} for ${getServiceLabel(selectedService)} has been processed successfully.`,
-            [
-              {
-                text: 'OK',
-                onPress: () => navigation.goBack(),
-              },
-            ]
-          );
-        } else {
-          Alert.alert('Payment Failed', 'Payment was not completed. Please try again.');
-        }
-        setIsLoading(false);
-      };
-
-      // Choose between real Flutterwave payment or simulation
-      if (USE_PAYMENT_SIMULATION) {
-        // SIMULATION MODE - For development/testing
-        if (!showPhoneInput) {
-          setShowPhoneInput(true);
-          setIsLoading(false);
+          try {
+            // Open the payment URL in the device's browser
+            console.log('Attempting to open URL:', data);
+            
+            // Try to open the URL directly first
+            try {
+              await Linking.openURL(data);
+              console.log('Successfully opened payment URL');
+              
+              // Show instructions to user
+              Alert.alert(
+                'Payment in Progress',
+                'You have been redirected to complete your payment. Please return to the app after completing the payment.',
+                [
+                  {
+                    text: 'I Completed Payment',
+                    onPress: () => {
+                      // Store transaction reference for verification
+                      setPendingTransactionRef(txRef);
+                      // For now, we'll simulate successful payment
+                      // In production, verify payment status with Flutterwave API
+                      verifyPaymentStatus(txRef);
+                    },
+                  },
+                  {
+                    text: 'Payment Failed/Cancelled',
+                    onPress: () => {
+                      Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
+                      setIsLoading(false);
+                    },
+                    style: 'cancel',
+                  },
+                ]
+              );
+            } catch (openError) {
+              console.error('Direct URL opening failed:', openError);
+              
+              // Fallback: Check if URL can be opened
+              const supported = await Linking.canOpenURL(data);
+              if (supported) {
+                await Linking.openURL(data);
+                
+                // Show instructions to user
+                Alert.alert(
+                  'Payment in Progress',
+                  'You have been redirected to complete your payment. Please return to the app after completing the payment.',
+                  [
+                    {
+                      text: 'I Completed Payment',
+                      onPress: () => {
+                        setPendingTransactionRef(txRef);
+                        verifyPaymentStatus(txRef);
+                      },
+                    },
+                    {
+                      text: 'Payment Failed/Cancelled',
+                      onPress: () => {
+                        Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
+                        setIsLoading(false);
+                      },
+                      style: 'cancel',
+                    },
+                  ]
+                );
+              } else {
+                // Final fallback: Use in-app WebView or show URL to user
+                console.log('URL cannot be opened automatically, offering alternatives');
+                Alert.alert(
+                  'Complete Payment',
+                  'Unable to open payment page automatically. Choose how to proceed:',
+                  [
+                    {
+                      text: 'Open in App',
+                      onPress: () => {
+                        // Navigate to WebView screen
+                        setPendingTransactionRef(txRef);
+                        navigation.navigate('PaymentWebView', {
+                          url: data,
+                          txRef: txRef,
+                          onPaymentComplete: () => verifyPaymentStatus(txRef),
+                          onPaymentCancel: () => {
+                            Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
+                            setIsLoading(false);
+                          }
+                        });
+                      },
+                    },
+                    {
+                      text: 'Copy Link',
+                      onPress: async () => {
+                        // Copy to clipboard if available
+                        try {
+                          const Clipboard = require('@react-native-clipboard/clipboard');
+                          await Clipboard.setString(data);
+                          Alert.alert(
+                            'Link Copied', 
+                            'Payment link copied to clipboard. Open it in your browser to complete payment.',
+                            [
+                              {
+                                text: 'I Completed Payment',
+                                onPress: () => {
+                                  setPendingTransactionRef(txRef);
+                                  verifyPaymentStatus(txRef);
+                                }
+                              },
+                              {
+                                text: 'Cancel',
+                                onPress: () => setIsLoading(false),
+                                style: 'cancel'
+                              }
+                            ]
+                          );
+                        } catch (clipboardError) {
+                          console.log('Clipboard not available');
+                          Alert.alert(
+                            'Payment Link', 
+                            `Please copy this payment link and open it in your browser:\n\n${data}`,
+                            [
+                              {
+                                text: 'I Completed Payment',
+                                onPress: () => {
+                                  setPendingTransactionRef(txRef);
+                                  verifyPaymentStatus(txRef);
+                                }
+                              },
+                              {
+                                text: 'Cancel',
+                                onPress: () => setIsLoading(false),
+                                style: 'cancel'
+                              }
+                            ]
+                          );
+                        }
+                      },
+                    },
+                    {
+                      text: 'Cancel',
+                      onPress: () => setIsLoading(false),
+                      style: 'cancel',
+                    },
+                  ]
+                );
+              }
+            }
+          } catch (error) {
+            console.error('Error opening payment URL:', error);
+            Alert.alert('Error', 'Unable to open payment page. Please try again.');
+            setIsLoading(false);
+          }
           return;
         }
+        
+        // Handle direct payment result (if not a URL)
+        if (data.status === 'successful') {
+          await handlePaymentSuccess(data);
+        } else {
+          Alert.alert('Payment Failed', 'Payment was not completed. Please try again.');
+          setIsLoading(false);
+        }
+      };
 
-        // Show loading for 2 seconds to simulate payment processing
-        console.log('Simulating payment processing...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      // Request phone number first if not provided
+      if (!showPhoneInput) {
+        setShowPhoneInput(true);
+        setIsLoading(false);
+        return;
+      }
 
-        // Simulate successful payment response
-        const simulatedResponse = {
-          status: 'successful',
-          transaction_id: txRef,
-          tx_ref: txRef,
-          amount: amount,
-          currency: 'UGX',
-        };
-
-        await recordTransaction(simulatedResponse);
+      // Check if FlutterwaveInit is available
+      if (typeof FlutterwaveInit !== 'function') {
+        // Fallback to payment simulation
+        console.log('Flutterwave module not available, using fallback simulation...');
         
         Alert.alert(
-          'Payment Simulation Successful',
-          `Demo payment of UGX ${amount} for ${getServiceLabel(selectedService)} has been simulated successfully. In production, this will process real payments via Flutterwave.`,
+          'Payment Processing',
+          'Flutterwave module is loading. For now, we will simulate the payment process.',
           [
             {
-              text: 'OK',
-              onPress: () => navigation.goBack(),
+              text: 'Cancel',
+              onPress: () => setIsLoading(false),
+              style: 'cancel',
+            },
+            {
+              text: 'Continue',
+              onPress: async () => {
+                // Show loading for 2 seconds to simulate payment processing
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Simulate successful payment response
+                const simulatedResponse = {
+                  status: 'successful',
+                  transaction_id: txRef,
+                  tx_ref: txRef,
+                  amount: amount,
+                  currency: 'UGX',
+                };
+
+                await recordTransaction(simulatedResponse);
+                
+                Alert.alert(
+                  'Payment Simulation Successful',
+                  `Demo payment of UGX ${amount} for ${getServiceLabel(selectedService)} has been simulated successfully. Flutterwave integration will be available after app rebuild.`,
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => navigation.goBack(),
+                    },
+                  ]
+                );
+                setIsLoading(false);
+              },
             },
           ]
         );
-      } else {
-        // REAL FLUTTERWAVE PAYMENT MODE - For production
-        if (!showPhoneInput) {
-          setShowPhoneInput(true);
-          setIsLoading(false);
-          return;
-        }
+        return;
+      }
 
-        // Initialize real Flutterwave payment
-        FlutterwaveInit(paymentData)
-          .then(handleOnRedirect)
-          .catch((error) => {
-            console.error('Flutterwave error:', error);
-            Alert.alert('Payment Error', 'Unable to initialize payment. Please try again.');
-            setIsLoading(false);
-          });
+      // Initialize Flutterwave payment with proper error handling
+      try {
+        const result = await FlutterwaveInit(paymentData);
+        console.log('Flutterwave initialization result:', result);
+        await handleOnRedirect(result);
+      } catch (error) {
+        console.error('Flutterwave initialization error:', error);
+        Alert.alert(
+          'Payment Error', 
+          'Unable to initialize payment. Please check your details and try again.\n\nError: ' + error.message
+        );
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Payment error:', error);
-      Alert.alert('Payment Failed', 'Unable to process payment. Please try again.');
+      Alert.alert('Payment Failed', error.message || 'Unable to process payment. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -178,7 +444,7 @@ const Payment = ({navigation}) => {
           amount: parseFloat(amount),
           service_paid_for: selectedService,
           user_name: userNames || 'Unknown User',
-          phone_number: phoneNumber,
+          phone_number: formatPhoneNumber(phoneNumber),
           payment_date: new Date().toISOString(),
           payment_status: paymentResponse.status === 'successful' ? 'completed' : 'failed',
           payment_method: 'mobile_money',
@@ -234,6 +500,7 @@ const Payment = ({navigation}) => {
     setAmount('');
     setPhoneNumber('');
     setShowPhoneInput(false);
+    setPendingTransactionRef(null);
   };
 
   if (isLoading) return <Loader />;
@@ -307,6 +574,22 @@ const Payment = ({navigation}) => {
             <Text style={styles.phoneHint}>
               Enter your mobile money number for payment
             </Text>
+          </View>
+        )}
+
+        {pendingTransactionRef && (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Pending Payment</Text>
+            <Text style={styles.pendingText}>
+              You have a pending payment. If you completed the payment, click below to verify.
+            </Text>
+            <TouchableOpacity
+              style={[styles.button, styles.verifyButton]}
+              onPress={() => verifyPaymentStatus(pendingTransactionRef)}
+            >
+              <Icon name="check-circle" size={18} color="white" style={styles.buttonIcon} />
+              <Text style={styles.verifyButtonText}>Verify Payment</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -457,6 +740,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.GRAY,
     fontStyle: 'italic',
+  },
+  pendingText: {
+    fontSize: 14,
+    color: COLORS.GRAY,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  verifyButton: {
+    backgroundColor: COLORS.SUCCESS || '#28a745',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  verifyButtonText: {
+    color: COLORS.WHITE,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   summaryCard: {
     backgroundColor: COLORS.PRIMARY,
