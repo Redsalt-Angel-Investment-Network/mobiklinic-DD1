@@ -30,7 +30,7 @@ const PaymentWebView = ({route, navigation}) => {
       customer_name: paymentData.customer.name,
       customizations_title: paymentData.customizations.title,
       customizations_description: paymentData.customizations.description,
-      redirect_url: 'https://mobiklinic.com/payment-success',
+      redirect_url: 'https://mobiklinic.com',
     });
     
     return `${baseUrl}?${params.toString()}`;
@@ -41,7 +41,7 @@ const PaymentWebView = ({route, navigation}) => {
     console.log('WebView URL:', url);
 
     // Check for payment completion
-    if (url.includes('payment-success') || url.includes('flutterwave.com/pay/confirmation')) {
+    if (url.includes('mobiklinic.com') || url.includes('flutterwave.com/pay/confirmation')) {
       // Extract transaction reference from URL if possible
       const urlParams = new URLSearchParams(url.split('?')[1]);
       const txRef = urlParams.get('tx_ref') || paymentData.tx_ref;

@@ -180,7 +180,7 @@ const Payment = ({navigation}) => {
           description: `Payment for ${getServiceLabel(selectedService)}`,
           logo: 'https://mobiklinic.com/logo.png',
         },
-        redirect_url: 'https://mobiklinic.com/payment-success',
+        redirect_url: 'https://mobiklinic.com',
         meta: {
           service_type: selectedService,
           user_name: userNames,

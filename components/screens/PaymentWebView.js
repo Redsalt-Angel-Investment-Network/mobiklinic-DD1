@@ -23,7 +23,8 @@ const PaymentWebView = ({route, navigation}) => {
     setCanGoBack(navState.canGoBack);
     
     // Check if payment was completed based on URL patterns
-    if (currentUrl.includes('payment-success') || 
+    // Now checking for mobiklinic.com redirect (our new success URL)
+    if (currentUrl.includes('mobiklinic.com') || 
         currentUrl.includes('successful') || 
         currentUrl.includes('completed')) {
       

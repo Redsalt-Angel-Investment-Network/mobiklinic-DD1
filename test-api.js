@@ -1,9 +1,14 @@
-// Test script to verify local API connectivity
-const testLocalAPI = async () => {
-  const baseUrl = 'http://192.168.100.9:1337';
+// Test script to verify API connectivity
+const testAPI = async () => {
+  // Using production API
+  const baseUrl = 'https://mk-be-strapi-production.up.railway.app';
+  
+  // For local testing, uncomment below:
+  // const baseUrl = 'http://192.168.100.9:1337';
   
   try {
     console.log('Testing API connectivity...');
+    console.log('API URL:', baseUrl);
     
     // Test basic API endpoint
     const response = await fetch(`${baseUrl}/api/doctors`);
@@ -23,4 +28,4 @@ const testLocalAPI = async () => {
 };
 
 // Run the test
-testLocalAPI();
+testAPI();

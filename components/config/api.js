@@ -4,13 +4,13 @@
 
 const API_CONFIG = {
   // For physical device (replace with your computer's IP)
-  BASE_URL: 'http://192.168.100.9:1337',
+  // BASE_URL: 'http://192.168.100.9:1337',
   
   // For emulator/simulator
   // BASE_URL: 'http://localhost:1337',
   
   // For production
-  // BASE_URL: 'https://mk-be-strapi-production.up.railway.app',
+  BASE_URL: 'https://mk-be-strapi-production.up.railway.app',
 };
 
 export const API_ENDPOINTS = {
