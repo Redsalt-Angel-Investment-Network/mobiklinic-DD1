@@ -32,8 +32,7 @@ const SignUp = ({navigation}) => {
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
     username: Yup.string()
-      .required('Start with Area Code e.g 2567XXXXXX')
-      .min(12, 'Password must be at least 13 characters'),
+      .required('Start with Area Code e.g 2567XXXXXX'),
     email: Yup.string()
       .email('Invalid email address')
       .required('Email is required'),
@@ -42,7 +41,7 @@ const SignUp = ({navigation}) => {
       .min(6, 'Password must be at least 6 characters'),
     confirmPassword: Yup.string()
       .required('Confirm password is required')
-      .oneOf([Yup.ref('password'), null], 'Passwords must match'), // Compare with password field
+      .oneOf([Yup.ref('password'), null], 'Passwords must match'),
   });
   const formik = useFormik({
     initialValues: {
@@ -51,7 +50,6 @@ const SignUp = ({navigation}) => {
       username: '',
       email: '',
       password: '',
-      confirmPassword: '',
       confirmPassword: '',
     },
     validationSchema: SignUpSchema,

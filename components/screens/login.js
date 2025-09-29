@@ -266,12 +266,12 @@ const Login = ({navigation}) => {
             />
           </TouchableOpacity>
         )}
-        {/* <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
           <Text style={styles.linkItem}>Forgot Password?</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('signUp')}>
           <Text style={styles.linkItem}>Don't have an Account? Sign up</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
     </View>
   );
