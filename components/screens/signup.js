@@ -13,6 +13,7 @@ import {
   Button,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import {Picker} from '@react-native-picker/picker';
 import {CustomStatusBar} from '../ui/custom.status.bar';
 import Loader from '../ui/loader';
 
@@ -20,6 +21,7 @@ import {COLORS, DIMENS} from '../constants/styles';
 import {API_URL} from '@env';
 import axios from 'axios';
 import DataResultsContext from '../contexts/DataResultsContext';
+import {countryData} from '../simprints/country.selector';
 
 const SignUp = ({navigation}) => {
   const {setUserNames} = useContext(DataResultsContext);
@@ -42,6 +44,7 @@ const SignUp = ({navigation}) => {
     confirmPassword: Yup.string()
       .required('Confirm password is required')
       .oneOf([Yup.ref('password'), null], 'Passwords must match'),
+    country: Yup.string().required('Country is required'),
   });
   const formik = useFormik({
     initialValues: {
@@ -51,6 +54,7 @@ const SignUp = ({navigation}) => {
       email: '',
       password: '',
       confirmPassword: '',
+      country: 'Uganda',
     },
     validationSchema: SignUpSchema,
 
@@ -68,6 +72,7 @@ const SignUp = ({navigation}) => {
             lastName: values.lastName,
             password: values.password,
             username: values.username,
+            country: values.country,
           },
         );
 
@@ -188,6 +193,26 @@ const SignUp = ({navigation}) => {
           </View>
           {touched.email && errors.email && (
             <Text style={styles.errorText}>{errors.email}</Text>
+          )}
+
+          <View style={styles.labeled}>
+            <Text style={styles.label}>Country:</Text>
+            <Picker
+              selectedValue={values.country}
+              onValueChange={handleChange('country')}
+              style={[styles.input, {color: COLORS.BLACK}]}
+              dropdownIconColor={COLORS.GREY}>
+              {countryData.map(country => (
+                <Picker.Item
+                  key={country.name}
+                  label={country.name}
+                  value={country.name}
+                />
+              ))}
+            </Picker>
+          </View>
+          {touched.country && errors.country && (
+            <Text style={styles.errorText}>{errors.country}</Text>
           )}
 
           <View style={styles.labeled}>
