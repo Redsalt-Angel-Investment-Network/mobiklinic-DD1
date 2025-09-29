@@ -30,14 +30,20 @@ const SignUp = ({navigation}) => {
   const [process, setProcess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Generate random email if user doesn't provide one
+  const generateRandomEmail = () => {
+    const randomId = Math.random().toString(36).substr(2, 9);
+    const timestamp = Date.now();
+    return `user${randomId}${timestamp}@mobiklinic.temp`;
+  };
+
   const SignUpSchema = Yup.object().shape({
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
     username: Yup.string()
       .required('Start with Area Code e.g 2567XXXXXX'),
     email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
+      .email('Invalid email address'),
     password: Yup.string()
       .required('Password is required')
       .min(6, 'Password must be at least 6 characters'),
@@ -64,10 +70,13 @@ const SignUp = ({navigation}) => {
         return;
       }
       try {
+        // Use provided email or generate a random one
+        const emailToUse = values.email.trim() || generateRandomEmail();
+        
         const response = await axios.post(
           `${API_URL}/api/auth/local/register`,
           {
-            email: values.email,
+            email: emailToUse,
             firstName: values.firstName,
             lastName: values.lastName,
             password: values.password,
@@ -181,7 +190,7 @@ const SignUp = ({navigation}) => {
             <Text style={styles.errorText}>{errors.username}</Text>
           )}
           <View style={styles.labeled}>
-            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.label}>Email (Optional):</Text>
             <TextInput
               placeholder="Enter your email address"
               value={values.email}
