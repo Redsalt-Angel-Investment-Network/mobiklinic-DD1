@@ -97,13 +97,35 @@ const SignUp = ({navigation}) => {
           ]);
         }
       } catch (error) {
-        console.error(error.response.data);
-        const errorMessage =
-          error.response.data && error.response.data.message
-            ? error.response.data.message.join(', ')
-            : 'Registration failed. Please try again.';
+        console.error(error.response?.data);
+        
+        let errorMessage = 'Registration failed. Please try again.';
+        let alertTitle = 'Sign up failure';
+        
+        if (error.response?.data?.error?.message) {
+          const backendMessage = error.response.data.error.message;
+          
+          // Check for phone number/username already exists
+          if (backendMessage.includes('Email or Username are already taken') || 
+              backendMessage.includes('Username is already taken') ||
+              backendMessage.includes('already taken')) {
+            alertTitle = 'Phone Number Already Exists';
+            errorMessage = `This phone number (${values.username}) is already registered.\n\nPlease try:\n• Logging in if you have an account\n• Using "Forgot Password" to reset your password\n• Contact support at +256784528444`;
+          } else if (backendMessage.includes('Email')) {
+            alertTitle = 'Email Already Exists';
+            errorMessage = 'This email address is already registered. Please use a different email or try logging in.';
+          } else {
+            errorMessage = backendMessage;
+          }
+        } else if (error.response?.data?.message) {
+          // Handle array of messages
+          const messages = Array.isArray(error.response.data.message) 
+            ? error.response.data.message 
+            : [error.response.data.message];
+          errorMessage = messages.join(', ');
+        }
 
-        Alert.alert('Sign up failure', errorMessage, [
+        Alert.alert(alertTitle, errorMessage, [
           {
             text: 'OK',
             onPress: () => setIsLoading(false),
