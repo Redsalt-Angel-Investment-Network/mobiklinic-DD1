@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import axios from 'axios';
 import {URLS} from '../constants/API';
@@ -15,27 +16,17 @@ import CopyRight from '../copyright';
 import {COLORS, DIMENS} from '../constants/styles';
 import CustomHeader from '../ui/custom-header';
 import Icon from 'react-native-vector-icons/Feather';
-import {Picker} from '@react-native-picker/picker';
 import {API_URL} from '@env';
 
-const areaCodes = [
-  {label: '+256', value: '+256'},
-  {label: '+1', value: '+1'},
-  {label: '+254', value: '+254'},
-  {label: '+255', value: '+255'},
-];
-
 const ForgotPassword = ({navigation}) => {
-  const [selectedAreaCode, setSelectedAreaCode] = useState('+1');
   const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleResetPassword = async () => {
     try {
-      const formattedPhoneNumber = selectedAreaCode + phoneNumber;
-      // Log the correctly formatted phone number before sending the request
-      console.log('Phone Number Sent to Database:', formattedPhoneNumber);
+      // Log the phone number before sending the request
+      console.log('Phone Number Sent to Database:', phoneNumber);
       await axios.post(`${API_URL}/auth/forgot-password`, {
-        phone: formattedPhoneNumber,
+        phone: phoneNumber,
       });
 
       Alert.alert(
@@ -47,6 +38,25 @@ const ForgotPassword = ({navigation}) => {
       Alert.alert('Error', 'Failed to send reset password request.');
       console.log(error);
     }
+  };
+
+  const openWhatsApp = () => {
+    const phoneNumber = '+256784528444';
+    const message = 'Hello, I need help changing my MobiKlinic password.';
+    const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) {
+          return Linking.openURL(url);
+        } else {
+          Alert.alert('WhatsApp not installed', 'Please install WhatsApp to contact support.');
+        }
+      })
+      .catch(err => {
+        Alert.alert('Error', 'Unable to open WhatsApp.');
+        console.error('WhatsApp error:', err);
+      });
   };
 
   const _header = () => (
@@ -80,29 +90,14 @@ const ForgotPassword = ({navigation}) => {
           <Text style={styles.title}>Forgot Password</Text>
         </View>
         <Text style={styles.label}>
-          Select your area code and enter your phone number
+          Enter your phone number
         </Text>
         <View style={styles.inputContainer}>
-          <Picker
-            selectedValue={selectedAreaCode}
-            style={[styles.picker, {color: COLORS.BLACK}]}
-            placeholderTextColor={COLORS.BLACK}
-            onValueChange={itemValue => setSelectedAreaCode(itemValue)}
-            dropdownIconColor={COLORS.GREY_LIGHTER}>
-            {areaCodes.map(areaCode => (
-              <Picker.Item
-                placeholderTextColor={COLORS.BLACK}
-                key={areaCode.value}
-                label={areaCode.label}
-                value={areaCode.value}
-              />
-            ))}
-          </Picker>
           <TextInput
             placeholder="Phone Number"
             placeholderTextColor={COLORS.GREY}
             value={phoneNumber}
-            style={[styles.input, {paddingHorizontal: 30}]}
+            style={styles.fullInput}
             onChangeText={text => setPhoneNumber(text)}
             keyboardType="phone-pad"
           />
@@ -110,6 +105,17 @@ const ForgotPassword = ({navigation}) => {
         <TouchableOpacity style={styles.submit} onPress={handleResetPassword}>
           <Text style={styles.submitText}>Reset Password</Text>
         </TouchableOpacity>
+        
+        <View style={styles.contactContainer}>
+          <Text style={styles.orText}>Or</Text>
+          <Text style={styles.contactText}>
+            Contact Mobiklinic Tech team on WhatsApp
+          </Text>
+          <TouchableOpacity onPress={openWhatsApp} style={styles.whatsappButton}>
+            <Text style={styles.phoneNumber}>+256784528444</Text>
+          </TouchableOpacity>
+          <Text style={styles.contactSubText}>to change your password</Text>
+        </View>
       </View>
 
       <CopyRight />
@@ -145,12 +151,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 15,
   },
-  picker: {
-    flex: 1,
-    height: 50,
-    width: 50,
-    paddingHorizontal: 20,
-  },
   input: {
     flex: 2,
     color: COLORS.BLACK,
@@ -180,5 +180,50 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  contactContainer: {
+    marginTop: 30,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  orText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
+    marginBottom: 15,
+  },
+  contactText: {
+    fontSize: 14,
+    color: COLORS.BLACK,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  contactSubText: {
+    fontSize: 14,
+    color: COLORS.BLACK,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  whatsappButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#25D366',
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  phoneNumber: {
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  fullInput: {
+    flex: 1,
+    color: COLORS.BLACK,
+    fontWeight: 'medium',
+    fontSize: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
 });

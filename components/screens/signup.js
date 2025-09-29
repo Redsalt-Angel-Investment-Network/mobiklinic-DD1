@@ -180,7 +180,7 @@ const SignUp = ({navigation}) => {
           <View style={styles.labeled}>
             <Text style={styles.label}>Phone Number:</Text>
             <TextInput
-              placeholder="eg 256785XXXXXX"
+              placeholder="Enter your phone number"
               value={values.username}
               style={styles.input}
               onChangeText={handleChange('username')}

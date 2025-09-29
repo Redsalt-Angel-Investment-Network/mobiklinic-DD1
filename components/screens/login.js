@@ -214,7 +214,7 @@ const Login = ({navigation}) => {
             onChangeText={text => setUser({...user, identifier: text})}
             value={user.identifier}
             keyboardType="phone-pad"
-            placeholder="Enter Phone Number"
+            placeholder="Enter Your Phone Number"
           />
         </View>
 
@@ -228,7 +228,7 @@ const Login = ({navigation}) => {
             selectionColor={COLORS.SECONDARY}
             onChangeText={text => setUser({...user, password: text})}
             value={user.password}
-            placeholder="Password"
+            placeholder="Enter Password"
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Icon
@@ -266,10 +266,14 @@ const Login = ({navigation}) => {
             />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('ForgotPassword')}
+          style={styles.linkContainer}>
           <Text style={styles.linkItem}>Forgot Password?</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('signUp')}>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('signUp')}
+          style={styles.linkContainer}>
           <Text style={styles.linkItem}>Don't have an Account? Sign up</Text>
         </TouchableOpacity>
       </View>
@@ -313,6 +317,15 @@ const styles = StyleSheet.create({
     paddingTop: DIMENS.PADDING,
     textAlign: 'center',
     textDecorationLine: 'underline',
+    color: COLORS.WHITE,
+    fontSize: 16,
+    fontWeight: '600',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  linkContainer: {
+    marginVertical: 8,
+    alignItems: 'center',
   },
   formContainer: {
     flexGrow: 1,
