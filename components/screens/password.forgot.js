@@ -41,22 +41,41 @@ const ForgotPassword = ({navigation}) => {
   };
 
   const openWhatsApp = () => {
-    const phoneNumber = '+256784528444';
+    const phoneNumber = '256784528444'; // Remove + and leading zeros
     const message = 'Hello, I need help changing my MobiKlinic password.';
-    const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     
-    Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported) {
-          return Linking.openURL(url);
+    // Try multiple URL formats for better compatibility
+    const urls = [
+      `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`,
+      `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`,
+      `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`
+    ];
+    
+    const tryOpenURL = async (urlIndex = 0) => {
+      if (urlIndex >= urls.length) {
+        Alert.alert(
+          'Unable to open WhatsApp', 
+          'Please make sure WhatsApp is installed and try again, or contact support directly at +256784528444'
+        );
+        return;
+      }
+      
+      try {
+        const canOpen = await Linking.canOpenURL(urls[urlIndex]);
+        if (canOpen) {
+          await Linking.openURL(urls[urlIndex]);
         } else {
-          Alert.alert('WhatsApp not installed', 'Please install WhatsApp to contact support.');
+          // Try next URL format
+          tryOpenURL(urlIndex + 1);
         }
-      })
-      .catch(err => {
-        Alert.alert('Error', 'Unable to open WhatsApp.');
-        console.error('WhatsApp error:', err);
-      });
+      } catch (error) {
+        console.error(`Error with URL ${urls[urlIndex]}:`, error);
+        // Try next URL format
+        tryOpenURL(urlIndex + 1);
+      }
+    };
+    
+    tryOpenURL();
   };
 
   const _header = () => (
