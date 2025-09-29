@@ -99,8 +99,8 @@ android {
         applicationId "com.mobiklinicapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion 35
-        versionCode 16
-        versionName "16.0"
+        versionCode 17
+        versionName "17.0"
         multiDexEnabled true
     }
 
