@@ -142,7 +142,10 @@ const SignUp = ({navigation}) => {
         />
         <Text style={styles.title}>Sign up to become a Mobiklinic CHP.</Text>
       </View>
-      <ScrollView style={styles.body}>
+      <ScrollView 
+        style={styles.body}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
         <View style={styles.formContainer}>
           <View style={styles.labeled}>
             <Text style={styles.label}>First Name:</Text>
@@ -283,9 +286,11 @@ const SignUp = ({navigation}) => {
               color={COLORS.BLACK}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Login')}
+            style={styles.backToLoginContainer}>
             <Text style={styles.linkItem}>
-              Already have an account? Sign in
+              Back to Login
             </Text>
           </TouchableOpacity>
         </View>
@@ -302,7 +307,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
   },
   body: {
-    paddingTop: 50,
+    flex: 3,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -325,10 +333,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logoContainer: {
-    flexGrow: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: DIMENS.FORM.PADDING,
+    paddingVertical: 20,
+    paddingHorizontal: DIMENS.FORM.PADDING,
+    maxHeight: 150,
   },
   title: {
     color: COLORS.PRIMARY,
@@ -369,14 +378,22 @@ const styles = StyleSheet.create({
     paddingTop: DIMENS.PADDING,
     textAlign: 'center',
     textDecorationLine: 'underline',
+    color: COLORS.WHITE,
+    fontSize: 16,
+  },
+  backToLoginContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    alignItems: 'center',
   },
   formContainer: {
-    flexGrow: 1,
+    flex: 1,
     padding: DIMENS.FORM.PADDING,
-    justifyContent: 'center',
+    paddingBottom: 30,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     backgroundColor: COLORS.PRIMARY,
+    minHeight: 600,
   },
   input: {
     flex: 2,
