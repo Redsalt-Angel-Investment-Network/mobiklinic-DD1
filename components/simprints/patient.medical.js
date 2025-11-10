@@ -124,10 +124,10 @@ const PatientMedical = ({navigation, route}) => {
         new Date(state.dateOfDiagnosis),
         'yyyy-MM-dd',
       );
-      const formattedFollowUpDate = format(
-        new Date(state.followUpDate),
-        'yyyy-MM-dd',
-      );
+      // Format follow-up date only if it's provided (optional)
+      const formattedFollowUpDate = state.followUpDate 
+        ? format(new Date(state.followUpDate), 'yyyy-MM-dd')
+        : null;
 
       const conditionToPost =
         selectedCondition === 'Other' ? customCondition : selectedCondition; // Use custom condition when "Other" is selected
@@ -456,7 +456,7 @@ const PatientMedical = ({navigation, route}) => {
         </View>
 
         <View style={STYLES.labeled}>
-          <Text style={STYLES.label}>Follow Up date:</Text>
+          <Text style={STYLES.label}>Follow Up date (Optional):</Text>
           <TouchableOpacity
             style={STYLES.datePickerInput}
             placeholderTextColor={COLORS.GREY}
