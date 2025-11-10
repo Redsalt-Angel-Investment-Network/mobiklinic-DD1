@@ -1,10 +1,10 @@
 // Test script to verify API connectivity
 const testAPI = async () => {
   // Using production API
-  // const baseUrl = 'https://mk-be-strapi-production.up.railway.app';
+  const baseUrl = 'https://mk-be-strapi-production.up.railway.app';
   
   // For local testing, uncomment below:
-  const baseUrl = 'http://192.168.100.9:1337';
+  // const baseUrl = 'http://192.168.100.9:1337';
   
   try {
     console.log('Testing API connectivity...');
