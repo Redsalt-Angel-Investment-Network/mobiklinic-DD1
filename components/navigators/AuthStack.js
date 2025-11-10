@@ -36,6 +36,7 @@ import SelectNCDActivity from '../ncd/select.ncd';
 import HypertensionScreening from '../ncd/hypertension.screening';
 import DiabetesScreening from '../ncd/diabetes.screening';
 import MonitoringVisits from '../ncd/monitoring.visits';
+import MedicalAssessment from '../ncd/medical.assessment';
 import UrinalysisMonitoring from '../renal/urinalysis.monitoring';
 import {introspectionTypes} from 'graphql';
 import InspectionMonitoring from '../renal/inspection.monitoring';
@@ -226,6 +227,11 @@ function AuthStack() {
         name="MonitoringVisits"
         options={{headerShown: false}}
         component={MonitoringVisits}
+      />
+      <Stack.Screen
+        name="MedicalAssessment"
+        options={{headerShown: false}}
+        component={MedicalAssessment}
       />
       <Stack.Screen
         name="UrinalysisMonitoring"

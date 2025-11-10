@@ -96,7 +96,7 @@ const MonitoringVisits = ({navigation, route}) => {
           [
             {
               text: 'OK',
-              onPress: () => navigation.navigate('Home')
+              onPress: () => navigation.navigate('Dashboard')
             }
           ]
         );
