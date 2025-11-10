@@ -174,7 +174,7 @@ const SelectActivity = ({navigation, route}) => {
             <TouchableOpacity
               style={STYLES.card}
               onPress={() =>
-                navigation.navigate('NonCommunicableDiseases', {
+                navigation.navigate('SelectNCDActivity', {
                   patientId: patientId,
                   firstName: firstName,
                   lastName: lastName,

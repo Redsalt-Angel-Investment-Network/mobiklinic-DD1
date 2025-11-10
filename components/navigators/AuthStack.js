@@ -32,6 +32,7 @@ import Monitoring from '../renal/monitoring';
 import History from '../renal/history';
 import Inspection from '../renal/inspection.screening';
 import SelectRenalActivity from '../renal/select.renal';
+import SelectNCDActivity from '../ncd/select.ncd';
 import UrinalysisMonitoring from '../renal/urinalysis.monitoring';
 import {introspectionTypes} from 'graphql';
 import InspectionMonitoring from '../renal/inspection.monitoring';
@@ -202,6 +203,11 @@ function AuthStack() {
         name="SelectRenalActivity"
         options={{headerShown: false}}
         component={SelectRenalActivity}
+      />
+      <Stack.Screen
+        name="SelectNCDActivity"
+        options={{headerShown: false}}
+        component={SelectNCDActivity}
       />
       <Stack.Screen
         name="UrinalysisMonitoring"
