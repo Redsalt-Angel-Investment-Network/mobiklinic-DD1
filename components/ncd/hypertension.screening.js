@@ -142,8 +142,16 @@ const HypertensionScreening = ({navigation, route}) => {
       });
 
       if (response.status === 200) {
-        Alert.alert('Success', 'Hypertension screening saved successfully');
-        navigation.goBack();
+        Alert.alert(
+          'Success', 
+          'Hypertension screening saved successfully',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Home')
+            }
+          ]
+        );
       }
     } catch (error) {
       console.error('Error saving hypertension screening:', error);

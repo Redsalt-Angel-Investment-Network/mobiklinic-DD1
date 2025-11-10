@@ -129,8 +129,16 @@ const DiabetesScreening = ({navigation, route}) => {
       });
 
       if (response.status === 200) {
-        Alert.alert('Success', 'Diabetes screening saved successfully');
-        navigation.goBack();
+        Alert.alert(
+          'Success', 
+          'Diabetes screening saved successfully',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Home')
+            }
+          ]
+        );
       }
     } catch (error) {
       console.error('Error saving diabetes screening:', error);
