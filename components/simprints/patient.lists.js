@@ -30,60 +30,80 @@ const LabelValuePair = ({ label, value }) => (
   </View>
 );
 
-const DiagnosisCard = ({ diagnosis }) => (
-  <View style={styles.diagnosisItem}>
-    <Text style={[styles.accordionLabel, styles.diagnosisDate]}>
-      Diagnosis Date: <Text style={styles.accordionValue}>{diagnosis.dateOfDiagnosis}</Text>
-    </Text>
+const DiagnosisCard = ({ diagnosis }) => {
+  // Format date to dd-mm-yyyy
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     
-    <Text style={styles.accordionLabel}>
-      Condition: <Text style={styles.accordionValue}>{diagnosis.condition}</Text>
-    </Text>
+    // If already in dd/mm/yyyy format, convert to dd-mm-yyyy
+    if (dateString.includes('/')) {
+      return dateString.replace(/\//g, '-');
+    }
     
-    <Text style={styles.accordionLabel}>
-      Signs and Symptoms: <Text style={styles.accordionValue}>{diagnosis.impression}</Text>
-    </Text>
+    // If in ISO format (yyyy-mm-dd), convert to dd-mm-yyyy
+    if (dateString.includes('-') && dateString.length === 10) {
+      const [year, month, day] = dateString.split('-');
+      return `${day}-${month}-${year}`;
+    }
     
-    <Text style={styles.accordionLabel}>
-      Lab Tests: <Text style={styles.accordionValue}>{diagnosis.labTests || 'None'}</Text>
-    </Text>
-    
-    <Text style={styles.accordionLabel}>
-      Follow-up Date: <Text style={styles.accordionValue}>{diagnosis.followUpDate}</Text>
-    </Text>
-    
-    <Text style={styles.accordionLabel}>
-      Pregnancy Status: <Text style={styles.accordionValue}>{diagnosis.isPregnant ? 'Yes' : 'No'}</Text>
-    </Text>
-    
-    {diagnosis.medicines && diagnosis.medicines.length > 0 && (
-      <View style={styles.medicineList}>
-        <Text style={[styles.accordionLabel, { marginTop: 10 }]}>Prescribed Medicines:</Text>
-        {diagnosis.medicines.map((medicine, index) => (
-          <View key={index} style={styles.medicineItem}>
-            <Text style={styles.accordionLabel}>
-              Medicine Name: <Text style={styles.accordionValue}>{medicine.name}</Text>
-            </Text>
-            <Text style={styles.accordionLabel}>
-              Dosage: <Text style={styles.accordionValue}>{medicine.dosage}</Text>
-            </Text>
-            <Text style={styles.accordionLabel}>
-              Frequency: <Text style={styles.accordionValue}>{medicine.frequency}</Text>
-            </Text>
-            <Text style={styles.accordionLabel}>
-              Duration: <Text style={styles.accordionValue}>{medicine.duration} days</Text>
-            </Text>
-            {medicine.description && (
+    return dateString;
+  };
+
+  return (
+    <View style={styles.diagnosisItem}>
+      <Text style={[styles.accordionLabel, styles.diagnosisDate]}>
+        Diagnosis Date: <Text style={styles.accordionValue}>{formatDate(diagnosis.dateOfDiagnosis)}</Text>
+      </Text>
+      
+      <Text style={styles.accordionLabel}>
+        Condition: <Text style={styles.accordionValue}>{diagnosis.condition}</Text>
+      </Text>
+      
+      <Text style={styles.accordionLabel}>
+        Signs and Symptoms: <Text style={styles.accordionValue}>{diagnosis.impression}</Text>
+      </Text>
+      
+      <Text style={styles.accordionLabel}>
+        Lab Tests: <Text style={styles.accordionValue}>{diagnosis.labTests || 'None'}</Text>
+      </Text>
+      
+      <Text style={styles.accordionLabel}>
+        Follow-up Date: <Text style={styles.accordionValue}>{formatDate(diagnosis.followUpDate)}</Text>
+      </Text>
+      
+      <Text style={styles.accordionLabel}>
+        Pregnancy Status: <Text style={styles.accordionValue}>{diagnosis.isPregnant ? 'Yes' : 'No'}</Text>
+      </Text>
+      
+      {diagnosis.medicines && diagnosis.medicines.length > 0 && (
+        <View style={styles.medicineList}>
+          <Text style={[styles.accordionLabel, { marginTop: 10 }]}>Prescribed Medicines:</Text>
+          {diagnosis.medicines.map((medicine, index) => (
+            <View key={index} style={styles.medicineItem}>
               <Text style={styles.accordionLabel}>
-                Notes: <Text style={styles.accordionValue}>{medicine.description}</Text>
+                Medicine Name: <Text style={styles.accordionValue}>{medicine.name}</Text>
               </Text>
-            )}
-          </View>
-        ))}
-      </View>
-    )}
-  </View>
-);
+              <Text style={styles.accordionLabel}>
+                Dosage: <Text style={styles.accordionValue}>{medicine.dosage}</Text>
+              </Text>
+              <Text style={styles.accordionLabel}>
+                Frequency: <Text style={styles.accordionValue}>{medicine.frequency}</Text>
+              </Text>
+              <Text style={styles.accordionLabel}>
+                Duration: <Text style={styles.accordionValue}>{medicine.duration} days</Text>
+              </Text>
+              {medicine.description && (
+                <Text style={styles.accordionLabel}>
+                  Notes: <Text style={styles.accordionValue}>{medicine.description}</Text>
+                </Text>
+              )}
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
 
 const PatientCard = ({ patient }) => {
   const navigation = useNavigation();
@@ -173,6 +193,24 @@ const PatientCard = ({ patient }) => {
     return age;
   };
 
+  // Format date to dd-mm-yyyy
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    
+    // If already in dd/mm/yyyy format, convert to dd-mm-yyyy
+    if (dateString.includes('/')) {
+      return dateString.replace(/\//g, '-');
+    }
+    
+    // If in ISO format (yyyy-mm-dd), convert to dd-mm-yyyy
+    if (dateString.includes('-') && dateString.length === 10) {
+      const [year, month, day] = dateString.split('-');
+      return `${day}-${month}-${year}`;
+    }
+    
+    return dateString;
+  };
+
   const MedicalRecordSection = ({ title, isExpanded, onToggle, children }) => (
     <>
       <Text style={styles.sectionHeader}>{title}</Text>
@@ -207,20 +245,23 @@ const PatientCard = ({ patient }) => {
         <View style={styles.details}>
           <Text style={styles.sectionHeader}>Personal Information</Text>
           <LabelValuePair label="Sex" value={patient.sex} />
-          <LabelValuePair label="Date of Birth" value={patient.dateOfBirth} />
+          <LabelValuePair label="Date of Birth" value={formatDate(patient.dateOfBirth)} />
           <LabelValuePair label="Age" value={`${calculateAge(patient.dateOfBirth)} years`} />
+          <LabelValuePair label="Village" value={patient.village || 'Not specified'} />
           <LabelValuePair label="Occupation" value={patient.occuptation || 'Not specified'} />
           <LabelValuePair label="Marital Status" value={patient.maritalStatus || 'Not specified'} />
           <LabelValuePair label="Primary Language" value={patient.primaryLanguage || 'Not specified'} />
+          <LabelValuePair label="Height" value={patient.height ? `${patient.height} cm` : 'Not specified'} />
+          <LabelValuePair label="Weight" value={patient.weight ? `${patient.weight} kg` : 'Not specified'} />
+          <LabelValuePair label="Ethnicity" value={patient.ethinicity || 'Not specified'} />
+          <LabelValuePair label="Known Health Condition" value={patient.knownHealthCondition || 'None'} />
+          {patient.otherHealthCondition && (
+            <LabelValuePair label="Other Health Condition" value={patient.otherHealthCondition} />
+          )}
           
           <Text style={styles.sectionHeader}>Emergency Contact</Text>
           <LabelValuePair label="Next of Kin" value={patient.nextOfKin || 'Not specified'} />
           <LabelValuePair label="Next of Kin Contact" value={patient.nextOfKinContact || 'Not specified'} />
-          
-          <Text style={styles.sectionHeader}>Physical Characteristics</Text>
-          <LabelValuePair label="Height" value={`${patient.height || 'N/A'} cm`} />
-          <LabelValuePair label="Weight" value={`${patient.weight || 'N/A'} kg`} />
-          <LabelValuePair label="Ethnicity" value={patient.ethinicity || 'Not specified'} />
 
           {/* Screening Section */}
           {patient.renal_histories && patient.renal_histories.length > 0 && (
@@ -521,8 +562,8 @@ const PatientCard = ({ patient }) => {
                   <LabelValuePair label="Dose" value={vaccine.dose} />
                   <LabelValuePair label="Site Administered" value={vaccine.siteAdministered} />
                   <LabelValuePair label="Vaccinated By" value={vaccine.vaccinatedBy} />
-                  <LabelValuePair label="Date of Vaccination" value={vaccine.dateOfVaccination} />
-                  <LabelValuePair label="Next Dose Date" value={vaccine.dateForNextDose} />
+                  <LabelValuePair label="Date of Vaccination" value={formatDate(vaccine.dateOfVaccination)} />
+                  <LabelValuePair label="Next Dose Date" value={formatDate(vaccine.dateForNextDose)} />
                   <LabelValuePair label="Card Number" value={vaccine.cardNumber} />
                 </View>
               ))}
@@ -553,7 +594,7 @@ const PatientCard = ({ patient }) => {
                     </Text>
                     <Text style={styles.accordionLabel}>
                       Expected Date of Delivery:{' '}
-                      {antenantal.expectedDateOfDelivery}
+                      {formatDate(antenantal.expectedDateOfDelivery)}
                     </Text>
                     <Text style={styles.accordionLabel}>
                       Next of Kin: {antenantal.nextOfKin}
@@ -565,7 +606,7 @@ const PatientCard = ({ patient }) => {
                       Pregnancy Status: {antenantal.pregnancyStatus}
                     </Text>
                     <Text style={styles.accordionLabel}>
-                      Routine Visit Date: {antenantal.routineVisitDate}
+                      Routine Visit Date: {formatDate(antenantal.routineVisitDate)}
                     </Text>
                     <Text style={styles.accordionLabel}>
                       Weight: {antenantal.weight}
@@ -795,7 +836,7 @@ const PatientCard = ({ patient }) => {
                   {patient.monitoring_visits.map(visit => (
                     <View key={visit.id} style={styles.vaccinationItem}>
                       <Text style={styles.accordionLabel}>
-                        Visit Date: <Text style={styles.accordionValue}>{visit.visitDate || 'N/A'}</Text>
+                        Visit Date: <Text style={styles.accordionValue}>{formatDate(visit.visitDate)}</Text>
                       </Text>
                       
                       <Text style={styles.sectionSubHeader}>Patient Feedback</Text>
@@ -875,7 +916,7 @@ const PatientCard = ({ patient }) => {
                   {patient.medical_assessments.map(assessment => (
                     <View key={assessment.id} style={styles.vaccinationItem}>
                       <Text style={styles.accordionLabel}>
-                        Assessment Date: <Text style={styles.accordionValue}>{assessment.assessmentDate || 'N/A'}</Text>
+                        Assessment Date: <Text style={styles.accordionValue}>{formatDate(assessment.assessmentDate)}</Text>
                       </Text>
                       
                       <Text style={styles.sectionSubHeader}>Diagnosis</Text>
@@ -909,7 +950,7 @@ const PatientCard = ({ patient }) => {
                       
                       {assessment.nextFollowUpDate && (
                         <Text style={styles.accordionLabel}>
-                          Next Follow-Up: <Text style={styles.accordionValue}>{assessment.nextFollowUpDate}</Text>
+                          Next Follow-Up: <Text style={styles.accordionValue}>{formatDate(assessment.nextFollowUpDate)}</Text>
                         </Text>
                       )}
                       
