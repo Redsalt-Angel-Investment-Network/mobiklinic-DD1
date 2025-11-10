@@ -108,17 +108,17 @@ const DiagnosisCard = ({ diagnosis }) => {
 const PatientCard = ({ patient }) => {
   const navigation = useNavigation();
   const [expanded, setExpanded] = useState(false);
-  const [screeningExpanded, setScreeningExpanded] = useState(false);
-  const [monitoringExpanded, setMonitoringExpanded] = useState(false);
-  const [vaccinationExpanded, setVaccinationExpanded] = useState(false);
-  const [rftExpanded, setRFTExpanded] = useState(false);
-  const [antenantalExpanded, setAntenantalExpanded] = useState(false);
-  const [diagnosisExpanded, setDiagnosisExpanded] = useState(false);
-  const [drugsExpanded, setDrugsExpanded] = useState(false);
-  const [hypertensionExpanded, setHypertensionExpanded] = useState(false);
-  const [diabetesExpanded, setDiabetesExpanded] = useState(false);
-  const [monitoringVisitsExpanded, setMonitoringVisitsExpanded] = useState(false);
-  const [medicalAssessmentExpanded, setMedicalAssessmentExpanded] = useState(false);
+  const [screeningExpanded, setScreeningExpanded] = useState(true);
+  const [monitoringExpanded, setMonitoringExpanded] = useState(true);
+  const [vaccinationExpanded, setVaccinationExpanded] = useState(true);
+  const [rftExpanded, setRFTExpanded] = useState(true);
+  const [antenantalExpanded, setAntenantalExpanded] = useState(true);
+  const [diagnosisExpanded, setDiagnosisExpanded] = useState(true);
+  const [drugsExpanded, setDrugsExpanded] = useState(true);
+  const [hypertensionExpanded, setHypertensionExpanded] = useState(true);
+  const [diabetesExpanded, setDiabetesExpanded] = useState(true);
+  const [monitoringVisitsExpanded, setMonitoringVisitsExpanded] = useState(true);
+  const [medicalAssessmentExpanded, setMedicalAssessmentExpanded] = useState(true);
 
   const toggleAccordion = () => {
     setExpanded(!expanded);

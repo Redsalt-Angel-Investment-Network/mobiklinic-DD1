@@ -225,7 +225,7 @@ const MedicalAssessment = ({navigation, route}) => {
                   style={[styles.input, styles.drugFieldSpacing]}
                   value={drug.dose}
                   onChangeText={(value) => updateDrug(index, 'dose', value)}
-                  placeholder="Dose (e.g., 2)"
+                  placeholder="Dose (e.g., 2x3)"
                   placeholderTextColor={COLORS.GRAY}
                 />
                 
