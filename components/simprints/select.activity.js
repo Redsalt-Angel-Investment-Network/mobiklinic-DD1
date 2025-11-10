@@ -62,20 +62,21 @@ const SelectActivity = ({navigation, route}) => {
       <StatusBar backgroundColor={COLORS.WHITE_LOW} barStyle="dark-content" />
       {/* {_header()} */}
 
-      <View style={STYLES.wrap}>
-        <Image
-          style={{width: 70, height: 70}}
-          source={require('../imgs/logo.png')}
-        />
-        <Text style={STYLES.title}>Mobiklinic</Text>
-        <Text style={STYLES.text}>
-          Name: {'\t'}
-          <Text style={{textDecorationLine: 'underline'}}>
-            {firstName} {'\t'} {lastName}
+      <ScrollView contentContainerStyle={STYLES.scrollContent}>
+        <View style={STYLES.wrap}>
+          <Image
+            style={{width: 70, height: 70}}
+            source={require('../imgs/logo.png')}
+          />
+          <Text style={STYLES.title}>Mobiklinic</Text>
+          <Text style={STYLES.text}>
+            Name: {'\t'}
+            <Text style={{textDecorationLine: 'underline'}}>
+              {firstName} {'\t'} {lastName}
+            </Text>
           </Text>
-        </Text>
 
-        <View style={STYLES.btnContainer}>
+          <View style={STYLES.btnContainer}>
           <View style={[STYLES.column, STYLES.rightPad]}>
             <View style={STYLES.row}>
               <TouchableOpacity
@@ -168,19 +169,43 @@ const SelectActivity = ({navigation, route}) => {
           </View>
         </View>
 
-        <View>
-          <TouchableOpacity
-            style={STYLES.buttonSec}
-            onPress={() => navigation.navigate('Dashboard')}>
-            <Text style={STYLES.buttonText}>
-              <Icon name="arrow-left" size={18} color={COLORS.PRIMARY} />
-              Home Page
-            </Text>
-          </TouchableOpacity>
-        </View>
+          {/* Non Communicable Diseases - Full Width Row */}
+          <View style={STYLES.fullWidthRow}>
+            <TouchableOpacity
+              style={STYLES.card}
+              onPress={() =>
+                navigation.navigate('NonCommunicableDiseases', {
+                  patientId: patientId,
+                  firstName: firstName,
+                  lastName: lastName,
+                })
+              }>
+              <View style={STYLES.cardIcon}>
+                <MIcon
+                  name="heart-pulse"
+                  size={45}
+                  strokeSize={3}
+                  color={COLORS.BLACK}
+                />
+              </View>
+              <Text style={STYLES.cardTitle}>Non Communicable Diseases</Text>
+            </TouchableOpacity>
+          </View>
 
-        <CopyRight />
-      </View>
+          <View>
+            <TouchableOpacity
+              style={STYLES.buttonSec}
+              onPress={() => navigation.navigate('Dashboard')}>
+              <Text style={STYLES.buttonText}>
+                <Icon name="arrow-left" size={18} color={COLORS.PRIMARY} />
+                Home Page
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <CopyRight />
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -192,6 +217,9 @@ const STYLES = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.WHITE_LOW,
     paddingTop: 50,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     flex: 1,
@@ -261,7 +289,8 @@ const STYLES = StyleSheet.create({
     justifyContent: 'space-between',
     height: 300,
     padding: 10,
-    marginVertical: 50,
+    marginVertical: 20,
+    marginBottom: 10,
   },
   column: {
     flex: 1,
@@ -340,6 +369,13 @@ const STYLES = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: COLORS.BLACK,
+  },
+  fullWidthRow: {
+    paddingHorizontal: 10,
+    height: 140,
+    marginBottom: 10,
+    marginTop: 0,
+    width: '100%',
   },
   copy: {
     color: '#888',
