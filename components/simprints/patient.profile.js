@@ -127,7 +127,9 @@ const PatientData = ({navigation}) => {
     nextOfKinContact: '',
     ethinicity: '',
     occupation: '',
-    ethinicity: '',
+    village: '',
+    knownHealthCondition: '',
+    otherHealthCondition: '',
   });
 
   const handleSubmit = async () => {
@@ -165,6 +167,9 @@ const PatientData = ({navigation}) => {
           nextOfKinContact: state.nextOfKinContact,
           ethinicity: selectedEthnicity,
           occuptation: state.occupation,
+          village: state.village,
+          knownHealthCondition: state.knownHealthCondition,
+          otherHealthCondition: state.knownHealthCondition === 'Other' ? state.otherHealthCondition : null,
           users_permissions_user: {
             id: userLog,
           },
@@ -458,6 +463,21 @@ const PatientData = ({navigation}) => {
               </Picker>
             </View>
 
+            {/* Village */}
+            <View style={STYLES.labeled}>
+              <Text style={STYLES.label}>Village:</Text>
+              <TextInput
+                style={[
+                  STYLES.field,
+                  {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+                ]}
+                placeholderTextColor={COLORS.GREY}
+                value={state.village}
+                onChangeText={text => setState({...state, village: text})}
+                placeholder="Enter village"
+              />
+            </View>
+
             {/* primary language */}
             <View style={STYLES.labeled} placeholderTextColor="rgba(0,0,0,0.7)">
               <Text style={STYLES.label}>Primary Language:</Text>
@@ -498,6 +518,38 @@ const PatientData = ({navigation}) => {
               </Picker>
             </View>
           </>
+        )}
+
+        {/* Known Health Condition */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Known Health Condition:</Text>
+          <Picker
+            selectedValue={state.knownHealthCondition}
+            style={[STYLES.field, {color: COLORS.BLACK}]}
+            onValueChange={(value) => setState({...state, knownHealthCondition: value})}>
+            <Picker.Item label="Select condition" value="" />
+            <Picker.Item label="Hypertension" value="Hypertension" />
+            <Picker.Item label="Diabetes" value="Diabetes" />
+            <Picker.Item label="Both" value="Both" />
+            <Picker.Item label="Other" value="Other" />
+          </Picker>
+        </View>
+
+        {/* Other Health Condition (conditional) */}
+        {state.knownHealthCondition === 'Other' && (
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Specify Condition:</Text>
+            <TextInput
+              style={[
+                STYLES.field,
+                {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+              ]}
+              placeholderTextColor={COLORS.GREY}
+              value={state.otherHealthCondition}
+              onChangeText={text => setState({...state, otherHealthCondition: text})}
+              placeholder="Enter health condition"
+            />
+          </View>
         )}
 
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
