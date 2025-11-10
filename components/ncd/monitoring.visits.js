@@ -147,6 +147,7 @@ const MonitoringVisits = ({navigation, route}) => {
               onChangeText={setVisitDate}
               placeholder="YYYY-MM-DD"
               placeholderTextColor={COLORS.GRAY}
+              editable={false}
             />
           </View>
 
