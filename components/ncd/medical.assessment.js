@@ -8,7 +8,9 @@ import {
   Text,
   StyleSheet,
   StatusBar,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
 import {COLORS} from '../constants/styles';
@@ -39,6 +41,8 @@ const MedicalAssessment = ({navigation, route}) => {
 
   // Next Follow-Up Date
   const [nextFollowUpDate, setNextFollowUpDate] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Referred to Facility
   const [referredToFacility, setReferredToFacility] = useState('');
@@ -60,6 +64,14 @@ const MedicalAssessment = ({navigation, route}) => {
     const newDrugs = [...drugs];
     newDrugs[index][field] = value;
     setDrugs(newDrugs);
+  };
+
+  const onDateChange = (event, date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (date) {
+      setSelectedDate(date);
+      setNextFollowUpDate(date.toISOString().split('T')[0]);
+    }
   };
 
   const handleSubmit = async () => {
@@ -213,7 +225,7 @@ const MedicalAssessment = ({navigation, route}) => {
                   style={[styles.input, styles.drugFieldSpacing]}
                   value={drug.dose}
                   onChangeText={(value) => updateDrug(index, 'dose', value)}
-                  placeholder="Dose (e.g., 500mg)"
+                  placeholder="Dose (e.g., 2)"
                   placeholderTextColor={COLORS.GRAY}
                 />
                 
@@ -245,13 +257,23 @@ const MedicalAssessment = ({navigation, route}) => {
           {/* Next Follow-Up Date */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Next Follow-Up Date</Text>
-            <TextInput
-              style={styles.input}
-              value={nextFollowUpDate}
-              onChangeText={setNextFollowUpDate}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={COLORS.GRAY}
-            />
+            <TouchableOpacity 
+              style={styles.datePickerButton}
+              onPress={() => setShowDatePicker(true)}>
+              <Text style={styles.datePickerText}>
+                {nextFollowUpDate || 'Select Date'}
+              </Text>
+              <Icon name="calendar" size={20} color={COLORS.PRIMARY} />
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
           </View>
 
           {/* Referred to Facility */}
@@ -453,6 +475,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.BLACK,
     fontWeight: 'bold',
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.GRAY,
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: COLORS.WHITE,
+  },
+  datePickerText: {
+    fontSize: 15,
+    color: COLORS.BLACK,
   },
 });
 
