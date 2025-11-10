@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import {COLORS, DIMENS} from '../constants/styles';
 import {API_URL} from '@env';
@@ -94,6 +95,10 @@ const PatientCard = ({ patient }) => {
   const [antenantalExpanded, setAntenantalExpanded] = useState(false);
   const [diagnosisExpanded, setDiagnosisExpanded] = useState(false);
   const [drugsExpanded, setDrugsExpanded] = useState(false);
+  const [hypertensionExpanded, setHypertensionExpanded] = useState(false);
+  const [diabetesExpanded, setDiabetesExpanded] = useState(false);
+  const [monitoringVisitsExpanded, setMonitoringVisitsExpanded] = useState(false);
+  const [medicalAssessmentExpanded, setMedicalAssessmentExpanded] = useState(false);
 
   const toggleAccordion = () => {
     setExpanded(!expanded);
@@ -118,6 +123,18 @@ const PatientCard = ({ patient }) => {
   };
   const toggleDrugs = () => {
     setDrugsExpanded(!drugsExpanded);
+  };
+  const toggleHypertension = () => {
+    setHypertensionExpanded(!hypertensionExpanded);
+  };
+  const toggleDiabetes = () => {
+    setDiabetesExpanded(!diabetesExpanded);
+  };
+  const toggleMonitoringVisits = () => {
+    setMonitoringVisitsExpanded(!monitoringVisitsExpanded);
+  };
+  const toggleMedicalAssessment = () => {
+    setMedicalAssessmentExpanded(!medicalAssessmentExpanded);
   };
   const handleRedirect = () => {
     console.log('Patient ID:', patient.id);
@@ -598,6 +615,320 @@ const PatientCard = ({ patient }) => {
                 <View style={styles.vaccinationContainer}>
                   {patient.diagnoses.map(diagnosis => (
                     <DiagnosisCard key={diagnosis.id} diagnosis={diagnosis} />
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {/* NCD - Hypertension Screening */}
+          {patient.hypertension_screenings && patient.hypertension_screenings.length > 0 && (
+            <>
+              <Text style={styles.sectionHeader}>Non Communicable Diseases</Text>
+              <TouchableOpacity onPress={toggleHypertension} style={styles.vaccinationHeader}>
+                <Text style={styles.accordionHeaderText}>
+                  Hypertension Screening ({patient.hypertension_screenings.length})
+                </Text>
+                <FontAwesomeIcon
+                  name={hypertensionExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={15}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              {!hypertensionExpanded && (
+                <View style={styles.vaccinationContainer}>
+                  {patient.hypertension_screenings.map(screening => (
+                    <View key={screening.id} style={styles.vaccinationItem}>
+                      <Text style={styles.sectionSubHeader}>History & Symptoms</Text>
+                      <Text style={styles.accordionLabel}>
+                        Had BP Measured: <Text style={styles.accordionValue}>{screening.hadBPMeasured}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Known High BP: <Text style={styles.accordionValue}>{screening.knownHighBP}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Taking Medication: <Text style={styles.accordionValue}>{screening.takingMedication}</Text>
+                      </Text>
+                      {screening.medicationNames && (
+                        <Text style={styles.accordionLabel}>
+                          Medications: <Text style={styles.accordionValue}>{screening.medicationNames}</Text>
+                        </Text>
+                      )}
+                      
+                      {screening.symptoms && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>Symptoms</Text>
+                          <Text style={styles.accordionValue}>{screening.symptoms}</Text>
+                        </>
+                      )}
+                      
+                      <Text style={styles.sectionSubHeader}>Clinical Data</Text>
+                      {screening.bloodPressure && (
+                        <Text style={styles.accordionLabel}>
+                          Blood Pressure: <Text style={styles.accordionValue}>{screening.bloodPressure}</Text>
+                        </Text>
+                      )}
+                      {screening.temperature && (
+                        <Text style={styles.accordionLabel}>
+                          Temperature: <Text style={styles.accordionValue}>{screening.temperature}</Text>
+                        </Text>
+                      )}
+                      {screening.pulseRate && (
+                        <Text style={styles.accordionLabel}>
+                          Pulse Rate: <Text style={styles.accordionValue}>{screening.pulseRate}</Text>
+                        </Text>
+                      )}
+                      {screening.notes && (
+                        <Text style={styles.accordionLabel}>
+                          Notes: <Text style={styles.accordionValue}>{screening.notes}</Text>
+                        </Text>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {/* NCD - Diabetes Screening */}
+          {patient.diabetes_screenings && patient.diabetes_screenings.length > 0 && (
+            <>
+              {(!patient.hypertension_screenings || patient.hypertension_screenings.length === 0) && (
+                <Text style={styles.sectionHeader}>Non Communicable Diseases</Text>
+              )}
+              <TouchableOpacity onPress={toggleDiabetes} style={styles.vaccinationHeader}>
+                <Text style={styles.accordionHeaderText}>
+                  Diabetes Screening ({patient.diabetes_screenings.length})
+                </Text>
+                <FontAwesomeIcon
+                  name={diabetesExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={15}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              {!diabetesExpanded && (
+                <View style={styles.vaccinationContainer}>
+                  {patient.diabetes_screenings.map(screening => (
+                    <View key={screening.id} style={styles.vaccinationItem}>
+                      <Text style={styles.sectionSubHeader}>History & Symptoms</Text>
+                      <Text style={styles.accordionLabel}>
+                        Told Have Diabetes: <Text style={styles.accordionValue}>{screening.toldHaveDiabetes}</Text>
+                      </Text>
+                      {screening.howLongHadIt && (
+                        <Text style={styles.accordionLabel}>
+                          Duration: <Text style={styles.accordionValue}>{screening.howLongHadIt}</Text>
+                        </Text>
+                      )}
+                      <Text style={styles.accordionLabel}>
+                        Taking Medication: <Text style={styles.accordionValue}>{screening.takingMedication}</Text>
+                      </Text>
+                      {screening.medicationNames && (
+                        <Text style={styles.accordionLabel}>
+                          Medications: <Text style={styles.accordionValue}>{screening.medicationNames}</Text>
+                        </Text>
+                      )}
+                      
+                      {screening.symptoms && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>Symptoms</Text>
+                          <Text style={styles.accordionValue}>{screening.symptoms}</Text>
+                        </>
+                      )}
+                      
+                      <Text style={styles.sectionSubHeader}>Clinical Data</Text>
+                      {screening.bloodSugar && (
+                        <Text style={styles.accordionLabel}>
+                          Blood Sugar: <Text style={styles.accordionValue}>{screening.bloodSugar}</Text>
+                        </Text>
+                      )}
+                      {screening.bloodPressure && (
+                        <Text style={styles.accordionLabel}>
+                          Blood Pressure: <Text style={styles.accordionValue}>{screening.bloodPressure}</Text>
+                        </Text>
+                      )}
+                      {screening.weight && (
+                        <Text style={styles.accordionLabel}>
+                          Weight: <Text style={styles.accordionValue}>{screening.weight}</Text>
+                        </Text>
+                      )}
+                      {screening.temperature && (
+                        <Text style={styles.accordionLabel}>
+                          Temperature: <Text style={styles.accordionValue}>{screening.temperature}</Text>
+                        </Text>
+                      )}
+                      {screening.pulseRate && (
+                        <Text style={styles.accordionLabel}>
+                          Pulse Rate: <Text style={styles.accordionValue}>{screening.pulseRate}</Text>
+                        </Text>
+                      )}
+                      {screening.notes && (
+                        <Text style={styles.accordionLabel}>
+                          Notes: <Text style={styles.accordionValue}>{screening.notes}</Text>
+                        </Text>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {/* NCD - Monitoring Visits */}
+          {patient.monitoring_visits && patient.monitoring_visits.length > 0 && (
+            <>
+              {(!patient.hypertension_screenings || patient.hypertension_screenings.length === 0) && 
+               (!patient.diabetes_screenings || patient.diabetes_screenings.length === 0) && (
+                <Text style={styles.sectionHeader}>Non Communicable Diseases</Text>
+              )}
+              <TouchableOpacity onPress={toggleMonitoringVisits} style={styles.vaccinationHeader}>
+                <Text style={styles.accordionHeaderText}>
+                  Monitoring Visits ({patient.monitoring_visits.length})
+                </Text>
+                <FontAwesomeIcon
+                  name={monitoringVisitsExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={15}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              {!monitoringVisitsExpanded && (
+                <View style={styles.vaccinationContainer}>
+                  {patient.monitoring_visits.map(visit => (
+                    <View key={visit.id} style={styles.vaccinationItem}>
+                      <Text style={styles.accordionLabel}>
+                        Visit Date: <Text style={styles.accordionValue}>{visit.visitDate || 'N/A'}</Text>
+                      </Text>
+                      
+                      <Text style={styles.sectionSubHeader}>Patient Feedback</Text>
+                      <Text style={styles.accordionLabel}>
+                        Feeling Since Last Visit: <Text style={styles.accordionValue}>{visit.feelingSinceLastVisit}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Taking Medication as Prescribed: <Text style={styles.accordionValue}>{visit.takingMedicationPrescribed}</Text>
+                      </Text>
+                      <Text style={styles.accordionLabel}>
+                        Experienced Side Effects: <Text style={styles.accordionValue}>{visit.experiencedSideEffects}</Text>
+                      </Text>
+                      {visit.sideEffectsDescription && (
+                        <Text style={styles.accordionLabel}>
+                          Side Effects: <Text style={styles.accordionValue}>{visit.sideEffectsDescription}</Text>
+                        </Text>
+                      )}
+                      <Text style={styles.accordionLabel}>
+                        Checked BP/Blood Sugar: <Text style={styles.accordionValue}>{visit.checkedBPOrBloodSugar}</Text>
+                      </Text>
+                      {visit.readings && (
+                        <Text style={styles.accordionLabel}>
+                          Readings: <Text style={styles.accordionValue}>{visit.readings}</Text>
+                        </Text>
+                      )}
+                      <Text style={styles.accordionLabel}>
+                        New Symptoms: <Text style={styles.accordionValue}>{visit.newSymptoms}</Text>
+                      </Text>
+                      {visit.symptomsDescription && (
+                        <Text style={styles.accordionLabel}>
+                          Symptoms: <Text style={styles.accordionValue}>{visit.symptomsDescription}</Text>
+                        </Text>
+                      )}
+                      <Text style={styles.accordionLabel}>
+                        Following Lifestyle Advice: <Text style={styles.accordionValue}>{visit.followingLifestyleAdvice}</Text>
+                      </Text>
+                      {visit.lifestyleComment && (
+                        <Text style={styles.accordionLabel}>
+                          Comment: <Text style={styles.accordionValue}>{visit.lifestyleComment}</Text>
+                        </Text>
+                      )}
+                      <Text style={styles.accordionLabel}>
+                        Needs Health Education: <Text style={styles.accordionValue}>{visit.needHealthEducation}</Text>
+                      </Text>
+                      {visit.educationTopics && (
+                        <Text style={styles.accordionLabel}>
+                          Topics: <Text style={styles.accordionValue}>{visit.educationTopics}</Text>
+                        </Text>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {/* NCD - Medical Assessment */}
+          {patient.medical_assessments && patient.medical_assessments.length > 0 && (
+            <>
+              {(!patient.hypertension_screenings || patient.hypertension_screenings.length === 0) && 
+               (!patient.diabetes_screenings || patient.diabetes_screenings.length === 0) &&
+               (!patient.monitoring_visits || patient.monitoring_visits.length === 0) && (
+                <Text style={styles.sectionHeader}>Non Communicable Diseases</Text>
+              )}
+              <TouchableOpacity onPress={toggleMedicalAssessment} style={styles.vaccinationHeader}>
+                <Text style={styles.accordionHeaderText}>
+                  Medical Assessments ({patient.medical_assessments.length})
+                </Text>
+                <FontAwesomeIcon
+                  name={medicalAssessmentExpanded ? 'chevron-up' : 'chevron-down'}
+                  size={15}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              {!medicalAssessmentExpanded && (
+                <View style={styles.vaccinationContainer}>
+                  {patient.medical_assessments.map(assessment => (
+                    <View key={assessment.id} style={styles.vaccinationItem}>
+                      <Text style={styles.accordionLabel}>
+                        Assessment Date: <Text style={styles.accordionValue}>{assessment.assessmentDate || 'N/A'}</Text>
+                      </Text>
+                      
+                      <Text style={styles.sectionSubHeader}>Diagnosis</Text>
+                      <Text style={styles.accordionValue}>{assessment.diagnosis}</Text>
+                      
+                      {assessment.drugs && assessment.drugs.length > 0 && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>Drugs Given</Text>
+                          {assessment.drugs.map((drug, index) => (
+                            <View key={index} style={styles.medicineItem}>
+                              <Text style={styles.accordionLabel}>
+                                Name: <Text style={styles.accordionValue}>{drug.name}</Text>
+                              </Text>
+                              <Text style={styles.accordionLabel}>
+                                Dose: <Text style={styles.accordionValue}>{drug.dose}</Text>
+                              </Text>
+                              <Text style={styles.accordionLabel}>
+                                Duration: <Text style={styles.accordionValue}>{drug.duration}</Text>
+                              </Text>
+                            </View>
+                          ))}
+                        </>
+                      )}
+                      
+                      {assessment.sideEffects && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>Side Effects</Text>
+                          <Text style={styles.accordionValue}>{assessment.sideEffects}</Text>
+                        </>
+                      )}
+                      
+                      {assessment.nextFollowUpDate && (
+                        <Text style={styles.accordionLabel}>
+                          Next Follow-Up: <Text style={styles.accordionValue}>{assessment.nextFollowUpDate}</Text>
+                        </Text>
+                      )}
+                      
+                      <Text style={styles.accordionLabel}>
+                        Referred to Facility: <Text style={styles.accordionValue}>{assessment.referredToFacility}</Text>
+                      </Text>
+                      {assessment.facilityName && (
+                        <Text style={styles.accordionLabel}>
+                          Facility: <Text style={styles.accordionValue}>{assessment.facilityName}</Text>
+                        </Text>
+                      )}
+                      
+                      {assessment.chwComments && (
+                        <>
+                          <Text style={styles.sectionSubHeader}>CHW Comments</Text>
+                          <Text style={styles.accordionValue}>{assessment.chwComments}</Text>
+                        </>
+                      )}
+                    </View>
                   ))}
                 </View>
               )}
