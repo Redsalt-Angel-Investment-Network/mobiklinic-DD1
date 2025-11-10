@@ -130,6 +130,7 @@ const PatientData = ({navigation}) => {
     village: '',
     knownHealthCondition: '',
     otherHealthCondition: '',
+    currentPackage: '',
   });
 
   const handleSubmit = async () => {
@@ -170,6 +171,7 @@ const PatientData = ({navigation}) => {
           village: state.village,
           knownHealthCondition: state.knownHealthCondition,
           otherHealthCondition: state.knownHealthCondition === 'Other' ? state.otherHealthCondition : null,
+          currentPackage: state.currentPackage || null,
           users_permissions_user: {
             id: userLog,
           },
@@ -551,6 +553,20 @@ const PatientData = ({navigation}) => {
             />
           </View>
         )}
+
+        {/* Current Package (optional for NCD patients) */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Current Package (NCD patients):</Text>
+          <Picker
+            selectedValue={state.currentPackage}
+            style={[STYLES.field, {color: COLORS.BLACK}]}
+            onValueChange={(value) => setState({...state, currentPackage: value})}>
+            <Picker.Item label="Select package" value="" />
+            <Picker.Item label="Bronze" value="Bronze" />
+            <Picker.Item label="Silver" value="Silver" />
+            <Picker.Item label="Gold" value="Gold" />
+          </Picker>
+        </View>
 
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>

@@ -258,6 +258,9 @@ const PatientCard = ({ patient }) => {
           {patient.otherHealthCondition && (
             <LabelValuePair label="Other Health Condition" value={patient.otherHealthCondition} />
           )}
+          {patient.currentPackage && (
+            <LabelValuePair label="Current Package" value={patient.currentPackage} />
+          )}
           
           <Text style={styles.sectionHeader}>Emergency Contact</Text>
           <LabelValuePair label="Next of Kin" value={patient.nextOfKin || 'Not specified'} />
