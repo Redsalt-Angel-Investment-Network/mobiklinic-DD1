@@ -63,18 +63,85 @@ const Ambulance = () => {
 
   const fetchAmbulances = async () => {
     try {
-      // Use OpenStreetMap Overpass API instead of Google Places
       const radius = 10000; // 10km radius in meters
       
+      // Fetch from backend
       const backendAmbulances = await fetchBackendAmbulances();
       
-      // For now, we'll primarily use backend ambulances
-      // You can add Overpass API queries here if needed
-      setAmbulances(backendAmbulances);
+      // Fetch emergency services from OpenStreetMap
+      const osmAmbulances = await fetchOSMAmbulances(radius);
+      
+      // Combine both sources
+      setAmbulances([...backendAmbulances, ...osmAmbulances]);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching ambulances:', error);
       setIsLoading(false);
+    }
+  };
+
+  const fetchOSMAmbulances = async (radius) => {
+    try {
+      console.log('Fetching from OSM with location:', currentLocation);
+      
+      // Query Overpass API for emergency services (ambulance stations, emergency services, fire stations)
+      const overpassUrl = `https://overpass-api.de/api/interpreter`;
+      const query = `
+        [out:json][timeout:25];
+        (
+          node["amenity"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          node["emergency"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          node["amenity"="fire_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          way["amenity"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          way["emergency"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          way["amenity"="fire_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+        );
+        out center;
+      `;
+
+      console.log('Sending Overpass query...');
+      const response = await fetch(overpassUrl, {
+        method: 'POST',
+        body: query,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      });
+      
+      const data = await response.json();
+      console.log('OSM response:', data);
+      console.log('OSM elements found:', data.elements?.length || 0);
+
+      if (data.elements && data.elements.length > 0) {
+        const osmData = data.elements.map(place => {
+          const lat = place.lat || place.center?.lat;
+          const lon = place.lon || place.center?.lon;
+          
+          return {
+            id: `osm-${place.id}`,
+            name: place.tags?.name || 'Emergency Service Station',
+            phone: place.tags?.phone || 
+                   place.tags?.['contact:phone'] || 
+                   'No contact available',
+            address: place.tags?.['addr:full'] || 
+                     place.tags?.['addr:street'] || 
+                     'Address not available',
+            location: {
+              latitude: lat,
+              longitude: lon,
+            },
+            transport_mode: 'ambulance',
+          };
+        }).filter(item => item.location.latitude && item.location.longitude);
+        
+        console.log('Processed OSM data:', osmData.length, 'items');
+        return osmData;
+      }
+      console.log('No OSM elements found');
+      return [];
+    } catch (error) {
+      console.error('Error fetching OSM ambulances:', error);
+      return [];
     }
   };
 
