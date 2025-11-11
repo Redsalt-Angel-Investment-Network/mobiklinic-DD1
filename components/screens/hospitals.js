@@ -174,7 +174,7 @@ const Hospital = () => {
           lat: currentLocation.latitude,
           lng: currentLocation.longitude,
         }}
-        zoom={13}
+        zoom={17}
         mapMarkers={mapMarkers}
       />
 
