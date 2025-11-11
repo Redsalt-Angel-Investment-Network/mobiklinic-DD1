@@ -7,8 +7,9 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
-import MapView, {Marker, Callout} from 'react-native-maps';
+import LeafletMap from '../ui/LeafletMap';
 import Geolocation from 'react-native-geolocation-service';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Loader from '../ui/loader';
@@ -62,53 +63,17 @@ const Ambulance = () => {
 
   const fetchAmbulances = async () => {
     try {
+      // Use OpenStreetMap Overpass API instead of Google Places
+      const radius = 10000; // 10km radius in meters
       
-      const API_KEY = 'AIzaSyDCvUkojTus7OjaK5iOvCHGs90RkvseNDs';
-      const radius = 10000; // 10km radius
-      const categoryMapping = {
-        ambulance: {type: 'ambulances', keyword: 'Ambulance'},
-        'boda-boda': {type: 'motorcycle', keyword: 'Boda Boda'},
-        'special-hire': {type: 'car', keyword: 'Special Hire'},
-      };
-
-      const {type, keyword} = categoryMapping[selectedCategory];
-  
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&keyword=${keyword}&key=${API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
       const backendAmbulances = await fetchBackendAmbulances();
-  
-      if (data.results) {
-        const filteredResults = data.results.filter(place =>
-          ['ambulance'].some(keyword =>
-            place.name.toLowerCase().includes(keyword),
-          ),
-        );
-  
-        const formattedAmbulances = await Promise.all(
-          filteredResults.map(async place => {
-            const details = await fetchPlaceDetails(place.place_id, API_KEY);
-            return {
-              id: place.place_id,
-              name: place.name,
-              address: place.vicinity,
-              phone: details?.formatted_phone_number || 'No contact available',
-              transport_mode: 'ambulance', // Explicitly set to 'ambulance'
-              location: {
-                latitude: place.geometry.location.lat,
-                longitude: place.geometry.location.lng,
-              },
-            };
-          }),
-        );
-  
-        setAmbulances([...formattedAmbulances, ...backendAmbulances]);
-      } else {
-        console.error('Error fetching places:', data.error_message);
-      }
+      
+      // For now, we'll primarily use backend ambulances
+      // You can add Overpass API queries here if needed
+      setAmbulances(backendAmbulances);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching ambulances from Google Places:', error);
+      console.error('Error fetching ambulances:', error);
       setIsLoading(false);
     }
   };
@@ -171,20 +136,8 @@ const Ambulance = () => {
   };
   
 
-  const fetchPlaceDetails = async (placeId, apiKey) => {
-    try {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_phone_number&key=${apiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data.result;
-    } catch (error) {
-      console.error('Error fetching place details:', error);
-      return null;
-    }
-  };
-
   const getDirections = (latitude, longitude) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+    const url = `https://www.openstreetmap.org/directions?from=${currentLocation.latitude},${currentLocation.longitude}&to=${latitude},${longitude}`;
     Linking.openURL(url);
   };
 
@@ -207,11 +160,62 @@ const Ambulance = () => {
     }
   };
 
+  const getIconColor = transportMode => {
+    switch (transportMode) {
+      case 'ambulance':
+        return 'red';
+      case 'boda-boda':
+        return 'green';
+      case 'special-hire':
+        return 'blue';
+      default:
+        return 'red';
+    }
+  };
+
   if (isLoading || !currentLocation) return <Loader />;
 
   const filteredAmbulances = ambulances.filter(
     ambulance => ambulance.transport_mode === selectedCategory
   );
+
+  // Create markers for Leaflet
+  const mapMarkers = filteredAmbulances.map(ambulance => ({
+    position: {
+      lat: ambulance.location.latitude,
+      lng: ambulance.location.longitude,
+    },
+    icon: `
+      <div style="text-align: center;">
+        <svg width="40" height="40" viewBox="0 0 24 24">
+          <path fill="${getIconColor(ambulance.transport_mode)}" d="${
+      ambulance.transport_mode === 'boda-boda'
+        ? 'M5,11H7V13H5V11M13,11H15V13H13V11M9,13H11V15H9V13M11,9H13V11H11V9M5,7H7V9H5V7M11,7H13V9H11V7M13,15V21L15,19V15H13M9,15V19L11,21V15H9M7,15V21H9L7,15M15,15V19L17,21V15H15M19,15V19L21,21V15H19Z'
+        : ambulance.transport_mode === 'special-hire'
+        ? 'M5,11L6.5,6.5H17.5L19,11M17.5,16A1.5,1.5 0 0,1 16,14.5A1.5,1.5 0 0,1 17.5,13A1.5,1.5 0 0,1 19,14.5A1.5,1.5 0 0,1 17.5,16M6.5,16A1.5,1.5 0 0,1 5,14.5A1.5,1.5 0 0,1 6.5,13A1.5,1.5 0 0,1 8,14.5A1.5,1.5 0 0,1 6.5,16M18.92,6C18.72,5.42 18.16,5 17.5,5H6.5C5.84,5 5.28,5.42 5.08,6L3,12V20A1,1 0 0,0 4,21H5A1,1 0 0,0 6,20V19H18V20A1,1 0 0,0 19,21H20A1,1 0 0,0 21,20V12L18.92,6Z'
+        : 'M18,18.5A1.5,1.5 0 0,1 16.5,20A1.5,1.5 0 0,1 15,18.5A1.5,1.5 0 0,1 16.5,17A1.5,1.5 0 0,1 18,18.5M19.5,9.5L21.46,12H17V9.5M6,18.5A1.5,1.5 0 0,1 4.5,20A1.5,1.5 0 0,1 3,18.5A1.5,1.5 0 0,1 4.5,17A1.5,1.5 0 0,1 6,18.5M20,8H17V4H3C1.89,4 1,4.89 1,6V17H3A3,3 0 0,0 6,20A3,3 0 0,0 9,17H15A3,3 0 0,0 18,20A3,3 0 0,0 21,17H23V12L20,8Z'
+    }" />
+        </svg>
+      </div>
+    `,
+    size: [40, 40],
+    title: ambulance.name,
+    popup: `
+      <div style="padding: 10px; min-width: 200px;">
+        <h3 style="color: ${COLORS.PRIMARY}; margin: 0 0 10px 0; font-size: 16px;">${
+      ambulance.name || 'No name available'
+    }</h3>
+        <p style="margin: 5px 0; font-size: 14px;">${
+      ambulance.address || 'No address available'
+    }</p>
+        <p style="color: ${COLORS.PRIMARY}; margin: 5px 0; font-size: 14px; font-weight: bold;">
+          <a href="tel:${ambulance.phone}" style="color: ${
+      COLORS.PRIMARY
+    }; text-decoration: none;">Call: ${ambulance.phone}</a>
+        </p>
+      </div>
+    `,
+  }));
 
   return (
     <View style={styles.wrapper}>
@@ -237,52 +241,16 @@ const Ambulance = () => {
         </View>
       </View>
 
-      {/* MapView to display ambulance locations */}
-      <MapView
+      {/* Leaflet MapView to display ambulance locations */}
+      <LeafletMap
         style={styles.map}
-        region={{
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
-          latitudeDelta: 0.15,
-          longitudeDelta: 0.15,
-        }}>
-        {filteredAmbulances.map(ambulance => (
-          <Marker
-            key={ambulance.id}
-            coordinate={{
-              latitude: ambulance.location.latitude,
-              longitude: ambulance.location.longitude,
-            }}>
-            <MaterialCommunityIcons
-              name={getIconName(ambulance.transport_mode)}
-              size={ambulance.transport_mode === 'boda-boda' ? 45 : 38}
-              color={
-                ambulance.transport_mode === 'ambulance'
-                  ? 'red'
-                  : ambulance.transport_mode === 'boda-boda'
-                  ? 'green'
-                  : 'blue'
-              }
-            />
-            <Callout>
-              <View style={styles.calloutContainer}>
-                <Text style={styles.ambulanceName}>
-                  {ambulance.name || 'No name available'}
-                </Text>
-                <Text style={styles.calloutText}>
-                  {ambulance.address || 'No address available'}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => dialPhoneNumber(ambulance.phone)}>
-                  <Text style={styles.calloutText}>
-                    Call: {ambulance.phone}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </Callout>
-          </Marker>
-        ))}
-      </MapView>
+        mapCenterPosition={{
+          lat: currentLocation.latitude,
+          lng: currentLocation.longitude,
+        }}
+        zoom={13}
+        mapMarkers={mapMarkers}
+      />
       {/* Scrollable ListView for ambulances */}
       <ScrollView style={styles.container}>
         {filteredAmbulances.map((ambulance, index) => (

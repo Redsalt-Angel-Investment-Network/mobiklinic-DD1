@@ -7,8 +7,9 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from 'react-native';
-import MapView, {Marker, Callout} from 'react-native-maps';
+import LeafletMap from '../ui/LeafletMap';
 import Geolocation from 'react-native-geolocation-service';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Loader from '../ui/loader';
@@ -61,64 +62,60 @@ const Hospital = () => {
 
   const fetchHospitals = async () => {
     try {
-      const API_KEY = 'AIzaSyDCvUkojTus7OjaK5iOvCHGs90RkvseNDs';
+      // Use OpenStreetMap Overpass API to find nearby hospitals
       const radius = 10000; // 10km radius
-      const type = 'hospital'; // Search for hospitals
-      const keyword =
-        'general Hospital Clinic Healthcare NATIONAL Referral Health center ';
+      
+      // Query Overpass API for hospitals
+      const overpassUrl = `https://overpass-api.de/api/interpreter`;
+      const query = `
+        [out:json];
+        (
+          node["amenity"="hospital"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          node["amenity"="clinic"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          way["amenity"="hospital"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          way["amenity"="clinic"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+        );
+        out center;
+      `;
 
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${currentLocation.latitude},${currentLocation.longitude}&radius=${radius}&type=${type}&keyword=${keyword}&key=${API_KEY}`;
-      const response = await fetch(url);
+      const response = await fetch(overpassUrl, {
+        method: 'POST',
+        body: query,
+      });
       const data = await response.json();
 
-      if (data.results) {
-        const filteredResults = data.results.filter(place =>
-          ['hospital', 'clinic', 'health center', 'healthcare'].some(keyword =>
-            place.name.toLowerCase().includes(keyword),
-          ),
-        );
-
-        const formattedHospitals = await Promise.all(
-          filteredResults.map(async place => {
-            const details = await fetchPlaceDetails(place.place_id, API_KEY);
-            return {
-              id: place.place_id,
-              name: place.name,
-              address: place.vicinity,
-              phone: details?.formatted_phone_number || 'No contact available',
-              location: {
-                latitude: place.geometry.location.lat,
-                longitude: place.geometry.location.lng,
-              },
-            };
-          }),
-        );
+      if (data.elements) {
+        const formattedHospitals = data.elements.map(place => {
+          const lat = place.lat || place.center?.lat;
+          const lon = place.lon || place.center?.lon;
+          
+          return {
+            id: place.id,
+            name: place.tags?.name || 'Healthcare Facility',
+            address: place.tags?.['addr:full'] || 
+                     place.tags?.['addr:street'] || 
+                     'Address not available',
+            phone: place.tags?.phone || 
+                   place.tags?.['contact:phone'] || 
+                   'No contact available',
+            location: {
+              latitude: lat,
+              longitude: lon,
+            },
+          };
+        }).filter(h => h.location.latitude && h.location.longitude);
 
         setHospitals(formattedHospitals);
-      } else {
-        console.error('Error fetching places:', data.error_message);
       }
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching hospitals from Google Places:', error);
+      console.error('Error fetching hospitals from OpenStreetMap:', error);
       setIsLoading(false);
-    }
-  };
-
-  const fetchPlaceDetails = async (placeId, apiKey) => {
-    try {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_phone_number&key=${apiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data.result;
-    } catch (error) {
-      console.error('Error fetching place details:', error);
-      return null;
     }
   };
 
   const getDirections = (latitude, longitude) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+    const url = `https://www.openstreetmap.org/directions?from=${currentLocation.latitude},${currentLocation.longitude}&to=${latitude},${longitude}`;
     Linking.openURL(url);
   };
 
@@ -131,6 +128,38 @@ const Hospital = () => {
 
   if (isLoading || !currentLocation) return <Loader />;
 
+  // Create markers for Leaflet
+  const mapMarkers = hospitals.map(hospital => ({
+    position: {
+      lat: hospital.location.latitude,
+      lng: hospital.location.longitude,
+    },
+    icon: `
+      <div style="text-align: center;">
+        <svg width="35" height="35" viewBox="0 0 24 24">
+          <path fill="red" d="M2,22V10A1,1 0 0,1 3,9H7V3A1,1 0 0,1 8,2H16A1,1 0 0,1 17,3V21H22V22H2M9,4V22H15V4H9M11,6H13V8H11V6M11,10H13V12H11V10M11,14H13V16H11V14M11,18H13V20H11V18Z" />
+        </svg>
+      </div>
+    `,
+    size: [35, 35],
+    title: hospital.name,
+    popup: `
+      <div style="padding: 10px; min-width: 200px;">
+        <h3 style="color: ${COLORS.PRIMARY}; margin: 0 0 10px 0; font-size: 16px;">${
+      hospital.name || 'No name available'
+    }</h3>
+        <p style="margin: 5px 0; font-size: 14px;">${
+      hospital.address || 'No address available'
+    }</p>
+        <p style="color: ${COLORS.PRIMARY}; margin: 5px 0; font-size: 14px; font-weight: bold;">
+          <a href="tel:${hospital.phone}" style="color: ${
+      COLORS.PRIMARY
+    }; text-decoration: none;">${hospital.phone}</a>
+        </p>
+      </div>
+    `,
+  }));
+
   return (
     <View style={styles.wrapper}>
       <StatusBar />
@@ -138,41 +167,16 @@ const Hospital = () => {
         <Text style={styles.header}>HOSPITALS NEAR ME</Text>
       </View>
 
-      {/* MapView to display hospital locations */}
-      <MapView
+      {/* Leaflet MapView to display hospital locations */}
+      <LeafletMap
         style={styles.map}
-        region={{
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
-          latitudeDelta: 0.15,
-          longitudeDelta: 0.15,
-        }}>
-        {hospitals.map(hospital => (
-          <Marker
-            key={hospital.id}
-            coordinate={{
-              latitude: hospital.location.latitude,
-              longitude: hospital.location.longitude,
-            }}>
-            <MaterialCommunityIcons
-              name="hospital-building"
-              size={30}
-              color="red"
-            />
-
-            <Callout>
-              <View style={styles.calloutContainer}>
-                <Text style={styles.hospitalName}>
-                  {hospital.name || 'No name available'}
-                </Text>
-                <Text style={styles.calloutText}>
-                  {hospital.address || 'No address available'}
-                </Text>
-              </View>
-            </Callout>
-          </Marker>
-        ))}
-      </MapView>
+        mapCenterPosition={{
+          lat: currentLocation.latitude,
+          lng: currentLocation.longitude,
+        }}
+        zoom={13}
+        mapMarkers={mapMarkers}
+      />
 
       {/* Scrollable ListView for hospitals */}
       <ScrollView style={styles.container}>
