@@ -63,7 +63,7 @@ const Ambulance = () => {
 
   const fetchAmbulances = async () => {
     try {
-      const radius = 10000; // 10km radius in meters
+      const radius = 50000; // 50km radius in meters
       
       // Fetch from backend
       const backendAmbulances = await fetchBackendAmbulances();
@@ -84,7 +84,7 @@ const Ambulance = () => {
     try {
       console.log('Fetching from OSM with location:', currentLocation);
       
-      // Query Overpass API for emergency services (ambulance stations, emergency services, fire stations)
+      // Query Overpass API for emergency services
       const overpassUrl = `https://overpass-api.de/api/interpreter`;
       const query = `
         [out:json][timeout:25];
@@ -92,9 +92,11 @@ const Ambulance = () => {
           node["amenity"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
           node["emergency"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
           node["amenity"="fire_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          node["emergency"="yes"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
           way["amenity"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
           way["emergency"="ambulance_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
           way["amenity"="fire_station"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
+          way["emergency"="yes"](around:${radius},${currentLocation.latitude},${currentLocation.longitude});
         );
         out center;
       `;
@@ -117,20 +119,34 @@ const Ambulance = () => {
           const lat = place.lat || place.center?.lat;
           const lon = place.lon || place.center?.lon;
           
+          // Determine the type of service
+          const isFireStation = place.tags?.amenity === 'fire_station';
+          const isAmbulanceStation = place.tags?.amenity === 'ambulance_station' || 
+                                      place.tags?.emergency === 'ambulance_station';
+          
+          let serviceName = place.tags?.name;
+          if (!serviceName) {
+            serviceName = isAmbulanceStation ? 'Ambulance Station' : 
+                         isFireStation ? 'Fire Station (Emergency Services)' : 
+                         'Emergency Service';
+          }
+          
           return {
             id: `osm-${place.id}`,
-            name: place.tags?.name || 'Emergency Service Station',
+            name: serviceName,
             phone: place.tags?.phone || 
                    place.tags?.['contact:phone'] || 
+                   place.tags?.['emergency:phone'] ||
                    'No contact available',
             address: place.tags?.['addr:full'] || 
                      place.tags?.['addr:street'] || 
+                     place.tags?.['addr:city'] ||
                      'Address not available',
             location: {
               latitude: lat,
               longitude: lon,
             },
-            transport_mode: 'ambulance',
+            transport_mode: 'ambulance', // Map all emergency services as ambulance for now
           };
         }).filter(item => item.location.latitude && item.location.longitude);
         
@@ -315,7 +331,7 @@ const Ambulance = () => {
           lat: currentLocation.latitude,
           lng: currentLocation.longitude,
         }}
-        zoom={13}
+        zoom={15}
         mapMarkers={mapMarkers}
       />
       {/* Scrollable ListView for ambulances */}
