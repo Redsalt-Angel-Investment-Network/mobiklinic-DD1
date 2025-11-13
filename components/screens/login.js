@@ -47,7 +47,32 @@ const Login = ({navigation}) => {
   const {updateUserNames, setSenderPhoneNumber} =
     useContext(DataResultsContext);
 
-  const signIn = async () => {
+  const recordLoginActivity = async (loginData) => {
+    try {
+      const response = await fetch(`${API_URL}/api/user-login-logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: loginData,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Login activity recorded:', result);
+        return result;
+      } else {
+        console.error('Failed to record login activity:', response.status);
+      }
+    } catch (error) {
+      console.error('Error recording login activity:', error);
+      throw error;
+    }
+  };
+
+  const signIn = async () {
     clearStorage();
     let {identifier, password} = user;
 
@@ -123,6 +148,20 @@ const Login = ({navigation}) => {
         console.log(name);
 
         await AsyncStorage.setItem('jwtToken', json_data.jwt);
+        
+        // Record login activity
+        try {
+          await recordLoginActivity({
+            user_id: json_data.user.id,
+            username: json_data.user.username,
+            user_name: name,
+            login_time: new Date().toISOString(),
+          });
+        } catch (logError) {
+          console.error('Failed to record login activity:', logError);
+          // Don't block login if logging fails
+        }
+        
         navigation.navigate('DrawerLogged');
 
         await SAVE_LOCAL_USER({
