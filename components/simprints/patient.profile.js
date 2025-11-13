@@ -131,6 +131,8 @@ const PatientData = ({navigation}) => {
     knownHealthCondition: '',
     otherHealthCondition: '',
     currentPackage: '',
+    isReferred: '',
+    referredBy: '',
   });
 
   const handleSubmit = async () => {
@@ -172,6 +174,8 @@ const PatientData = ({navigation}) => {
           knownHealthCondition: state.knownHealthCondition,
           otherHealthCondition: state.knownHealthCondition === 'Other' ? state.otherHealthCondition : null,
           currentPackage: state.currentPackage || null,
+          isReferred: state.isReferred || null,
+          referredBy: state.isReferred === 'Yes' ? state.referredBy : null,
           users_permissions_user: {
             id: userLog,
           },
@@ -567,6 +571,36 @@ const PatientData = ({navigation}) => {
             <Picker.Item label="Gold" value="Gold" />
           </Picker>
         </View>
+
+        {/* Referral Status */}
+        <View style={STYLES.labeled}>
+          <Text style={STYLES.label}>Referred?</Text>
+          <Picker
+            selectedValue={state.isReferred}
+            style={[STYLES.field, {color: COLORS.BLACK}]}
+            onValueChange={(value) => setState({...state, isReferred: value, referredBy: value === 'Yes' ? state.referredBy : ''})}>
+            <Picker.Item label="Select option" value="" />
+            <Picker.Item label="Yes" value="Yes" />
+            <Picker.Item label="No" value="No" />
+          </Picker>
+        </View>
+
+        {/* Referred By (conditional) */}
+        {state.isReferred === 'Yes' && (
+          <View style={STYLES.labeled}>
+            <Text style={STYLES.label}>Referred By:</Text>
+            <TextInput
+              style={[
+                STYLES.field,
+                {color: COLORS.BLACK, placeholderTextColor: COLORS.GRAY},
+              ]}
+              placeholderTextColor={COLORS.GREY}
+              value={state.referredBy}
+              onChangeText={text => setState({...state, referredBy: text})}
+              placeholder="Enter referrer name"
+            />
+          </View>
+        )}
 
         <TouchableOpacity style={STYLES.submit} onPress={handleSubmit}>
           <Text style={STYLES.submitText}>Submit</Text>
