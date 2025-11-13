@@ -26,7 +26,7 @@ import Appointments from '../screens/Appointments';
 import Dashboard from '../screens/dashboard';
 import Payment from '../screens/payment';
 import PaymentHistory from '../screens/payment-history';
-import PaymentWebView from '../screens/PaymentWebView';
+import PaymentWebView from '../screens/payment-webview';
 import Urinalysis from '../renal/urinalysis.screening';
 import Monitoring from '../renal/monitoring';
 import History from '../renal/history';

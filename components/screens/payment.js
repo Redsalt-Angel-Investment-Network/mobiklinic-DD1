@@ -8,7 +8,6 @@ import {
   TextInput,
   ScrollView,
   Platform,
-  Linking,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -201,160 +200,26 @@ const Payment = ({navigation}) => {
         
         // Check if data is a URL (hosted payment page)
         if (typeof data === 'string' && data.includes('checkout.flutterwave.com')) {
-          console.log('Opening Flutterwave checkout URL:', data);
+          console.log('Opening Flutterwave checkout URL in WebView:', data);
           
-          try {
-            // Open the payment URL in the device's browser
-            console.log('Attempting to open URL:', data);
-            
-            // Try to open the URL directly first
-            try {
-              await Linking.openURL(data);
-              console.log('Successfully opened payment URL');
-              
-              // Add a small delay to ensure the browser opens, then show the alert
-              setTimeout(() => {
-                // Show instructions to user
-                Alert.alert(
-                  'Payment in Progress',
-                  'You have been redirected to complete your payment. Please return to the app after completing the payment.',
-                  [
-                    {
-                      text: 'I Completed Payment',
-                      onPress: () => {
-                        // Store transaction reference for verification
-                        setPendingTransactionRef(txRef);
-                        // For now, we'll simulate successful payment
-                        // In production, verify payment status with Flutterwave API
-                        verifyPaymentStatus(txRef);
-                      },
-                    },
-                    {
-                      text: 'Payment Failed/Cancelled',
-                      onPress: () => {
-                        Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
-                        setIsLoading(false);
-                      },
-                      style: 'cancel',
-                    },
-                  ]
-                );
-              }, 500); // 500ms delay to ensure browser opens first
-            } catch (openError) {
-              console.error('Direct URL opening failed:', openError);
-              
-              // Fallback: Check if URL can be opened
-              const supported = await Linking.canOpenURL(data);
-              if (supported) {
-                await Linking.openURL(data);
-                
-                // Show instructions to user
-                Alert.alert(
-                  'Payment in Progress',
-                  'You have been redirected to complete your payment. Please return to the app after completing the payment.',
-                  [
-                    {
-                      text: 'I Completed Payment',
-                      onPress: () => {
-                        setPendingTransactionRef(txRef);
-                        verifyPaymentStatus(txRef);
-                      },
-                    },
-                    {
-                      text: 'Payment Failed/Cancelled',
-                      onPress: () => {
-                        Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
-                        setIsLoading(false);
-                      },
-                      style: 'cancel',
-                    },
-                  ]
-                );
-              } else {
-                // Final fallback: Use in-app WebView or show URL to user
-                console.log('URL cannot be opened automatically, offering alternatives');
-                Alert.alert(
-                  'Complete Payment',
-                  'Unable to open payment page automatically. Choose how to proceed:',
-                  [
-                    {
-                      text: 'Open in App',
-                      onPress: () => {
-                        // Navigate to WebView screen
-                        setPendingTransactionRef(txRef);
-                        navigation.navigate('PaymentWebView', {
-                          url: data,
-                          txRef: txRef,
-                          onPaymentComplete: () => verifyPaymentStatus(txRef),
-                          onPaymentCancel: () => {
-                            Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
-                            setIsLoading(false);
-                          }
-                        });
-                      },
-                    },
-                    {
-                      text: 'Copy Link',
-                      onPress: async () => {
-                        // Copy to clipboard if available
-                        try {
-                          const Clipboard = require('@react-native-clipboard/clipboard');
-                          await Clipboard.setString(data);
-                          Alert.alert(
-                            'Link Copied', 
-                            'Payment link copied to clipboard. Open it in your browser to complete payment.',
-                            [
-                              {
-                                text: 'I Completed Payment',
-                                onPress: () => {
-                                  setPendingTransactionRef(txRef);
-                                  verifyPaymentStatus(txRef);
-                                }
-                              },
-                              {
-                                text: 'Cancel',
-                                onPress: () => setIsLoading(false),
-                                style: 'cancel'
-                              }
-                            ]
-                          );
-                        } catch (clipboardError) {
-                          console.log('Clipboard not available');
-                          Alert.alert(
-                            'Payment Link', 
-                            `Please copy this payment link and open it in your browser:\n\n${data}`,
-                            [
-                              {
-                                text: 'I Completed Payment',
-                                onPress: () => {
-                                  setPendingTransactionRef(txRef);
-                                  verifyPaymentStatus(txRef);
-                                }
-                              },
-                              {
-                                text: 'Cancel',
-                                onPress: () => setIsLoading(false),
-                                style: 'cancel'
-                              }
-                            ]
-                          );
-                        }
-                      },
-                    },
-                    {
-                      text: 'Cancel',
-                      onPress: () => setIsLoading(false),
-                      style: 'cancel',
-                    },
-                  ]
-                );
-              }
+          // Store transaction reference for verification
+          setPendingTransactionRef(txRef);
+          
+          // Navigate to WebView screen to complete payment in-app
+          navigation.navigate('PaymentWebView', {
+            url: data,
+            txRef: txRef,
+            paymentData: paymentData,
+            onPaymentComplete: (paymentResult) => {
+              console.log('Payment completed:', paymentResult);
+              verifyPaymentStatus(txRef);
+            },
+            onPaymentCancel: () => {
+              Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
+              setIsLoading(false);
             }
-          } catch (error) {
-            console.error('Error opening payment URL:', error);
-            Alert.alert('Error', 'Unable to open payment page. Please try again.');
-            setIsLoading(false);
-          }
+          });
+          
           return;
         }
         

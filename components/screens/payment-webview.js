@@ -12,56 +12,115 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants/styles';
 
 const PaymentWebView = ({route, navigation}) => {
-  const {paymentData} = route.params;
+  const {url, txRef, paymentData, onPaymentComplete, onPaymentCancel} = route.params;
   const [loading, setLoading] = useState(true);
   const webViewRef = useRef(null);
 
-  // Generate Flutterwave payment URL
-  const generatePaymentUrl = () => {
-    const baseUrl = 'https://checkout.flutterwave.com/v3/hosted/pay';
-    const params = new URLSearchParams({
-      public_key: paymentData.authorization,
-      tx_ref: paymentData.tx_ref,
-      amount: paymentData.amount,
-      currency: paymentData.currency,
-      payment_options: paymentData.payment_options,
-      customer_email: paymentData.customer.email,
-      customer_phone_number: paymentData.customer.phone_number,
-      customer_name: paymentData.customer.name,
-      customizations_title: paymentData.customizations.title,
-      customizations_description: paymentData.customizations.description,
-      redirect_url: 'https://mobiklinic.com',
-    });
+  // Use provided URL or generate Flutterwave payment URL
+  const getPaymentUrl = () => {
+    if (url) {
+      return url;
+    }
     
-    return `${baseUrl}?${params.toString()}`;
+    // Fallback: Generate URL from paymentData if available
+    if (paymentData) {
+      const baseUrl = 'https://checkout.flutterwave.com/v3/hosted/pay';
+      
+      // Manually construct query string to avoid URLSearchParams
+      const params = [
+        `public_key=${encodeURIComponent(paymentData.authorization)}`,
+        `tx_ref=${encodeURIComponent(paymentData.tx_ref)}`,
+        `amount=${encodeURIComponent(paymentData.amount)}`,
+        `currency=${encodeURIComponent(paymentData.currency)}`,
+        `payment_options=${encodeURIComponent(paymentData.payment_options)}`,
+        `customer_email=${encodeURIComponent(paymentData.customer.email)}`,
+        `customer_phone_number=${encodeURIComponent(paymentData.customer.phone_number)}`,
+        `customer_name=${encodeURIComponent(paymentData.customer.name)}`,
+        `customizations_title=${encodeURIComponent(paymentData.customizations.title)}`,
+        `customizations_description=${encodeURIComponent(paymentData.customizations.description)}`,
+        `redirect_url=${encodeURIComponent('https://mobiklinic.com/payment-complete')}`,
+      ].join('&');
+      
+      return `${baseUrl}?${params}`;
+    }
+    
+    return null;
+  };
+
+  // Helper function to parse URL parameters manually
+  const parseUrlParams = (url) => {
+    const params = {};
+    const queryString = url.split('?')[1];
+    
+    if (queryString) {
+      const pairs = queryString.split('&');
+      pairs.forEach(pair => {
+        const [key, value] = pair.split('=');
+        if (key && value) {
+          params[decodeURIComponent(key)] = decodeURIComponent(value);
+        }
+      });
+    }
+    
+    return params;
   };
 
   const handleNavigationStateChange = (navState) => {
-    const {url} = navState;
-    console.log('WebView URL:', url);
+    const {url: currentUrl} = navState;
+    console.log('WebView URL:', currentUrl);
 
     // Check for payment completion
-    if (url.includes('mobiklinic.com') || url.includes('flutterwave.com/pay/confirmation')) {
-      // Extract transaction reference from URL if possible
-      const urlParams = new URLSearchParams(url.split('?')[1]);
-      const txRef = urlParams.get('tx_ref') || paymentData.tx_ref;
+    if (
+      currentUrl.includes('mobiklinic.com') || 
+      currentUrl.includes('flutterwave.com/pay/confirmation') ||
+      currentUrl.includes('status=successful') ||
+      currentUrl.includes('payment-complete')
+    ) {
+      // Extract transaction reference from URL manually
+      const urlParams = parseUrlParams(currentUrl);
+      const status = urlParams.status;
+      const transactionId = urlParams.transaction_id || txRef;
+      
+      console.log('Payment completed with status:', status);
+      console.log('Transaction ID:', transactionId);
       
       // Simulate successful payment response
       const simulatedResponse = {
-        status: 'successful',
-        transaction_id: txRef,
+        status: status || 'successful',
+        transaction_id: transactionId,
         tx_ref: txRef,
-        amount: paymentData.amount,
-        currency: paymentData.currency,
+        amount: paymentData?.amount,
+        currency: paymentData?.currency || 'UGX',
       };
 
       // Return success result
-      navigation.goBack();
-      route.params.onPaymentComplete?.(simulatedResponse);
-    } else if (url.includes('cancelled') || url.includes('failed')) {
-      // Handle payment failure
-      Alert.alert('Payment Failed', 'Payment was cancelled or failed. Please try again.');
-      navigation.goBack();
+      setTimeout(() => {
+        navigation.goBack();
+        if (onPaymentComplete) {
+          onPaymentComplete(simulatedResponse);
+        }
+      }, 500);
+    } else if (
+      currentUrl.includes('cancelled') || 
+      currentUrl.includes('failed') ||
+      currentUrl.includes('status=cancelled')
+    ) {
+      // Handle payment failure/cancellation
+      Alert.alert(
+        'Payment Cancelled', 
+        'Payment was cancelled or failed. Please try again.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.goBack();
+              if (onPaymentCancel) {
+                onPaymentCancel();
+              }
+            }
+          }
+        ]
+      );
     }
   };
 
@@ -93,7 +152,7 @@ const PaymentWebView = ({route, navigation}) => {
 
       <WebView
         ref={webViewRef}
-        source={{uri: generatePaymentUrl()}}
+        source={{uri: getPaymentUrl()}}
         style={styles.webview}
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}
@@ -105,6 +164,8 @@ const PaymentWebView = ({route, navigation}) => {
         scalesPageToFit={true}
         allowsInlineMediaPlayback={true}
         mediaPlaybackRequiresUserAction={false}
+        thirdPartyCookiesEnabled={true}
+        sharedCookiesEnabled={true}
       />
     </View>
   );
