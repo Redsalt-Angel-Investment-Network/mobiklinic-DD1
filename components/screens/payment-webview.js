@@ -12,8 +12,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {COLORS} from '../constants/styles';
 
 const PaymentWebView = ({route, navigation}) => {
-  const {url, txRef, paymentData, onPaymentComplete, onPaymentCancel} = route.params;
+  const {url, txRef, paymentData, amount, selectedService, phoneNumber, userNames, onPaymentComplete, onPaymentCancel} = route.params;
   const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
   const webViewRef = useRef(null);
 
   // Use provided URL or generate Flutterwave payment URL
@@ -69,6 +70,12 @@ const PaymentWebView = ({route, navigation}) => {
     const {url: currentUrl} = navState;
     console.log('WebView URL:', currentUrl);
 
+    // Prevent multiple processing
+    if (isProcessing) {
+      console.log('Already processing payment, skipping...');
+      return;
+    }
+
     // Check for payment completion
     if (
       currentUrl.includes('mobiklinic.com') || 
@@ -76,6 +83,9 @@ const PaymentWebView = ({route, navigation}) => {
       currentUrl.includes('status=successful') ||
       currentUrl.includes('payment-complete')
     ) {
+      // Set processing flag to prevent duplicate calls
+      setIsProcessing(true);
+      
       // Extract transaction reference from URL manually
       const urlParams = parseUrlParams(currentUrl);
       const status = urlParams.status;
@@ -84,22 +94,25 @@ const PaymentWebView = ({route, navigation}) => {
       console.log('Payment completed with status:', status);
       console.log('Transaction ID:', transactionId);
       
-      // Simulate successful payment response
-      const simulatedResponse = {
+      // Build payment response with all necessary data
+      const paymentResponse = {
         status: status || 'successful',
         transaction_id: transactionId,
         tx_ref: txRef,
-        amount: paymentData?.amount,
+        amount: amount || paymentData?.amount,
         currency: paymentData?.currency || 'UGX',
       };
 
-      // Return success result
+      // Show processing indicator
+      setLoading(true);
+
+      // Call the payment completion handler immediately
       setTimeout(() => {
         navigation.goBack();
         if (onPaymentComplete) {
-          onPaymentComplete(simulatedResponse);
+          onPaymentComplete(paymentResponse);
         }
-      }, 500);
+      }, 300);
     } else if (
       currentUrl.includes('cancelled') || 
       currentUrl.includes('failed') ||
@@ -146,7 +159,9 @@ const PaymentWebView = ({route, navigation}) => {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.PRIMARY} />
-          <Text style={styles.loadingText}>Loading payment page...</Text>
+          <Text style={styles.loadingText}>
+            {isProcessing ? 'Processing payment...' : 'Loading payment page...'}
+          </Text>
         </View>
       )}
 

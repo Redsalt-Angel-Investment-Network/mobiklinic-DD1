@@ -210,15 +210,31 @@ const Payment = ({navigation}) => {
             url: data,
             txRef: txRef,
             paymentData: paymentData,
-            onPaymentComplete: (paymentResult) => {
+            amount: amount,
+            selectedService: selectedService,
+            phoneNumber: formatPhoneNumber(phoneNumber),
+            userNames: userNames,
+            onPaymentComplete: async (paymentResult) => {
               console.log('Payment completed:', paymentResult);
-              verifyPaymentStatus(txRef);
+              // Automatically record the transaction when payment is successful
+              setIsVerifyingPayment(true);
+              try {
+                await handlePaymentSuccess(paymentResult);
+              } catch (error) {
+                console.error('Error processing payment:', error);
+              } finally {
+                setIsVerifyingPayment(false);
+              }
             },
             onPaymentCancel: () => {
+              setPendingTransactionRef(null);
               Alert.alert('Payment Cancelled', 'Payment was not completed. You can try again.');
               setIsLoading(false);
             }
           });
+          
+          // Reset loading state since we're navigating away
+          setIsLoading(false);
           
           return;
         }
