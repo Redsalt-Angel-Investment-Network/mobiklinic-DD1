@@ -36,6 +36,7 @@ const Login = ({navigation}) => {
     setIsLoading,
     tokens,
     setTokens,
+    setLoginTime,
   } = React.useContext(AuthContext);
   const [user, setUser] = React.useState({
     identifier: '',
@@ -148,6 +149,10 @@ const Login = ({navigation}) => {
         console.log(name);
 
         await AsyncStorage.setItem('jwtToken', json_data.jwt);
+        
+        // Set login time for auto-logout
+        const currentLoginTime = Date.now();
+        setLoginTime(currentLoginTime);
         
         // Record login activity
         try {

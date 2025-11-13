@@ -21,7 +21,7 @@ import {AuthContext} from '../contexts/auth';
 import DataResultsContext from '../contexts/DataResultsContext';
 import CopyRight from '../copyright';
 const Dashboard = ({navigation}) => {
-  const {setTokens, setUser} = React.useContext(AuthContext);
+  const {setTokens, setUser, setLoginTime} = React.useContext(AuthContext);
   const {userNames} = useContext(DataResultsContext);
 
   return (
@@ -134,6 +134,7 @@ const Dashboard = ({navigation}) => {
             style={STYLES.logoutCard}
             onPress={() => {
               setTokens(null);
+              setLoginTime(null);
               signOut(setUser);
             }}>
             <View style={STYLES.cardIcon}>
