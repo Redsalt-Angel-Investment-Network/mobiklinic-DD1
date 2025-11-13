@@ -72,7 +72,7 @@ const Login = ({navigation}) => {
     }
   };
 
-  const signIn = async () {
+  const signIn = async () => {
     clearStorage();
     let {identifier, password} = user;
 
