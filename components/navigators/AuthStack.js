@@ -54,6 +54,7 @@ import DoctorLogin from '../screens/DoctorLogin';
 import DoctorDashboard from '../screens/DoctorDashboard';
 import DoctorChatScreen from '../screens/DoctorChatScreen';
 import RoleSelection from '../screens/RoleSelection';
+import EmergencyReport from '../screens/EmergencyReport';
 
 const Stack = createStackNavigator();
 
@@ -74,6 +75,11 @@ function AuthStack() {
         name="Ambulances"
         options={{headerShown: false}}
         component={Ambulances}
+      />
+      <Stack.Screen
+        name="EmergencyReport"
+        options={{headerShown: false}}
+        component={EmergencyReport}
       />
       {/* <Stack.Screen
         name="Diagnose"

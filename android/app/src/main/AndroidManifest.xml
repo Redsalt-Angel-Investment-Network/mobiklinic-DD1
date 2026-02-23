@@ -9,6 +9,13 @@
     <!-- Camera permission -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+    </queries>
+
     <uses-sdk tools:overrideLibrary="com.simprints.libsimprints"/>
 
     <application

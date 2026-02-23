@@ -54,6 +54,21 @@ const Dashboard = ({navigation}) => {
         contentContainerStyle={{flexGrow: 1, paddingBottom: 20}}
         showsVerticalScrollIndicator={false}
       >
+        <View style={STYLES.emergencyContainer}>
+          <TouchableOpacity
+            style={STYLES.emergencyCard}
+            onPress={() => navigation.navigate('EmergencyReport')}>
+            <View style={STYLES.emergencyIconBox}>
+              <MIcon name="alert-decagram" size={40} color={COLORS.WHITE} />
+            </View>
+            <View style={STYLES.emergencyTextContainer}>
+              <Text style={STYLES.emergencyTitle}>REPORT EMERGENCY</Text>
+              <Text style={STYLES.emergencySubtitle}>Tap for immediate help</Text>
+            </View>
+            <Icon name="chevron-right" size={25} color={COLORS.WHITE} />
+          </TouchableOpacity>
+        </View>
+
         <View style={STYLES.container}>
         <View style={STYLES.column}>
           <TouchableOpacity
@@ -194,6 +209,41 @@ const STYLES = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 10,
     minHeight: 400,
+  },
+  emergencyContainer: {
+    paddingHorizontal: 20,
+    marginTop: 15,
+  },
+  emergencyCard: {
+    backgroundColor: '#D32F2F',
+    borderRadius: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  emergencyIconBox: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: 10,
+    borderRadius: 12,
+  },
+  emergencyTextContainer: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  emergencyTitle: {
+    color: COLORS.WHITE,
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 1,
+  },
+  emergencySubtitle: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
   },
   column: {
     flex: 1,
