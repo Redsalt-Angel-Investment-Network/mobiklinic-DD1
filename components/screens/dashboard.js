@@ -62,8 +62,8 @@ const Dashboard = ({navigation}) => {
               <MIcon name="alert-decagram" size={40} color={COLORS.WHITE} />
             </View>
             <View style={STYLES.emergencyTextContainer}>
-              <Text style={STYLES.emergencyTitle}>REPORT EMERGENCY</Text>
-              <Text style={STYLES.emergencySubtitle}>Tap for immediate help</Text>
+              <Text style={STYLES.emergencyTitle}>TOLL FREE LINE</Text>
+              <Text style={STYLES.emergencySubtitle}>Tap to access number</Text>
             </View>
             <Icon name="chevron-right" size={25} color={COLORS.WHITE} />
           </TouchableOpacity>

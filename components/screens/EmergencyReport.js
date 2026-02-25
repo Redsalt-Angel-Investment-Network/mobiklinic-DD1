@@ -71,7 +71,7 @@ const EmergencyReport = ({navigation}) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={25} color={COLORS.BLACK} />
         </TouchableOpacity>
-        <Text style={STYLES.headerTitle}>Report Emergency</Text>
+        <Text style={STYLES.headerTitle}>TOLL FREE LINE</Text>
       </View>
 
       <View style={STYLES.content}>
