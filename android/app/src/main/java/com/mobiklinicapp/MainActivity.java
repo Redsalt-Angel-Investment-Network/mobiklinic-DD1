@@ -1,5 +1,9 @@
 package com.mobiklinicapp;
 
+import android.os.Bundle;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
@@ -14,6 +18,18 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "MobiKlinic";
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    // Android 16 (targetSdk 36) enforces edge-to-edge. Pad the root so existing
+    // RN screens are not drawn under the status/navigation bars.
+    ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, windowInsets) -> {
+      Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+      v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+      return WindowInsetsCompat.CONSUMED;
+    });
   }
 
   /**

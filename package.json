@@ -95,5 +95,8 @@
   "jest": {
     "preset": "react-native"
   },
-  "packageManager": "yarn@3.5.0+sha512.2dc70be5fce9f66756d25b00a888f3ca66f86b502b76750e72ba54cec89da767b938c54124595e26f868825688e0fe3552c26c76a330673343057acadd5cfcf2"
+  "packageManager": "yarn@3.5.0+sha512.2dc70be5fce9f66756d25b00a888f3ca66f86b502b76750e72ba54cec89da767b938c54124595e26f868825688e0fe3552c26c76a330673343057acadd5cfcf2",
+  "resolutions": {
+    "react-native-screens@^3.20.0": "patch:react-native-screens@npm%3A3.20.0#./.yarn/patches/react-native-screens-npm-3.20.0-a559393270.patch"
+  }
 }

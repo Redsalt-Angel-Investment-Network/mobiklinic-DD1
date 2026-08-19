@@ -98,9 +98,9 @@ android {
     defaultConfig {
         applicationId "com.mobiklinicapp"
         minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion 35
-        versionCode 22
-        versionName "22.0"
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 23
+        versionName "23.0"
         multiDexEnabled true
     }
 

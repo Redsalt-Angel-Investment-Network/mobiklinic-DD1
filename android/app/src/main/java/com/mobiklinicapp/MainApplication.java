@@ -1,5 +1,12 @@
 package com.mobiklinicapp;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
+import android.os.Handler;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
@@ -48,6 +55,32 @@ public class MainApplication extends Application implements ReactApplication {
   @Override
   public ReactNativeHost getReactNativeHost() {
     return mReactNativeHost;
+  }
+
+  @Override
+  protected void attachBaseContext(Context base) {
+    super.attachBaseContext(new ContextWrapper(base) {
+      @Override
+      public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+          return super.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        }
+        return super.registerReceiver(receiver, filter);
+      }
+
+      @Override
+      public Intent registerReceiver(
+          BroadcastReceiver receiver,
+          IntentFilter filter,
+          String broadcastPermission,
+          Handler scheduler) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+          return super.registerReceiver(
+              receiver, filter, broadcastPermission, scheduler, Context.RECEIVER_NOT_EXPORTED);
+        }
+        return super.registerReceiver(receiver, filter, broadcastPermission, scheduler);
+      }
+    });
   }
 
   @Override
